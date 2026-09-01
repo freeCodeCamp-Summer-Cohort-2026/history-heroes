@@ -57,14 +57,6 @@
           "arguments": ["--stdin-filepath", "{buffer_path}"]
         }
       }
-    },
-    "Markdown": {
-      "formatter": {
-        "external": {
-          "command": "prettier",
-          "arguments": ["--stdin-filepath", "{buffer_path}"]
-        }
-      }
     }
   },
   "lsp": {

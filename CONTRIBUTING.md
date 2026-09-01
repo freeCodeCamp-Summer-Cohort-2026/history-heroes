@@ -22,12 +22,29 @@ Both the front-end and back-end projects use the same node version for simplicit
 
 Install dependencies for both the client and server, from the **root of the project use**:
 
+Install the top level dependencies, these are primarily there for git hooks and Zed and VSCode editor support.
+
 ```bash
+npm install
+```
+
+Then move into the client folder
+
+```bash
+# change directory into the nested client server
 cd client
 npm install
 ```
 
+Finally move back to the root, and then into the server folder
+
 ```bash
+# backing out of client
+cd ..
+```
+
+```bash
+# change directory into server
 cd server
 npm install
 ```
@@ -39,6 +56,7 @@ You will need **two terminals**, one for the client and one for the server.
 To start the `client` project in dev mode
 
 ```bash
+# from the root of the project, go into the client folder
 cd client
 npm run dev
 ```
@@ -46,6 +64,7 @@ npm run dev
 To start the `server` project in dev mode
 
 ```bash
+# from the root of the project, go into the server folder
 cd server
 npm run dev
 ```
