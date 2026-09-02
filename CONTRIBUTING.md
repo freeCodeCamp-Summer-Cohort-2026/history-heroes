@@ -14,7 +14,12 @@ The project is a full stack application built out of a single repository. Due to
 
 ### nvm - node-version-manager
 
-To run the project locally its recommended to have [nvm](https://github.com/nvm-sh/nvm) installed on your system which can then manage/download the correct/same node version for the project simply by running `nvm use` in the project root.
+To run the project locally, it is recommended to have [nvm](https://github.com/nvm-sh/nvm) installed. From the root of the project, install and select the project's Node version:
+
+```bash
+nvm install
+nvm use
+```
 
 Both the front-end and back-end projects use the same node version for simplicity, its recommended to use **two** terminal instances, one for front-end and one for back-end development where they both run at the same time.
 
