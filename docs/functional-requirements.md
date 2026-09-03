@@ -1,20 +1,31 @@
 # Functional Requirements
 
-## Module
+## Overall
+ - The learner will be able to create and log into their account, which will save their progress in the modules. Issue #16
+ - All modules will be visible either (1) directly from the Home/Dashboard page, or (2) a dedicated Modules page, which would be accessible from the Home/Dashboard page.
+ - All modules will be accessible and completable in any order. No module will be a prerequisite for any other module. Issue #1
+
+## Modules
+ - The learner must be able to view the contents of an individual module.
+ - Each module will contain one or more tutorials and one or more labs. 
+ - Each module's tutorials and labs will be progressive, i.e. the learner completes them in a specific order. Issue #2
+ - When the learner views the contents of a module, there must be an indicator of where the learner is in the sequence.
 
 ### Lessons
-- User scrolls down the fact → clicks on "next" button → user is taken to next world wonder (proposed, needs review) 
-- User reaches 7/7 world wonder fact → clicks on "next" button → user is taken to tutorial
+ - Each tutorial will contain both (1) text content which is passively read, and (2) one or more activities which are interactively completed by the learner. Issue #3
+ - Each tutorial's activities will be embedded in the same page as the tutorial's text content. Navigating to a tutorial's activity may require no action except scrolling the page. Issues #5, #6
+ - Each tutorial's activities must be completed in a predefined order tied to the lesson.
+- User reaches final lesson → clicks on "continue" button → user is taken to next lesson/lab in the module
 
-#### Tutorial (guided activity) (proposed, needs review) 
-- User reads question → chooses answer  → scrolls down to next question
-- User reaches final question  → chooses answer  → clicks "submit" button
-- If one or more answer(s) incorrect  → shows red outline on wrong answer(s) and a hint that points towards the right answer → user chooses new answer(s) [Addresses issue #11]
-- If all answers correct  → user is taken to Lab
+### Lab (challenge)
+ - Each lab will contain one or more activities.
+ - Each lab will be considered complete when all of its activities are completed.
 
-#### Lab (challenge)
-- User reads instructions "match name of the wonder to its image" → user matches names to images → clicks "submit" button [Addresses issue #12]
-- If assignment done incorrectly → shows fixed message "something's not right" → user clicks the message → message disappears → user rematches images to names → user clicks "submit" button  [Addresses issue #11] (proposed, needs review) 
+### Activity (proposed, needs review)
+- Each activity must include completion criteria.
+- User reads instruction "order the events" and the available events → clicks and drag each event into order → user clicks "check answer" button [Addresses issues #3 and #5]
+- If one or more position(s) is incorrect  → shows red "X" mark besides wrong answer(s) + a pop-up saying "try again" → user rearranges answer [Addresses issue #11]
+- If all answers correct  → pop-up saying "correct"  → user clicks on "next" button → user is taken to next lesson
 
 ## Open Questions
 - Is each wonder a different lesson?
