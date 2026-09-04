@@ -1,7 +1,10 @@
 import { Controller, Get } from '@nestjs/common';
+import { UsersService } from './users.service';
 
 @Controller('users')
 export class UsersController {
+  constructor(private readonly usersService: UsersService) {}
+
   /**
    * The primary/only "get" route that returns the user data for the current authenticated users. This should be used in conjunction code with the authentication middleware to ensure that the user is authenticated before accessing this route.
    *
@@ -14,15 +17,7 @@ export class UsersController {
    */
   @Get('me')
   public getMe() {
-    // TODO: this doesn't check anything, just returns a placeholder.
-    // the type isn't defined either!
-    return {
-      id: 1, // This is the most important thing.
-      username: 'test-user',
-      // note, email and password are **of course** not returned.
-      // emails are not verified, we just use them as a unique identifier.
-      //
-    };
+    return this.usersService.getMe();
   }
 
   // **note** other future use-case would be a delete

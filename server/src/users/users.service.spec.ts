@@ -15,4 +15,13 @@ describe('UsersService', () => {
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
+
+  describe('getMe', () => {
+    it('should return mock user data', () => {
+      expect(service.getMe()).toEqual({
+        id: 1,
+        username: 'test-user',
+      });
+    });
+  });
 });
