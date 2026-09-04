@@ -10,7 +10,7 @@ export class UsersController {
    *
    * On the front-end this route should be called on page load to get the user data and store it in the front-end.
    *
-   * This can be loaded at: https://localhost:3000/users/me
+   * This can be loaded at: https://localhost:3000/api/v1/users/me
    *
    * TODO: add authentication guards (not middleware in nestjs), see:
    * https://docs.nestjs.com/guards

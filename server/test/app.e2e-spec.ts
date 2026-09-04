@@ -13,12 +13,13 @@ describe('AppController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.setGlobalPrefix('api/v1');
     await app.init();
   });
 
-  it('/hello-world (GET)', () => {
+  it('/api/v1/hello-world (GET)', () => {
     return request(app.getHttpServer())
-      .get('/hello-world')
+      .get('/api/v1/hello-world')
       .expect(200)
       .expect('Hello World!');
   });

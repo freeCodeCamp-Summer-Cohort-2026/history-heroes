@@ -7,7 +7,7 @@ export class AppController {
 
   /**
    * Example endpoint, can be loaded from:
-   * https://localhost:3000/hello-world
+   * https://localhost:3000/api/v1/hello-world
    *
    */
   @Get('hello-world')
