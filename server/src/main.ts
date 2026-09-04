@@ -13,11 +13,7 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
 
-  const port = configService.get<number>('PORT', 3000);
-  const databaseUrl = configService.get<string>('DATABASE_URL');
-
-  // TODO: Remove temporary DATABASE_URL startup log once SQLite is onboarded, this is just an example of using the config service, and getting stuff from "outside" of nest
-  logger.log(`DATABASE_URL: ${databaseUrl}`);
+  const port = parseInt(configService.get<string>('PORT', '3000'), 10);
 
   await app.listen(port);
   logger.log(`Application is running on port: ${port}`);
