@@ -1,15 +1,15 @@
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import TutorialList from './components/TutorialList'
+import LessonView from './components/LessonView'
+
 function App() {
   return (
-    <main>
-      <div>
-        <button
-          type="button"
-          className="btn btn-xs sm:btn-sm md:btn-md lg:btn-lg xl:btn-xl btn-primary"
-        >
-          Hello world button!
-        </button>
-      </div>
-    </main>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/tutorials" element={<TutorialList />} />
+        <Route path="/lesson/:id" element={<LessonView />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
 
