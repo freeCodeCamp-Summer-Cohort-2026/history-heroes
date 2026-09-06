@@ -26,6 +26,18 @@ describe('AppController (e2e)', () => {
       .expect('Hello World!');
   });
 
+  it('/api/v1/users/me (GET)', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/api/v1/users/me')
+      .expect(200);
+
+    expect(response.body).toHaveProperty('id');
+    expect(response.body.username).toBe('test-user');
+    expect(response.body.email).toBe('test@historyheroes.org');
+    // Ensure password is not exposed
+    expect(response.body.password).toBeUndefined();
+  });
+
   afterEach(async () => {
     await app.close();
   });
