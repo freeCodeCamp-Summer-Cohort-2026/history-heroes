@@ -18,6 +18,8 @@ This document outlines the functional requirements of `history-heroes`. It is ro
 2. Each module will contain data regarding its subject matter (period, theme, etc.). [[#1](https://github.com/freeCodeCamp-Summer-Cohort-2026/history-heroes/issues/1)]
 3. Each module will contain one or more lessons and one or more labs.
 4. Each module's lessons will be progressive, i.e. the learner must complete them in a specific order. [[#2](https://github.com/freeCodeCamp-Summer-Cohort-2026/history-heroes/issues/2)]
+   - The learner cannot access any given lesson until its preceding lesson is completed (partial or incomplete work does not count). The only exception is the first lesson of a module, which is initially available for the learner to complete.
+   - Completed lessons will remain available for the learner to review.
 5. When the learner views the contents of a module, there must be an indicator of where the learner is in the sequence.
 
 ## Lessons
