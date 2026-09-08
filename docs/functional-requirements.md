@@ -1,6 +1,6 @@
 # Functional Requirements
 
-This document outlines the functional requirements of `history-heroes`. It is roughly organized by database entity. The terms "lesson" and "tutorial" are interchangeable.
+This document outlines the functional requirements of `history-heroes`. It is roughly organized by database entity. The term "lesson" *replaces* Hikari's use of "tutorial" in the core issues.
 
 **Note: All numbers in brackets are references to Hikari's user stories as GitHub issue numbers.**
 
@@ -16,20 +16,20 @@ This document outlines the functional requirements of `history-heroes`. It is ro
 
 - The learner must be able to view the contents of an individual module.
 - Each module will contain data regarding its subject matter (period, theme, etc.). [#1]
-- Each module will contain one or more tutorials and one or more labs.
-- Each module's tutorials will be progressive, i.e. the learner must complete them in a specific order. [#2]
+- Each module will contain one or more lessons and one or more labs.
+- Each module's lessons will be progressive, i.e. the learner must complete them in a specific order. [#2]
 - When the learner views the contents of a module, there must be an indicator of where the learner is in the sequence.
 
 ## Lessons
 
-- Each tutorial will contain both (1) text content which is passively read, and (2) one or more activities which are interactively completed by the learner. [#3]
-- Each tutorial's activities will be embedded in the same page as the tutorial's text content. Navigating to a tutorial's activity may require no action except scrolling the page. [#5, #6]
-- Each tutorial's activities must be completed in a predefined order tied to the lesson.
+- Each lesson will contain both (1) text content which is passively read, and (2) one or more activities which are interactively completed by the learner. [#3]
+- Each lesson's activities will be embedded in the same page as the lesson's text content. Navigating to a lesson's activity may require no action except scrolling the page. [#5, #6]
+- Each lesson's activities must be completed in a predefined order tied to the lesson.
 - Each lesson will be completable. When a learner completes a lesson, they will be given options to move to the next lesson in the module, or to exit to viewing the overall module's contents.
 
 ## Lab
 
-- Each lab will only require facts already covered in a prior tutorial within its parent module. [#13]
+- Each lab will only require facts already covered in a prior lesson within its parent module. [#13]
 - Each lab will contain one or more activities.
 - Each lab will be considered complete when all of its activities are completed.
 
@@ -56,9 +56,9 @@ This document outlines the functional requirements of `history-heroes`. It is ro
 
 - Are a module's labs progressive alongside its lessons, or will labs follow a different structure?
 - Can learners skip ahead?
-- Can learners return to earlier tutorials?
-- What counts as completing a tutorial?
-- How is the next tutorial identified?
+- Can learners return to earlier lessons?
+- What counts as completing a lesson?
+- How is the next lesson identified?
 - What characteristics should an activity's check statement possess?
 - Must the workspace support controls other than dragging?
 - Is there only one activity per module or is it one per lesson?
