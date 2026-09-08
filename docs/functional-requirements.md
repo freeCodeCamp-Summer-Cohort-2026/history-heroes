@@ -17,7 +17,7 @@ This document outlines the functional requirements of `history-heroes`. It is ro
 - The learner must be able to view the contents of an individual module.
 - Each module will contain data regarding its subject matter (period, theme, etc.). [#1]
 - Each module will contain one or more tutorials and one or more labs.
-- Each module's tutorials and labs will be progressive, i.e. the learner must complete them in a specific order. [#2]
+- Each module's tutorials will be progressive, i.e. the learner must complete them in a specific order. [#2]
 - When the learner views the contents of a module, there must be an indicator of where the learner is in the sequence.
 
 ## Lessons
@@ -46,6 +46,7 @@ This document outlines the functional requirements of `history-heroes`. It is ro
 
 ## Open Questions
 
+- Are a module's labs progressive alongside its lessons, or will labs follow a different structure?
 - Can learners skip ahead?
 - Can learners return to earlier tutorials?
 - What counts as completing a tutorial?
