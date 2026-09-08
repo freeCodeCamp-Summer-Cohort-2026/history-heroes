@@ -42,8 +42,9 @@ This document outlines the functional requirements of `history-heroes`. It is ro
 - An activity's feedback text will meet two requirements [#9]:
   - It will specifically address the error the learner made, e.g. "The Pyramids of Giza are not in China," rather than a generic "Correct" or "Incorrect."
   - It must not instruct the learner exactly what to do. (For example, feedback text of "Match the Pyramids of Giza with Egypt" would break this requirement.)
-- Learner must interact with activity (e.g.: arrange, match, place) inside an interactive workspace. Example: Activity contains events (represented as cards) to put on a timeline UI → learner clicks and drags each event into order → learner clicks "check answer" button [#3, #5]
-- Activity must offer immediate feedback upon learner's input (e.g.: learner reads instruction to order the available events → clicks on an event and place it on the timeline → if correct, event snaps into place. If incorrect, event goes back to default position.) This must not cause the learner to leave or reload the page. [#3, #6]
+- Learner must interact with activity (e.g.: arrange, match, place) inside an interactive workspace. Example: activity contains events (represented as cards) to put on a timeline UI → learner clicks and drags each event into order. [#3, #5]
+- The interactive workspace of each activity must include immediate UI effects triggered by interaction, e.g. a card representing an event may snap into place on a timeline interface when the learner clicks and drags it to a spot on the timeline. Such interactivity must not cause the learner to leave or reload the page. (Such interactivity does not need to include correctness evaluation.) [#6]
+- Each activity's interface must include a mechanism for the learner to attempt to complete the activity, which will trigger a correctness evaluation.
 
 ## Open Questions
 
