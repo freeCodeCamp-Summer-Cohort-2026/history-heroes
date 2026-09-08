@@ -61,6 +61,5 @@ This document outlines the functional requirements of `history-heroes`. It is ro
 - How is the next lesson identified?
 - What characteristics should an activity's check statement possess?
 - Must the workspace support controls other than dragging?
-- Is there only one activity per module or is it one per lesson?
 - Is there only one lab per module?
 - Can the content author directly define success criteria for new activities tied to lessons (or labs)?
