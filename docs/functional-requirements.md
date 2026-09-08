@@ -6,8 +6,8 @@ This document outlines the functional requirements of `history-heroes`. It is ro
 
 ## Overall
 
-- The learner will be able to create and log into their account, which will save their progress in the modules. [#16]
-- The learner will be able to pause and resume progress in any module or lesson. [#16]
+- The learner will be able to create and log into their account. [#16]
+- The learner's completed lessons and labs are saved to their account. The learner may resume progress in any module at the point of their last completed lesson/lab. [#16]
 - All modules will be visible as a list from one page (whether that is a dedicated modules page, or a home page).
 - All modules will be accessible and completable in any order. No module will be a prerequisite for any other module. [#1]
 - The learner must be able to choose a module based on its time period or theme. [#1]
