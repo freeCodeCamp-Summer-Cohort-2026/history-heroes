@@ -38,7 +38,7 @@ This document outlines the functional requirements of `history-heroes`. It is ro
 - Each activity must include completion criteria.
 - Each activity must include a description of its task/goal and how its items can be used, e.g. "Arrange the events in chronological order on this timeline." The description must never supply a step-by-step list of instructions, e.g. "Click and drag the US Constitution to the second slot in the timeline." [#12]
 - When the learner attempts to complete an activity, the activity will show a plain-language statement of what it checks (its "check statement"). This statement will be shown regardless of whether the learner's attempt is successful. [#8]
-- When a learner either (1) is in the process of completing an activity or (2) has made an attempt at completing it (possibly depending on its implementation), the activity should (at least) use colors and feedback text to convey whether or not the learner has has met the activity's completion criteria. [#11]
+- When the learner attempts to complete an activity, the activity must (at least) use colors and feedback text to convey whether or not the learner has met the activity's completion criteria. [#11]
 - An activity's feedback text will meet two requirements [#9]:
   - It will specifically address the error the learner made, e.g. "The Pyramids of Giza are not in China," rather than a generic "Correct" or "Incorrect."
   - It must not instruct the learner exactly what to do. (For example, feedback text of "Match the Pyramids of Giza with Egypt" would break this requirement.)
