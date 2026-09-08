@@ -46,6 +46,12 @@ This document outlines the functional requirements of `history-heroes`. It is ro
 - The interactive workspace of each activity must include immediate UI effects triggered by interaction, e.g. a card representing an event may snap into place on a timeline interface when the learner clicks and drags it to a spot on the timeline. Such interactivity must not cause the learner to leave or reload the page. (Such interactivity does not need to include correctness evaluation.) [#6]
 - Each activity's interface must include a mechanism for the learner to attempt to complete the activity, which will trigger a correctness evaluation.
 
+## Content Author (Stretch)
+
+- The content author will be able to create and log into their account.
+- The content author will be able to create modules, lessons, labs, and activities.
+- The same interface which the content author uses to create a new lesson must also allow the content author to define success criteria for the new lesson. [#20]
+
 ## Open Questions
 
 - Are a module's labs progressive alongside its lessons, or will labs follow a different structure?
@@ -57,3 +63,4 @@ This document outlines the functional requirements of `history-heroes`. It is ro
 - Must the workspace support controls other than dragging?
 - Is there only one activity per module or is it one per lesson?
 - Is there only one lab per module?
+- Can the content author directly define success criteria for new activities tied to lessons (or labs)?
