@@ -57,7 +57,7 @@ This document outlines the functional requirements of `history-heroes`. It is ro
 ## Open Questions
 
 - Are a module's labs progressive alongside its lessons, or will labs follow a different structure?
-- Can learners skip ahead?
+- Is there a way for learners to mark lesson(s) as complete and unlock the following one(s) without going through each lesson from start to finish?
 - Can learners return to earlier lessons?
 - What counts as completing a lesson?
 - How is the next lesson identified?
