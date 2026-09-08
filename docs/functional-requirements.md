@@ -4,7 +4,7 @@ This document outlines the functional requirements of `history-heroes`. It is ro
 
 **Note: All numbers in brackets are references to Hikari's user stories as GitHub issue numbers.**
 
-## Overall
+## General
 
 - The learner will be able to create and log into their account. [#16]
 - The learner's completed lessons and labs are saved to their account. The learner may resume progress in any module at the point of their last completed lesson/lab. [#16]
