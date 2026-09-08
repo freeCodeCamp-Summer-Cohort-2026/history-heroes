@@ -29,13 +29,13 @@ This document outlines the functional requirements of `history-heroes`. It is ro
 3. Each lesson's activities must be completed in a predefined order tied to the lesson.
 4. Each lesson will be completable. When a learner completes a lesson, they will be given options to move to the next lesson in the module, or to exit to viewing the overall module's contents.
 
-## Lab
+## Labs
 
 1. Each lab will only require facts already covered in a prior lesson within its parent module. [[#13](https://github.com/freeCodeCamp-Summer-Cohort-2026/history-heroes/issues/13)]
 2. Each lab will contain one or more activities.
 3. Each lab will be considered complete when all of its activities are completed.
 
-## Activity
+## Activities
 
 1. Each activity must include completion criteria.
 2. Each activity must include a description of its task/goal and how its items can be used, e.g. "Arrange the events in chronological order on this timeline." The description must never supply a step-by-step list of instructions, e.g. "Click and drag the US Constitution to the second slot in the timeline." [[#12](https://github.com/freeCodeCamp-Summer-Cohort-2026/history-heroes/issues/12)]
@@ -57,7 +57,7 @@ This document outlines the functional requirements of `history-heroes`. It is ro
 ## Open Questions
 
 - Are a module's labs progressive alongside its lessons, or will labs follow a different structure?
-- Is there a way for learners to mark lesson(s) as complete and unlock the following one(s) without going through each lesson from start to finish?
+- Is there a way for learners to mark lesson(s) as complete and unlock the following one(s) without going through the lesson from start to finish?
 - Can learners return to earlier lessons?
 - What counts as completing a lesson?
 - How is the next lesson identified?
