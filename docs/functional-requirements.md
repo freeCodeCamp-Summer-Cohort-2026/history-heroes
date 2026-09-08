@@ -25,7 +25,7 @@ This document outlines the functional requirements of `history-heroes`. It is ro
 - Each tutorial will contain both (1) text content which is passively read, and (2) one or more activities which are interactively completed by the learner. [#3]
 - Each tutorial's activities will be embedded in the same page as the tutorial's text content. Navigating to a tutorial's activity may require no action except scrolling the page. [#5, #6]
 - Each tutorial's activities must be completed in a predefined order tied to the lesson.
-- User reaches final lesson → clicks on "continue" button → user is taken to next lesson/lab in the module
+- Each lesson will be completable. When a learner completes a lesson, they will be given options to move to the next lesson in the module, or to exit to viewing the overall module's contents.
 
 ## Lab
 
