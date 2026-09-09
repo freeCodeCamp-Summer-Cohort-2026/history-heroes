@@ -37,6 +37,8 @@ If there's already users in the database none of the seeding logic should be exe
 
 **note**: Passwords in `data/seeds/initial-users.json` are stored as plaintext, this needs to be fixed with **some** encryption **during** the hackathon, but left as-is for this PR.
 
+Seeding only runs against a database that has no users in it, so an existing database will not pick up changes to the seed JSON files. After editing any seed data, delete and re-create the database using the steps below.
+
 ### delete and re-create the database
 
 To delete and re-create the database, you just need to delete the sqlite database file, and start the server again. The seeding process is part of the server startup, so it will re-create the database and seed it again.
