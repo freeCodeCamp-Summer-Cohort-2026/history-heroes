@@ -1,6 +1,8 @@
 words = [
+    "Dto",
     "FRP",
     "Fastify",
     "OOP",
     "nvm",
+    "zod",
 ]

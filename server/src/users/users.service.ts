@@ -1,19 +1,28 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
+  constructor(
+    @InjectRepository(User)
+    private readonly usersRepository: Repository<User>,
+  ) {}
+
   /**
-   * Returns mock user data for the current user placeholder.
+   * Returns user data for the current authenticated user.
+   * Currently retrieves the seeded 'test-user' until auth guards are implemented.
    */
-  getMe() {
-    // TODO: this doesn't check anything, just returns a placeholder.
-    // the type isn't defined either!
-    return {
-      id: 1, // This is the most important thing.
-      username: 'test-user',
-      // note, email and password are **of course** not returned.
-      // emails are not verified, we just use them as a unique identifier.
-      //
-    };
+  async getMe(): Promise<User> {
+    const user = await this.usersRepository.findOne({
+      where: { username: 'test-user' },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return user;
   }
 }

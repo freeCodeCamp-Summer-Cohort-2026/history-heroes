@@ -1,0 +1,14 @@
+{
+  "users": [
+    {
+      "username": "admin-hero",
+      "email": "admin@historyheroes.org",
+      "password": "local-dev-only"
+    },
+    {
+      "username": "test-user",
+      "email": "test@historyheroes.org",
+      "password": "local-dev-only"
+    }
+  ]
+}

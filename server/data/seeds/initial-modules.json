@@ -1,0 +1,10 @@
+{
+  "modules": [
+    {
+      "id": "seven-wonders",
+      "title": "Seven Wonders",
+      "description": "Learn and explore the 7 ancient wonders of the world.",
+      "order": 1
+    }
+  ]
+}
