@@ -7,5 +7,9 @@ export default defineConfig({
     globals: true,
     root: './',
     include: ['**/*.e2e-spec.ts'],
+    globalSetup: ['./test/global-setup.e2e.ts'],
+    env: {
+      DATABASE_STORAGE: 'data/test.sqlite',
+    },
   },
 });

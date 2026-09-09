@@ -33,15 +33,19 @@ function normalizeToBoolean(val: string | boolean | unknown): boolean {
           fs.mkdirSync(dir, { recursive: true });
         }
 
+        const nodeEnv = configService.get<string>('NODE_ENV')?.toLowerCase();
+        const isDevOrTest = nodeEnv === 'development' || nodeEnv === 'test';
+
         return {
           type: 'better-sqlite3',
           database: resolvedPath,
           autoLoadEntities: true,
-          // **note** this should be only used locally, when in production if this is true the database could/would lose data
+          // Auto-synchronize schema by default only in development and test environments.
+          // Outside dev/test (e.g. production), it defaults to false to prevent accidental schema changes or data loss.
           synchronize: normalizeToBoolean(
-            configService.get('DATABASE_SYNCHRONIZE', true),
+            configService.get('DATABASE_SYNCHRONIZE', isDevOrTest),
           ),
-          logging: configService.get<string>('NODE_ENV') === 'development',
+          logging: nodeEnv === 'development',
         };
       },
     }),
