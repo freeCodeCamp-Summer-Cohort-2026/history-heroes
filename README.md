@@ -9,6 +9,7 @@ Full stack web app for freeCodeCamp-Summer-Cohort-2026
 -->
 - [kaymade](https://github.com/kaymade) - team lead
 - [bradtaniguchi](https://github.com/bradtaniguchi) - developer
+- [tanveenk](https://github.com/tanveenk) - developer
 
 ## Getting Started
 
