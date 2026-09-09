@@ -35,7 +35,9 @@ To help setup the database during local development the app has code that "seeds
 
 If there's already users in the database none of the seeding logic should be executed.
 
-**note**: Passwords in `data/seeds/initial-users.json` are stored as plaintext, this needs to be fixed with **some** encryption **during** the hackathon, but left as-is for this PR.
+Seeding only runs against a database that has no users in it, so an existing database will not pick up changes to the seed JSON files. After editing any seed data, delete and re-create the database using the steps below.
+
+**note**: Passwords in `data/seeds/initial-users.json` are stored as plaintext and are placeholders, not real credentials. Password hashing is tracked in #46 and is not required for Core, since Core does not implement a login flow.
 
 ### delete and re-create the database
 
