@@ -1,3 +1,7 @@
+import { useParams } from 'react-router-dom'
+
 export default function ModulePage() {
-  return <h1>Module</h1>
+  const { moduleId } = useParams()
+
+  return <h1>Module: {moduleId}</h1>
 }
