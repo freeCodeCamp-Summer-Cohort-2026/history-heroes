@@ -71,3 +71,15 @@ export default defineConfig([
   },
 ])
 ```
+
+## Running client tests
+
+The client uses Vitest, React Testing Library, Jest-DOM and jsdom for component testing.
+
+To run the test suite:
+
+```bash
+cd client
+npm install
+npm test
+```
