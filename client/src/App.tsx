@@ -1,36 +1,20 @@
-import { useEffect } from 'react'
+import { Routes, Route } from 'react-router-dom'
+import LessonPage from './pages/LessonPage'
+import ModuleCatalogPage from './pages/ModuleCatalogPage'
+import ModulePage from './pages/ModulePage'
+import NotFoundPage from './pages/NotFoundPage'
 
 function App() {
-  // this is just an example to verify the network call through the vite dev server proxy is working.
-  useEffect(() => {
-    fetch('/api/v1/hello-world')
-      .then(async (response) => {
-        const data = await response.text()
-        console.log(
-          'get hello world request, if you see this, the server is running/working!',
-          {
-            status: response.status,
-            statusText: response.statusText,
-            data,
-          },
-        )
-      })
-      .catch((error: unknown) => {
-        console.error('error calling hello-world example', error)
-      })
-  }, [])
-
   return (
-    <main>
-      <div>
-        <button
-          type="button"
-          className="btn btn-xs sm:btn-sm md:btn-md lg:btn-lg xl:btn-xl btn-primary"
-        >
-          Hello world button!
-        </button>
-      </div>
-    </main>
+    <Routes>
+      <Route path="/" element={<ModuleCatalogPage />} />
+      <Route path="/modules/:moduleId" element={<ModulePage />} />
+      <Route
+        path="/modules/:moduleId/lessons/:lessonId"
+        element={<LessonPage />}
+      />
+      <Route path="*" element={<NotFoundPage />} />
+    </Routes>
   )
 }
 
