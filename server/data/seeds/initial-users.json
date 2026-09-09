@@ -3,12 +3,12 @@
     {
       "username": "admin-hero",
       "email": "admin@historyheroes.org",
-      "password": "password123"
+      "password": "local-dev-only"
     },
     {
       "username": "test-user",
       "email": "test@historyheroes.org",
-      "password": "password123"
+      "password": "local-dev-only"
     }
   ]
 }
