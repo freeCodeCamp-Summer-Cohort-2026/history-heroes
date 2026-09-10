@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Session } from '@nestjs/common';
 import { SessionStoreService } from './session-store.service';
 import { LoginRequestDto, loginRequestSchema } from './dto/login-request.dto';
 import {
@@ -23,14 +23,20 @@ export class AuthController {
     return { message: 'logout' };
   }
 
+  /**
+   * test within nodejs IDLE instance with:
+   */
   @Post('register')
   register(@Body({ schema: registerRequestSchema }) body: RegisterRequestDto) {
     // TODO: use sessionStoreService,
     return { message: 'register' };
   }
 
+  /**
+   * Debug route that returns current session information.
+   */
   @Get('session')
-  getSession() {
-    return { message: 'get-session' };
+  getSession(@Session() session: Record<string, any>) {
+    return { session_info: session };
   }
 }
