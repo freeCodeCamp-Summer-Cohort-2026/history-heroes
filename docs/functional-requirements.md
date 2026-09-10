@@ -6,7 +6,7 @@ This document outlines the functional requirements of `history-heroes`. It is ro
 
 ## General
 
-1. The learner will be able to create and log into their account. [[#16](https://github.com/freeCodeCamp-Summer-Cohort-2026/history-heroes/issues/16)]
+1. The learner is identified by a stable account so their progress can be attributed to them. Core uses a seeded development learner resolved by the server; there is no login flow. Real authentication is tracked in [#71](https://github.com/freeCodeCamp-Summer-Cohort-2026/history-heroes/issues/71) and is out of scope for Core. [[#16](https://github.com/freeCodeCamp-Summer-Cohort-2026/history-heroes/issues/16)]
 2. The learner's completed lessons and labs are saved to their account. The learner may resume progress in any module at the point of their last completed lesson/lab. [[#16](https://github.com/freeCodeCamp-Summer-Cohort-2026/history-heroes/issues/16)]
 3. All modules will be visible as a list from one page (whether that is a dedicated modules page, or a home page).
 4. All modules will be accessible and completable in any order. No module will be a prerequisite for any other module. [[#1](https://github.com/freeCodeCamp-Summer-Cohort-2026/history-heroes/issues/1)]
@@ -16,7 +16,7 @@ This document outlines the functional requirements of `history-heroes`. It is ro
 
 1. The learner must be able to view the contents of an individual module.
 2. Each module will contain data regarding its subject matter (period, theme, etc.). [[#1](https://github.com/freeCodeCamp-Summer-Cohort-2026/history-heroes/issues/1)]
-3. Each module will contain one or more lessons and one or more labs.
+3. Each module will contain one or more lessons. A module may also contain one or more labs.
 4. Each module's lessons will be progressive, i.e. the learner must complete them in a specific order. [[#2](https://github.com/freeCodeCamp-Summer-Cohort-2026/history-heroes/issues/2)]
    - The learner cannot access any given lesson until its preceding lesson is completed (partial or incomplete work does not count). The only exception is the first lesson of a module, which is initially available for the learner to complete.
    - Completed lessons will remain available for the learner to review.
@@ -37,10 +37,10 @@ This document outlines the functional requirements of `history-heroes`. It is ro
 
 ## Activities
 
-1. Each activity must include completion criteria.
+1. Each activity must include success criteria.
 2. Each activity must include a description of its task/goal and how its items can be used, e.g. "Arrange the events in chronological order on this timeline." The description must never supply a step-by-step list of instructions, e.g. "Click and drag the US Constitution to the second slot in the timeline." [[#12](https://github.com/freeCodeCamp-Summer-Cohort-2026/history-heroes/issues/12)]
 3. When the learner attempts to complete an activity, the activity will show a plain-language statement of what it checks (its "check statement"). This statement will be shown regardless of whether the learner's attempt is successful. [[#8](https://github.com/freeCodeCamp-Summer-Cohort-2026/history-heroes/issues/8)]
-4. When the learner attempts to complete an activity, the activity must (at least) use colors and feedback text to convey whether or not the learner has met the activity's completion criteria. [[#11](https://github.com/freeCodeCamp-Summer-Cohort-2026/history-heroes/issues/11)]
+4. When the learner attempts to complete an activity, the activity must (at least) use colors and feedback text to convey whether or not the learner has met the activity's success criteria. [[#11](https://github.com/freeCodeCamp-Summer-Cohort-2026/history-heroes/issues/11)]
 5. An activity's feedback text will meet two requirements [[#9](https://github.com/freeCodeCamp-Summer-Cohort-2026/history-heroes/issues/9)]:
    - It will specifically address the error the learner made, e.g. "The Pyramids of Giza are not in China," rather than a generic "Correct" or "Incorrect."
    - It must not instruct the learner exactly what to do. (For example, feedback text of "Match the Pyramids of Giza with Egypt" would break this requirement.)
@@ -50,6 +50,8 @@ This document outlines the functional requirements of `history-heroes`. It is ro
 
 ## Content Author (Stretch)
 
+Note: the authored *format* for success criteria is Core and is specified in [#53](https://github.com/freeCodeCamp-Summer-Cohort-2026/history-heroes/issues/53). Only the content author's *interface* is Stretch.
+
 1. The content author will be able to create and log into their account.
 2. The content author will be able to create modules, lessons, labs, and activities.
 3. The same interface which the content author uses to create a new lesson must also allow the content author to define success criteria for the new lesson. [[#20](https://github.com/freeCodeCamp-Summer-Cohort-2026/history-heroes/issues/20)]
@@ -58,10 +60,4 @@ This document outlines the functional requirements of `history-heroes`. It is ro
 
 - Are a module's labs progressive alongside its lessons, or will labs follow a different structure?
 - Is there a way for learners to mark lesson(s) as complete and unlock the following one(s) without going through the lesson from start to finish?
-- Can learners return to earlier lessons?
-- What counts as completing a lesson?
-- How is the next lesson identified?
-- What characteristics should an activity's check statement possess?
-- Must the workspace support controls other than dragging?
 - Is there only one lab per module?
-- Can the content author directly define success criteria for new activities tied to lessons (or labs)?
