@@ -1,0 +1,136 @@
+{
+  "activities": [
+    {
+      "id": "order-pyramid-build-stages",
+      "type": "ordering",
+      "title": "Put the building stages in order",
+      "checkStatement": "This checks if you put the four building stages in the order they actually happened, starting with the very first thing the workers did.",
+      "content": {
+        "items": [
+          {
+            "id": "flatten-the-ground",
+            "label": "Flatten the ground and clear the site"
+          },
+          {
+            "id": "mine-and-move-stone",
+            "label": "Mine the stone from the quarries and move it to the building site"
+          },
+          {
+            "id": "build-the-core",
+            "label": "Build the core of the pyramid, piece by piece"
+          },
+          {
+            "id": "add-the-casing",
+            "label": "Add the smooth limestone casing over the outside"
+          }
+        ]
+      },
+      "successCriteria": {
+        "correctOrder": [
+          "flatten-the-ground",
+          "mine-and-move-stone",
+          "build-the-core",
+          "add-the-casing"
+        ]
+      }
+    },
+    {
+      "id": "order-hanging-gardens-evidence",
+      "type": "ordering",
+      "title": "Put the story of the evidence in order",
+      "checkStatement": "This checks if you put these four moments in the order they happened, starting with the oldest one.",
+      "content": {
+        "items": [
+          {
+            "id": "babylon-story",
+            "label": "A Babylonian king is said to build a garden for his wife"
+          },
+          {
+            "id": "greek-accounts",
+            "label": "Greek and Roman writers describe the gardens, centuries later"
+          },
+          {
+            "id": "babylon-excavation",
+            "label": "An excavation team digs up Babylon and finds no gardens"
+          },
+          {
+            "id": "nineveh-argument",
+            "label": "A modern scholar argues the gardens were really at Nineveh"
+          }
+        ]
+      },
+      "successCriteria": {
+        "correctOrder": [
+          "babylon-story",
+          "greek-accounts",
+          "babylon-excavation",
+          "nineveh-argument"
+        ]
+      }
+    },
+    {
+      "id": "match-lighthouse-parts",
+      "type": "matching",
+      "title": "Match each part of the lighthouse to its job",
+      "checkStatement": "This checks if you matched each part of the lighthouse with the job it did.",
+      "content": {
+        "left": [
+          {
+            "id": "square-base",
+            "label": "The square bottom section"
+          },
+          {
+            "id": "octagonal-middle",
+            "label": "The eight-sided middle section"
+          },
+          {
+            "id": "round-top",
+            "label": "The round top section"
+          },
+          {
+            "id": "polished-mirror",
+            "label": "The polished metal mirror"
+          }
+        ],
+        "right": [
+          {
+            "id": "rooms-and-ramp",
+            "label": "Held rooms for the workers and a ramp for hauling fuel"
+          },
+          {
+            "id": "higher-and-narrower",
+            "label": "Carried the tower higher and narrower"
+          },
+          {
+            "id": "held-the-fire",
+            "label": "Held the burning fire at the very top"
+          },
+          {
+            "id": "cast-the-light",
+            "label": "Cast the light out across the water"
+          }
+        ]
+      },
+      "successCriteria": {
+        "pairs": [
+          {
+            "left": "square-base",
+            "right": "rooms-and-ramp"
+          },
+          {
+            "left": "octagonal-middle",
+            "right": "higher-and-narrower"
+          },
+          {
+            "left": "round-top",
+            "right": "held-the-fire"
+          },
+          {
+            "left": "polished-mirror",
+            "right": "cast-the-light"
+          }
+        ]
+      }
+    }
+  ]
+}
