@@ -5,12 +5,17 @@ import { SessionStoreService } from './session-store.service';
 import { ConfigService } from '@nestjs/config';
 import session from 'express-session';
 import { AuthController } from './auth.controller';
+import { UsersModule } from '../users/users.module';
 
 /**
  * The Auth module provides session management, and authentication management.
  */
 @Module({
-  imports: [TypeOrmModule.forFeature([SessionEntity])],
+  imports: [
+    TypeOrmModule.forFeature([SessionEntity]),
+    // we require the users module for login and registration, but we don't want to create a circular dependency, so we import it here.
+    UsersModule,
+  ],
   providers: [SessionStoreService],
   exports: [SessionStoreService],
   controllers: [AuthController],

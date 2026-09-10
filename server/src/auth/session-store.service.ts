@@ -7,6 +7,8 @@ import { SessionEntity } from './entities/session.entity';
 /**
  * The session store uses nest patterns, but implements a custom
  * express-session store relying on the existing typeorm connection.
+ *
+ * This service isn't used directly, rather its provided so nestjs utilizes it as the session store for express-session middleware.
  */
 @Injectable()
 export class SessionStoreService
@@ -47,7 +49,10 @@ export class SessionStoreService
       const expiresAt = Date.now() + maxAge;
 
       await this.sessionRepo.save({
+        // the id/sid is the primary key, so this will either insert or update the session
         id: sid,
+        // the userId is saved separately to help cross identify more easily without diving into the data, which is the serialized session object
+        userId: session.userId,
         data: session,
         expiresAt,
       });

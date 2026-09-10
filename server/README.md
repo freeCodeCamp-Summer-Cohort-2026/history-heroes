@@ -97,7 +97,10 @@ Paste the following into your terminal. Change the values for email and password
 await fetch('http://localhost:3000/api/v1/auth/register', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ username: 'user', password: 'pwd' }),
+  body: JSON.stringify({
+    email: 'test-user@mail.com',
+    password: 'local-dev-only',
+  }),
 }).then((res) => res.json());
 ```
 
@@ -109,7 +112,10 @@ Paste the following into your terminal. Change the values for email and password
 await fetch('http://localhost:3000/api/v1/auth/login', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ username: 'user', password: 'pwd' }),
+  body: JSON.stringify({
+    email: 'test-user@mail.com',
+    password: 'local-dev-only',
+  }),
 }).then((res) => res.json());
 ```
 
