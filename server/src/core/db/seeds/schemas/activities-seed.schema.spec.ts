@@ -264,7 +264,7 @@ describe('Activity item schema', () => {
         });
         dummyMatchingActivity.content.right.splice(1, 1, {
           id: '',
-          label: 'Empty2',
+          label: 'Empty 2',
         });
 
         expectValidationFailure();
@@ -278,7 +278,7 @@ describe('Activities file schema', () => {
     expect(ActivitySeedFileSchema).toBeDefined();
   });
 
-  it('should be valid against copmlete list of seed activities', () => {
+  it('should be valid against complete list of seed activities', () => {
     ActivitySeedFileSchema.parse(seedActivitiesJson);
   });
 
