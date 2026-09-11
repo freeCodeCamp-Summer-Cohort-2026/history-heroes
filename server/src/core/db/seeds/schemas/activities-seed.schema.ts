@@ -30,7 +30,7 @@ const ActivityTypes = z.discriminatedUnion('type', [Ordering, Matching]);
 
 export const ActivitySeedItemSchema = z.object({
   id: z.string().min(1),
-  type: z.any(),
+  type: z.enum(ActivityTypes.options.map((e) => e.shape.type.value)),
   title: z.string().min(3).max(100),
   checkStatement: z.string().min(1).max(255),
   content: z.any(),
