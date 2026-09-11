@@ -86,6 +86,7 @@ export class AuthController {
 
     req.session.userId = createdUser.id;
 
+    // TODO: need to add another service to "map" existing data that the user has on their session to their account. Maybe called "auth mapping service"
     return {
       id: createdUser.id,
       email: createdUser.email,
