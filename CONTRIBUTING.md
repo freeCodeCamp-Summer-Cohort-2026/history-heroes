@@ -66,6 +66,8 @@ cd client
 npm run dev
 ```
 
+First time you have to create a `.env` file, this has an example in `.env.example` copy the file into `.env`, which isn't tracked by git. Tweak anything labeled "secret" for best practice.
+
 To start the `server` project in dev mode
 
 ```bash
@@ -73,6 +75,7 @@ To start the `server` project in dev mode
 cd server
 npm run dev
 ```
+
 ## Branch naming
 
 Branch off `main`, and name the branch after the issue you are working on:
@@ -119,22 +122,22 @@ docs: correct auth scope and remove settled open questions
 
 ### Types
 
-| Type | Use it for |
-| --- | --- |
-| `feat` | new functionality a user or another developer can see |
-| `fix` | correcting behavior that was already supposed to work |
-| `docs` | documentation only, including this file |
-| `chore` | tooling, configuration, dependencies, test setup, housekeeping |
-| `refactor` | restructuring code without changing what it does |
-| `test` | adding or correcting tests only |
+| Type       | Use it for                                                     |
+| ---------- | -------------------------------------------------------------- |
+| `feat`     | new functionality a user or another developer can see          |
+| `fix`      | correcting behavior that was already supposed to work          |
+| `docs`     | documentation only, including this file                        |
+| `chore`    | tooling, configuration, dependencies, test setup, housekeeping |
+| `refactor` | restructuring code without changing what it does               |
+| `test`     | adding or correcting tests only                                |
 
 ### Scopes
 
-| Scope | Means |
-| --- | --- |
-| `client` | anything under `client/` |
-| `api` | anything under `server/` |
-| `tools` | curriculum content, seed data and authoring scripts |
+| Scope    | Means                                               |
+| -------- | --------------------------------------------------- |
+| `client` | anything under `client/`                            |
+| `api`    | anything under `server/`                            |
+| `tools`  | curriculum content, seed data and authoring scripts |
 
 Leave the scope off when the change is repo-wide and does not belong to one half, such as `docs:` or `chore:` at the root.
 
