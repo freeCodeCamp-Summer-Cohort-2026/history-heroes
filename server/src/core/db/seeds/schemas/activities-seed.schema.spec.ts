@@ -80,45 +80,55 @@ describe('Activity item schema', () => {
       ActivitySeedItemSchema.parse(dummyOrderingActivity);
     });
 
-    it('should be invalid when there are too many successCriteria ids', () => {
-      dummyOrderingActivity.successCriteria.correctOrder.push('third');
-      expectValidationFailure();
-    });
-
-    it('should be invalid when there are not enough successCriteria ids', () => {
-      dummyOrderingActivity.successCriteria.correctOrder.pop();
-      expectValidationFailure();
-    });
-
-    it('should be invalid when successCriteria ids do not match', () => {
-      dummyOrderingActivity.successCriteria.correctOrder.splice(1, 1, 'third');
-      expectValidationFailure();
-    });
-
-    const dummyThirdContentItem = { id: 'third', label: 'Third' };
-
-    it('should be invalid when there are too many content ids', () => {
-      dummyOrderingActivity.content.items.push(dummyThirdContentItem);
-      expectValidationFailure();
-    });
-
-    it('should be invalid when there are not enough content ids', () => {
-      dummyOrderingActivity.content.items.pop();
-      expectValidationFailure();
-    });
-
-    it('should be invalid when content ids do not match', () => {
-      dummyOrderingActivity.content.items.splice(1, 1, dummyThirdContentItem);
-      expectValidationFailure();
-    });
-
-    it('should be invalid when there are matching empty ids', () => {
-      dummyOrderingActivity.successCriteria.correctOrder.splice(1, 1, '');
-      dummyOrderingActivity.content.items.splice(1, 1, {
-        id: '',
-        label: 'Empty',
+    describe('malformed successCriteria ids', () => {
+      it('should be invalid when there are too many successCriteria ids', () => {
+        dummyOrderingActivity.successCriteria.correctOrder.push('third');
+        expectValidationFailure();
       });
-      expectValidationFailure();
+
+      it('should be invalid when there are not enough successCriteria ids', () => {
+        dummyOrderingActivity.successCriteria.correctOrder.pop();
+        expectValidationFailure();
+      });
+
+      it('should be invalid when successCriteria ids do not match', () => {
+        dummyOrderingActivity.successCriteria.correctOrder.splice(
+          1,
+          1,
+          'third',
+        );
+        expectValidationFailure();
+      });
+    });
+
+    describe('malformed content ids', () => {
+      const dummyThirdContentItem = { id: 'third', label: 'Third' };
+
+      it('should be invalid when there are too many content ids', () => {
+        dummyOrderingActivity.content.items.push(dummyThirdContentItem);
+        expectValidationFailure();
+      });
+
+      it('should be invalid when there are not enough content ids', () => {
+        dummyOrderingActivity.content.items.pop();
+        expectValidationFailure();
+      });
+
+      it('should be invalid when content ids do not match', () => {
+        dummyOrderingActivity.content.items.splice(1, 1, dummyThirdContentItem);
+        expectValidationFailure();
+      });
+    });
+
+    describe('misc invalid ids', () => {
+      it('should be invalid when there are matching empty ids', () => {
+        dummyOrderingActivity.successCriteria.correctOrder.splice(1, 1, '');
+        dummyOrderingActivity.content.items.splice(1, 1, {
+          id: '',
+          label: 'Empty',
+        });
+        expectValidationFailure();
+      });
     });
   });
 
@@ -186,67 +196,79 @@ describe('Activity item schema', () => {
       ActivitySeedItemSchema.parse(dummyMatchingActivity);
     });
 
-    const dummyExtraMatchingPair = {
-      left: 'fifth',
-      right: 'sixth',
-    };
+    describe('malformed successCriteria ids', () => {
+      const dummyExtraMatchingPair = {
+        left: 'fifth',
+        right: 'sixth',
+      };
 
-    it('should be invalid when there are too many successCriteria ids', () => {
-      dummyMatchingActivity.successCriteria.pairs.push(dummyExtraMatchingPair);
-      expectValidationFailure();
-    });
-
-    it('should be invalid when there are not enough successCriteria ids', () => {
-      dummyMatchingActivity.successCriteria.pairs.pop();
-      expectValidationFailure();
-    });
-
-    it('should be invalid when successCriteria ids do not match', () => {
-      dummyMatchingActivity.successCriteria.pairs.splice(
-        1,
-        1,
-        dummyExtraMatchingPair,
-      );
-      expectValidationFailure();
-    });
-
-    const dummyExtraContentLeft = { id: 'fifth', label: 'Fifth' };
-    const dummyExtraContentRight = { id: 'sixth', label: 'Sixth' };
-
-    it('should be invalid when there are too many content ids', () => {
-      dummyMatchingActivity.content.left.push(dummyExtraContentLeft);
-      dummyMatchingActivity.content.right.push(dummyExtraContentRight);
-      expectValidationFailure();
-    });
-
-    it('should be invalid when there are not enough content ids', () => {
-      dummyMatchingActivity.content.left.pop();
-      dummyMatchingActivity.content.right.pop();
-      expectValidationFailure();
-    });
-
-    it('should be invalid when content ids do not match', () => {
-      dummyMatchingActivity.content.left.splice(1, 1, dummyExtraContentLeft);
-      dummyMatchingActivity.content.right.splice(1, 1, dummyExtraContentRight);
-      expectValidationFailure();
-    });
-
-    it('should be invalid when there are matching empty ids', () => {
-      dummyMatchingActivity.successCriteria.pairs.splice(1, 1, {
-        left: '',
-        right: '',
+      it('should be invalid when there are too many successCriteria ids', () => {
+        dummyMatchingActivity.successCriteria.pairs.push(
+          dummyExtraMatchingPair,
+        );
+        expectValidationFailure();
       });
 
-      dummyMatchingActivity.content.left.splice(1, 1, {
-        id: '',
-        label: 'Empty 1',
-      });
-      dummyMatchingActivity.content.right.splice(1, 1, {
-        id: '',
-        label: 'Empty2',
+      it('should be invalid when there are not enough successCriteria ids', () => {
+        dummyMatchingActivity.successCriteria.pairs.pop();
+        expectValidationFailure();
       });
 
-      expectValidationFailure();
+      it('should be invalid when successCriteria ids do not match', () => {
+        dummyMatchingActivity.successCriteria.pairs.splice(
+          1,
+          1,
+          dummyExtraMatchingPair,
+        );
+        expectValidationFailure();
+      });
+    });
+
+    describe('malformed content ids', () => {
+      const dummyExtraContentLeft = { id: 'fifth', label: 'Fifth' };
+      const dummyExtraContentRight = { id: 'sixth', label: 'Sixth' };
+
+      it('should be invalid when there are too many content ids', () => {
+        dummyMatchingActivity.content.left.push(dummyExtraContentLeft);
+        dummyMatchingActivity.content.right.push(dummyExtraContentRight);
+        expectValidationFailure();
+      });
+
+      it('should be invalid when there are not enough content ids', () => {
+        dummyMatchingActivity.content.left.pop();
+        dummyMatchingActivity.content.right.pop();
+        expectValidationFailure();
+      });
+
+      it('should be invalid when content ids do not match', () => {
+        dummyMatchingActivity.content.left.splice(1, 1, dummyExtraContentLeft);
+        dummyMatchingActivity.content.right.splice(
+          1,
+          1,
+          dummyExtraContentRight,
+        );
+        expectValidationFailure();
+      });
+    });
+
+    describe('misc invalid ids', () => {
+      it('should be invalid when there are matching empty ids', () => {
+        dummyMatchingActivity.successCriteria.pairs.splice(1, 1, {
+          left: '',
+          right: '',
+        });
+
+        dummyMatchingActivity.content.left.splice(1, 1, {
+          id: '',
+          label: 'Empty 1',
+        });
+        dummyMatchingActivity.content.right.splice(1, 1, {
+          id: '',
+          label: 'Empty2',
+        });
+
+        expectValidationFailure();
+      });
     });
   });
 });
