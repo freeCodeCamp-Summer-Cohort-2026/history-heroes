@@ -31,7 +31,9 @@ export class AuthModule implements NestModule {
       this.configService.get<string>('NODE_ENV')?.toLowerCase() ===
       'production';
 
-    const defaultMaxAge = 1000 * 60 * 60 * 24 * 7; // 7 days
+    // Default session maxAge to 1 year (365 days) so returning learners are recognized
+    // and don't lose unauthenticated activity/progress after inactivity (issue #40).
+    const defaultMaxAge = 1000 * 60 * 60 * 24 * 365; // 1 year (365 days)
     const sessionMaxAge = Number(
       this.configService.get<number | string>('SESSION_MAX_AGE', defaultMaxAge),
     );
@@ -47,7 +49,11 @@ export class AuthModule implements NestModule {
           // you copied the .env.example to .env
           secret: this.configService.getOrThrow<string>('SESSION_SECRET'),
           resave: false,
-          saveUninitialized: false,
+          // Save uninitialized sessions so anonymous visitors get a session/cookie,
+          // allowing unauthenticated activity and progress to be tracked and tied to the session prior to login/registration.
+          saveUninitialized: true,
+          // Reset cookie expiration on every response so active/returning users don't expire prematurely (issue #40)
+          rolling: true,
           cookie: {
             httpOnly: true,
             maxAge,
