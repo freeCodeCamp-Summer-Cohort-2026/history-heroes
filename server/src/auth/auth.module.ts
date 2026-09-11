@@ -43,10 +43,9 @@ export class AuthModule implements NestModule {
       .apply(
         session({
           store: this.sessionStore,
-          secret: this.configService.get<string>(
-            'SESSION_SECRET',
-            'dev-secret',
-          ),
+          // if you see an error about this locally, make sure
+          // you copied the .env.example to .env
+          secret: this.configService.getOrThrow<string>('SESSION_SECRET'),
           resave: false,
           saveUninitialized: false,
           cookie: {
