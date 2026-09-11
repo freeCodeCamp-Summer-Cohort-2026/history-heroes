@@ -121,6 +121,134 @@ describe('Activity item schema', () => {
       expectValidationFailure();
     });
   });
+
+  describe('should be invalid against a matching activity with various invalid id configurations', () => {
+    let dummyMatchingActivity: {
+      id: string;
+      type: string;
+      title: string;
+      checkStatement: string;
+      content: {
+        left: { id: string; label: string }[];
+        right: { id: string; label: string }[];
+      };
+      successCriteria: {
+        pairs: { left: string; right: string }[];
+      };
+    };
+
+    const expectValidationFailure = () => {
+      const result = ActivitySeedItemSchema.safeParse(dummyMatchingActivity);
+
+      expect(result.success).toBeFalsy();
+      expect(result.error).toBeDefined();
+    };
+
+    // reset dummy activity before each test
+    beforeEach(() => {
+      dummyMatchingActivity = {
+        id: 'dummy-matching-activity',
+        type: 'matching',
+        title: 'Dummy matching activity',
+        checkStatement: 'This is a dummy matching activity',
+        content: {
+          left: [
+            {
+              id: 'first',
+              label: 'First',
+            },
+            {
+              id: 'third',
+              label: 'Third',
+            },
+          ],
+          right: [
+            {
+              id: 'second',
+              label: 'Second',
+            },
+            {
+              id: 'fourth',
+              label: 'Fourth',
+            },
+          ],
+        },
+        successCriteria: {
+          pairs: [
+            { left: 'first', right: 'second' },
+            { left: 'third', right: 'fourth' },
+          ],
+        },
+      };
+    });
+
+    it('shoudld be valid for unmodified dummy activity', () => {
+      ActivitySeedItemSchema.parse(dummyMatchingActivity);
+    });
+
+    const dummyExtraMatchingPair = {
+      left: 'fifth',
+      right: 'sixth',
+    };
+
+    it('should be invalid when there are too many successCriteria ids', () => {
+      dummyMatchingActivity.successCriteria.pairs.push(dummyExtraMatchingPair);
+      expectValidationFailure();
+    });
+
+    it('should be invalid when there are not enough successCriteria ids', () => {
+      dummyMatchingActivity.successCriteria.pairs.pop();
+      expectValidationFailure();
+    });
+
+    it('should be invalid when successCriteria ids do not match', () => {
+      dummyMatchingActivity.successCriteria.pairs.splice(
+        1,
+        1,
+        dummyExtraMatchingPair,
+      );
+      expectValidationFailure();
+    });
+
+    const dummyExtraContentLeft = { id: 'fifth', label: 'Fifth' };
+    const dummyExtraContentRight = { id: 'sixth', label: 'Sixth' };
+
+    it('should be invalid when there are too many content ids', () => {
+      dummyMatchingActivity.content.left.push(dummyExtraContentLeft);
+      dummyMatchingActivity.content.right.push(dummyExtraContentRight);
+      expectValidationFailure();
+    });
+
+    it('should be invalid when there are not enough content ids', () => {
+      dummyMatchingActivity.content.left.pop();
+      dummyMatchingActivity.content.right.pop();
+      expectValidationFailure();
+    });
+
+    it('should be invalid when content ids do not match', () => {
+      dummyMatchingActivity.content.left.splice(1, 1, dummyExtraContentLeft);
+      dummyMatchingActivity.content.right.splice(1, 1, dummyExtraContentRight);
+      expectValidationFailure();
+    });
+
+    it('should be invalid when there are matching empty ids', () => {
+      dummyMatchingActivity.successCriteria.pairs.splice(1, 1, {
+        left: '',
+        right: '',
+      });
+
+      dummyMatchingActivity.content.left.splice(1, 1, {
+        id: '',
+        label: 'Empty 1',
+      });
+      dummyMatchingActivity.content.right.splice(1, 1, {
+        id: '',
+        label: 'Empty2',
+      });
+
+      expectValidationFailure();
+    });
+  });
 });
 
 describe('Activities file schema', () => {
