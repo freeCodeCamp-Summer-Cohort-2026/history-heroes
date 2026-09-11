@@ -12,13 +12,22 @@ describe('UsersService', () => {
     updatedAt: new Date(),
   };
 
+  const mockQueryBuilder = {
+    where: vi.fn().mockReturnThis(),
+    addSelect: vi.fn().mockReturnThis(),
+    getOne: vi.fn(),
+  };
+
   const mockUsersRepository = {
-    findOne: vi.fn(),
+    createQueryBuilder: vi.fn().mockReturnValue(mockQueryBuilder),
     save: vi.fn(),
   };
 
   beforeEach(async () => {
     vi.clearAllMocks();
+    mockQueryBuilder.where.mockReturnThis();
+    mockQueryBuilder.addSelect.mockReturnThis();
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UsersService,
@@ -38,29 +47,63 @@ describe('UsersService', () => {
 
   describe('getByEmail', () => {
     it('should return user data when a user with the given email exists', async () => {
-      mockUsersRepository.findOne.mockResolvedValue(mockUser);
+      mockQueryBuilder.getOne.mockResolvedValue(mockUser);
 
       const result = await service.getByEmail({
         email: 'test@historyheroes.org',
       });
 
       expect(result).toEqual(mockUser);
-      expect(mockUsersRepository.findOne).toHaveBeenCalledWith({
-        where: { email: 'test@historyheroes.org' },
-      });
+      expect(mockUsersRepository.createQueryBuilder).toHaveBeenCalledWith(
+        'user',
+      );
+      expect(mockQueryBuilder.where).toHaveBeenCalledWith(
+        'user.email = :email',
+        {
+          email: 'test@historyheroes.org',
+        },
+      );
+      expect(mockQueryBuilder.addSelect).not.toHaveBeenCalled();
+    });
+
+    it('should include password in query when includePassword setting is true', async () => {
+      mockQueryBuilder.getOne.mockResolvedValue(mockUser);
+
+      const result = await service.getByEmail(
+        { email: 'test@historyheroes.org' },
+        { includePassword: true },
+      );
+
+      expect(result).toEqual(mockUser);
+      expect(mockUsersRepository.createQueryBuilder).toHaveBeenCalledWith(
+        'user',
+      );
+      expect(mockQueryBuilder.where).toHaveBeenCalledWith(
+        'user.email = :email',
+        {
+          email: 'test@historyheroes.org',
+        },
+      );
+      expect(mockQueryBuilder.addSelect).toHaveBeenCalledWith('user.password');
     });
 
     it('should return null when a user with the given email does not exist', async () => {
-      mockUsersRepository.findOne.mockResolvedValue(null);
+      mockQueryBuilder.getOne.mockResolvedValue(null);
 
       const result = await service.getByEmail({
         email: 'nonexistent@historyheroes.org',
       });
 
       expect(result).toBeNull();
-      expect(mockUsersRepository.findOne).toHaveBeenCalledWith({
-        where: { email: 'nonexistent@historyheroes.org' },
-      });
+      expect(mockUsersRepository.createQueryBuilder).toHaveBeenCalledWith(
+        'user',
+      );
+      expect(mockQueryBuilder.where).toHaveBeenCalledWith(
+        'user.email = :email',
+        {
+          email: 'nonexistent@historyheroes.org',
+        },
+      );
     });
   });
 

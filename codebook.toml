@@ -4,6 +4,7 @@ words = [
     "Fastify",
     "OOP",
     "nvm",
+    "supertest",
     "typeorm",
     "zod",
 ]

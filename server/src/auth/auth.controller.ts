@@ -19,6 +19,15 @@ import {
 import { UsersService } from '../users/users.service';
 import { ZodValidationPipe } from '../core/pipes/zod-validation.pipe';
 
+/**
+ * The auth controller manages authentication, for:
+ * - login
+ * - register
+ * - logout
+ * - session (get the current session, for debugging)
+ *
+ * Sessions identify users, who could be logged in or not logged in.
+ */
 @Controller('auth')
 export class AuthController {
   constructor(private readonly userService: UsersService) {}
@@ -28,8 +37,11 @@ export class AuthController {
     @Body(new ZodValidationPipe(loginRequestSchema)) body: LoginRequestDto,
     @Req() req: Request,
   ) {
-    const user = await this.userService.getByEmail(body);
+    const user = await this.userService.getByEmail(body, {
+      includePassword: true,
+    });
 
+    // **note** this password should already be unhashed from getByEmail
     if (!user || user.password !== body.password) {
       throw new UnauthorizedException('Invalid email or password');
     }

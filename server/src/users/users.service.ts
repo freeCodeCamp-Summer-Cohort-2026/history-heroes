@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
@@ -12,18 +12,36 @@ export class UsersService {
   ) {}
 
   /**
-   * Returns user data for the user with the given email address.   *Assumes the use-case for registration. Will return null if the user with this email does not exist.he login request email type, which ultimately is just a string.
+   * Returns user data for the user with the given email address.
+   * Assumes the use-case for registration/login. Will return null if the user with this email does not exist.
    *
    * @throws NotFoundException if the user with the given email does not exist.
    */
   async getByEmail(
     email: Pick<LoginRequestDto, 'email'>,
+    settings: {
+      /**
+       * If we are to include the password in the response, by default
+       * this is false as this is plaintext and a security risk.
+       *
+       * Post #46, this will be unhashed for external comparison, but probably via another setting
+       */
+      includePassword?: boolean;
+    } = {},
   ): Promise<User | null> {
-    const user = await this.usersRepository.findOne({
-      where: { email: email.email },
-    });
+    const { includePassword = false } = settings;
 
-    return user || null;
+    const query = this.usersRepository
+      .createQueryBuilder('user')
+      .where('user.email = :email', { email: email.email });
+
+    if (includePassword) {
+      query.addSelect('user.password');
+    }
+
+    const user = await query.getOne();
+
+    return user;
   }
 
   /**
@@ -43,7 +61,7 @@ export class UsersService {
 
     userToCreate.email = user.email;
     // TODO: add hashing here, see issue #46
-    userToCreate.password = user.password; // In a real application, you should hash the password before saving it.
+    userToCreate.password = user.password;
 
     const createdUser = await this.usersRepository.save(userToCreate);
 

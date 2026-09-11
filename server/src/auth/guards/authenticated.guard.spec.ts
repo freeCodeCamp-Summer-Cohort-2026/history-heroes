@@ -1,14 +1,16 @@
 import { ExecutionContext, UnauthorizedException } from '@nestjs/common';
-import { SessionAuthGuard } from './session-auth.guard';
+import { AuthenticatedGuard } from './authenticated.guard';
 
-describe('SessionAuthGuard', () => {
-  let guard: SessionAuthGuard;
+describe('AuthenticatedGuard', () => {
+  let guard: AuthenticatedGuard;
 
   beforeEach(() => {
-    guard = new SessionAuthGuard();
+    guard = new AuthenticatedGuard();
   });
 
-  function createMockExecutionContext(session?: Record<string, any>): ExecutionContext {
+  function createMockExecutionContext(
+    session?: Record<string, any>,
+  ): ExecutionContext {
     return {
       switchToHttp: () => ({
         getRequest: () => ({ session }),
