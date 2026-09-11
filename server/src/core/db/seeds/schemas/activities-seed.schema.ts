@@ -28,14 +28,13 @@ const Matching = z.object({
 
 const ActivityTypes = z.discriminatedUnion('type', [Ordering, Matching]);
 
-export const ActivitySeedItemSchema = z.object({
-  id: z.string().min(1),
-  type: z.enum(ActivityTypes.options.map((e) => e.shape.type.value)),
-  title: z.string().min(3).max(100),
-  checkStatement: z.string().min(1).max(255),
-  content: z.any(),
-  successCriteria: z.any(),
-});
+export const ActivitySeedItemSchema = z
+  .object({
+    id: z.string().min(1),
+    title: z.string().min(3).max(100),
+    checkStatement: z.string().min(1).max(255),
+  })
+  .and(ActivityTypes);
 
 export const ActivitySeedFileSchema = z.object({
   activities: z
