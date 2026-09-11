@@ -9,6 +9,7 @@ import {
   Res,
   Session,
   UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { LoginRequestDto, loginRequestSchema } from './dto/login-request.dto';
@@ -18,6 +19,7 @@ import {
 } from './dto/register-request.dto';
 import { UsersService } from '../users/users.service';
 import { ZodValidationPipe } from '../core/pipes/zod-validation.pipe';
+import { AuthenticatedGuard } from './guards/authenticated.guard';
 
 /**
  * The auth controller manages authentication, for:
@@ -97,6 +99,7 @@ export class AuthController {
    * Debug route that returns current session information.
    */
   @Get('session')
+  @UseGuards(AuthenticatedGuard)
   getSession(@Session() session: Record<string, any>) {
     return { session_info: session };
   }
