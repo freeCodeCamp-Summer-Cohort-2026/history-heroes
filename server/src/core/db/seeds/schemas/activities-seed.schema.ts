@@ -1,5 +1,15 @@
 import { z } from 'zod';
 
+const setsIdenticalAndNoEmptyStrings = (a: Set<string>, b: Set<string>): boolean => {
+  if (a.size !== b.size) return false;
+
+  for (const aVal of a.values()) {
+    if (aVal === "" || !b.has(aVal)) return false;
+  }
+
+  return true;
+}
+
 const Ordering = z.object({
   type: z.literal('ordering'),
   content: z.object({
@@ -12,13 +22,7 @@ const Ordering = z.object({
   const contentIds = new Set(content.items.map(item => item.id));
   const successIds = new Set(successCriteria.correctOrder);
 
-  if (contentIds.size !== successIds.size) return false;
-
-  for (const contentId of contentIds.values()) {
-    if (contentId === "" || !successIds.has(contentId)) return false;
-  }
-
-  return true;
+  return setsIdenticalAndNoEmptyStrings(contentIds, successIds);
 });
 
 const Matching = z.object({
