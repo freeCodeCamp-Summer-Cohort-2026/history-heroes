@@ -1,13 +1,19 @@
 import { z } from 'zod';
 
-const setsIdenticalAndNoEmptyStrings = (
-  a: Set<string>,
-  b: Set<string>,
-): boolean => {
-  if (a.size !== b.size) return false;
+const idsMatch = (a: string[], b: string[]): boolean => {
+  // create sets and check for duplicate ids
+  const setA = new Set(a);
+  if (a.length !== setA.size) return false;
 
-  for (const aVal of a.values()) {
-    if (aVal === '' || !b.has(aVal)) return false;
+  const setB = new Set(b);
+  if (b.length !== setB.size) return false;
+
+  // compare set sizes
+  if (setA.size !== setB.size) return false;
+
+  // check that all values of one set exist in the other
+  for (const aVal of setA.values()) {
+    if (aVal === '' || !setB.has(aVal)) return false;
   }
 
   return true;
@@ -26,10 +32,10 @@ const Ordering = z
     }),
   })
   .refine(({ content, successCriteria }): boolean => {
-    const contentIds = new Set(content.items.map((item) => item.id));
-    const successIds = new Set(successCriteria.correctOrder);
+    const contentIds = content.items.map((item) => item.id);
+    const successIds = successCriteria.correctOrder;
 
-    return setsIdenticalAndNoEmptyStrings(contentIds, successIds);
+    return idsMatch(contentIds, successIds);
   });
 
 const Matching = z
@@ -53,18 +59,17 @@ const Matching = z
     }),
   })
   .refine(({ content, successCriteria }) => {
-    const contentIds = new Set([
+    const contentIds = [
       ...content.left.map((e) => e.id),
       ...content.right.map((e) => e.id),
-    ]);
-    const successIds = new Set(
-      successCriteria.pairs.reduce(
-        (acc: string[], e) => [...acc, e.left, e.right],
-        [],
-      ),
+    ];
+
+    const successIds = successCriteria.pairs.reduce(
+      (acc: string[], e) => [...acc, e.left, e.right],
+      [],
     );
 
-    return setsIdenticalAndNoEmptyStrings(contentIds, successIds);
+    return idsMatch(contentIds, successIds);
   });
 
 const ActivityTypes = z.discriminatedUnion('type', [Ordering, Matching]);
