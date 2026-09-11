@@ -2,7 +2,7 @@
   "modules": [
     {
       "id": "seven-wonders",
-      "title": "Seven Wonders",
+      "title": "The Seven Wonders of the Ancient World",
       "description": "Learn and explore the 7 ancient wonders of the world.",
       "order": 1
     }
