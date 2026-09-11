@@ -4,6 +4,7 @@ import Button from './Button'
 import FeedbackState from './FeedbackState'
 import LessonListItem from './LessonListItem'
 import ModuleCard from './ModuleCard'
+
 export default function ComponentShowcase() {
   return (
     <main className="space-y-10 p-6">
@@ -20,7 +21,6 @@ export default function ComponentShowcase() {
 
         <div className="flex flex-wrap gap-4">
           <Button>Primary button</Button>
-
           <Button variant="secondary">Secondary button</Button>
         </div>
       </section>
@@ -48,13 +48,21 @@ export default function ComponentShowcase() {
 
         <div className="space-y-3">
           <LessonListItem
-            title="The Great Pyramid of Giza"
-            description="Learn about one wonder of the ancient world."
+            title="Locked lesson"
+            description="You must complete the previous lesson first."
+            state="locked"
           />
 
           <LessonListItem
-            title="The Hanging Gardens"
-            description="Explore one of history's greatest mysteries."
+            title="Unlocked lesson"
+            description="Ready to start learning."
+            state="unlocked"
+          />
+
+          <LessonListItem
+            title="Completed lesson"
+            description="You've finished this lesson."
+            state="completed"
           />
         </div>
       </section>
