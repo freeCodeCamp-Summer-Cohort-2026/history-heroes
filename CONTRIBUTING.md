@@ -66,9 +66,11 @@ cd client
 npm run dev
 ```
 
-First time you have to create a `.env` file, this has an example in `.env.example` copy the file into `.env`, which isn't tracked by git. Tweak anything labeled "secret" for best practice.
+---
 
 To start the `server` project in dev mode
+
+First time you have to create a `.env` file, this has an example in `.env.example` copy the file into `.env`, which isn't tracked by git. Tweak anything labeled "secret" for best practice.
 
 ```bash
 # from the root of the project, go into the server folder
