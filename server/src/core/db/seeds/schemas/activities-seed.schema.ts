@@ -8,6 +8,17 @@ const Ordering = z.object({
   successCriteria: z.object({
     correctOrder: z.array(z.string()).nonempty(),
   }),
+}).refine(({ content, successCriteria }): boolean => {
+  const contentIds = new Set(content.items.map(item => item.id));
+  const successIds = new Set(successCriteria.correctOrder);
+
+  if (contentIds.size !== successIds.size) return false;
+
+  for (const contentId of contentIds.values()) {
+    if (contentId === "" || !successIds.has(contentId)) return false;
+  }
+
+  return true;
 });
 
 const Matching = z.object({
