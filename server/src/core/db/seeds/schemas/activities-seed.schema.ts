@@ -39,6 +39,11 @@ const Matching = z.object({
       }),
     ).nonempty(),
   }),
+}).refine(({ content, successCriteria }) => {
+  const contentIds = new Set([...content.left.map(e => e.id), ...content.right.map(e => e.id)]);
+  const successIds = new Set(successCriteria.pairs.reduce((acc: string[], e) => [...acc, e.left, e.right], []));
+
+  return setsIdenticalAndNoEmptyStrings(contentIds, successIds);
 });
 
 const ActivityTypes = z.discriminatedUnion('type', [Ordering, Matching]);
