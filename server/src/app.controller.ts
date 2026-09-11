@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, NotFoundException } from '@nestjs/common';
 import { AppService } from './app.service';
 
 @Controller()
@@ -23,9 +23,6 @@ export class AppController {
    */
   @Get('*catchall')
   getNotFound() {
-    return {
-      statusCode: 404,
-      message: 'Not Found',
-    };
+    throw new NotFoundException('Route not found');
   }
 }
