@@ -129,6 +129,19 @@ describe('Activity item schema', () => {
         });
         expectValidationFailure();
       });
+
+      it('should be invalid for duplicate ids', () => {
+        dummyOrderingActivity.successCriteria.correctOrder.splice(
+          1,
+          1,
+          'first',
+        );
+        dummyOrderingActivity.content.items.splice(1, 1, {
+          id: 'first',
+          label: 'First',
+        });
+        expectValidationFailure();
+      });
     });
   });
 
@@ -265,6 +278,24 @@ describe('Activity item schema', () => {
         dummyMatchingActivity.content.right.splice(1, 1, {
           id: '',
           label: 'Empty 2',
+        });
+
+        expectValidationFailure();
+      });
+
+      it('should be invalid for duplicate ids', () => {
+        dummyMatchingActivity.successCriteria.pairs.splice(1, 1, {
+          left: 'first',
+          right: 'third',
+        });
+
+        dummyMatchingActivity.content.left.splice(1, 1, {
+          id: 'first',
+          label: 'First',
+        });
+        dummyMatchingActivity.content.right.splice(1, 1, {
+          id: 'third',
+          label: 'Third',
         });
 
         expectValidationFailure();
