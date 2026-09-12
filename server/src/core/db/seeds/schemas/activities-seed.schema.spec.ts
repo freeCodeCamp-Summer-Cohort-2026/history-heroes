@@ -307,8 +307,6 @@ describe('Activity item schema', () => {
           right: 'third',
         });
 
-        console.log(dummyMatchingActivity.successCriteria);
-
         expectValidationFailure();
       });
     });
