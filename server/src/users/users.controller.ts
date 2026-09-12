@@ -1,5 +1,28 @@
 import { Controller, Get } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { ApiResponse } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
+
+/**
+ * Password property was intentionally left out for security reasons (should never appear in API docs or responses)
+ */
+
+class UserDto{
+  @ApiProperty()
+  id: number;
+
+  @ApiProperty()
+  username: string;
+
+  @ApiProperty()
+  email?: string;
+
+  @ApiProperty()
+  createdAt: Date;
+
+  @ApiProperty()
+  updatedAt: Date;
+}
 
 @Controller('users')
 export class UsersController {
@@ -16,6 +39,7 @@ export class UsersController {
    * https://docs.nestjs.com/guards
    */
   @Get('me')
+  @ApiResponse({ type: UserDto })
   public getMe() {
     return this.usersService.getMe();
   }
