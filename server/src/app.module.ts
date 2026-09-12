@@ -7,6 +7,7 @@ import { SeedsModule } from './core/db/seeds/seeds.module';
 import { ModulesModule } from './modules/modules.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { ActivitiesModule } from './activities/activities.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { AuthModule } from './auth/auth.module';
     // feature modules
     ModulesModule,
     UsersModule,
+    ActivitiesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
