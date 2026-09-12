@@ -6,6 +6,9 @@ import { DatabaseModule } from './core/db/database.module';
 import { SeedsModule } from './core/db/seeds/seeds.module';
 import { ModulesModule } from './modules/modules.module';
 import { UsersModule } from './users/users.module';
+import {UsersController} from './users/users.controller';
+import {ModulesController} from './modules/modules.controller.js';
+
 
 @Module({
   imports: [
@@ -23,7 +26,7 @@ import { UsersModule } from './users/users.module';
     ModulesModule,
     UsersModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, UsersController, ModulesController],
   providers: [AppService],
 })
 export class AppModule {}
