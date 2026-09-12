@@ -8,6 +8,22 @@ const idsMatch = (a: string[], b: string[]): boolean => {
   const setB = new Set(b);
   if (b.length !== setB.size) return false;
 
+  /*
+   Duplicate checking ensures one-to-one matching for matching activities.
+
+   Valid:
+   A <--> B
+   B <--> A
+
+   Within each side, no item is duplicated. Matching is one-to-one. A Set made from either side will not collapse.
+
+   Invalid:
+   A <--> B
+   A <--> C
+
+   Item A is duplicated within the left side, effectively pairing it with both B and C. Matching is not one-to-one. A Set made from the left side will collapse, causing the dupe check to fail.
+   */
+
   // compare set sizes
   if (setA.size !== setB.size) return false;
 
