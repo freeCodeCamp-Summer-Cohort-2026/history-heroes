@@ -2,14 +2,30 @@ import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import App from '../App'
 
-test('renders the module catalog', () => {
+beforeEach(() => {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => [],
+    }),
+  )
+})
+
+afterEach(() => {
+  vi.unstubAllGlobals()
+})
+
+test('renders the module catalog', async () => {
   render(
     <MemoryRouter initialEntries={['/']}>
       <App />
     </MemoryRouter>,
   )
 
-  expect(screen.getByRole('heading', { name: /modules/i })).toBeInTheDocument()
+  expect(
+    await screen.findByRole('heading', { name: /modules/i }),
+  ).toBeInTheDocument()
 })
 
 test('shows the module id', () => {
