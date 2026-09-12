@@ -309,6 +309,24 @@ describe('Activity item schema', () => {
 
         expectValidationFailure();
       });
+
+      it('should be valid for identical ids on opposite sides', () => {
+        dummyMatchingActivity.successCriteria.pairs.splice(1, 1, {
+          left: 'second',
+          right: 'first',
+        });
+
+        dummyMatchingActivity.content.left.splice(1, 1, {
+          id: 'second',
+          label: 'Second',
+        });
+        dummyMatchingActivity.content.right.splice(1, 1, {
+          id: 'first',
+          label: 'First',
+        });
+
+        ActivitySeedItemSchema.parse(dummyMatchingActivity);
+      });
     });
   });
 });
