@@ -34,7 +34,7 @@ export class ModulesController {
    * This can be loaded at: https://localhost:3000/api/v1/modules
    */
   @Get()
-  @ApiResponse({ type: ModulesDto })
+  @ApiResponse({ type: [ModulesDto] })
   public findAll(): Promise<Module[]> {
     return this.modulesService.findAll();
   }
