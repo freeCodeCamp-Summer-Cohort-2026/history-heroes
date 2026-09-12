@@ -17,12 +17,12 @@ export class UserSeeder implements EntitySeeder<UserSeedData> {
 
     const userEntities = data.users.map((item) =>
       entityManager.create(User, {
-        username: item.username,
         email: item.email,
         /**
          * SECURITY WARNING: Storing plaintext passwords is insecure and temporary.
          * This is strictly for local dev/testing initialization.
          * TODO: Hash/salt with bcrypt when authentication is implemented.
+         * ref: #46
          */
         password: item.password,
       }),

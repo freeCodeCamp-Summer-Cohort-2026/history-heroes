@@ -1,0 +1,67 @@
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { SessionEntity } from './entities/session.entity';
+import { SessionStoreService } from './session-store.service';
+import { ConfigService } from '@nestjs/config';
+import session from 'express-session';
+import { AuthController } from './auth.controller';
+import { UsersModule } from '../users/users.module';
+
+/**
+ * The Auth module provides session management, and authentication management.
+ */
+@Module({
+  imports: [
+    TypeOrmModule.forFeature([SessionEntity]),
+    // we require the users module for login and registration, but we don't want to create a circular dependency, so we import it here.
+    UsersModule,
+  ],
+  providers: [SessionStoreService],
+  exports: [SessionStoreService],
+  controllers: [AuthController],
+})
+export class AuthModule implements NestModule {
+  constructor(
+    private readonly sessionStore: SessionStoreService,
+    private readonly configService: ConfigService,
+  ) {}
+
+  configure(consumer: MiddlewareConsumer) {
+    const isProduction =
+      this.configService.get<string>('NODE_ENV')?.toLowerCase() ===
+      'production';
+
+    // Default session maxAge to 1 year (365 days) so returning learners are recognized
+    // and don't lose unauthenticated activity/progress after inactivity (issue #40).
+    const defaultMaxAge = 1000 * 60 * 60 * 24 * 365; // 1 year (365 days)
+    const sessionMaxAge = Number(
+      this.configService.get<number | string>('SESSION_MAX_AGE', defaultMaxAge),
+    );
+    const maxAge = Number.isFinite(sessionMaxAge)
+      ? sessionMaxAge
+      : defaultMaxAge;
+
+    consumer
+      .apply(
+        session({
+          store: this.sessionStore,
+          // if you see an error about this locally, make sure
+          // you copied the .env.example to .env
+          secret: this.configService.getOrThrow<string>('SESSION_SECRET'),
+          resave: false,
+          // Save uninitialized sessions so anonymous visitors get a session/cookie,
+          // allowing unauthenticated activity and progress to be tracked and tied to the session prior to login/registration.
+          saveUninitialized: true,
+          // Reset cookie expiration on every response so active/returning users don't expire prematurely (issue #40)
+          rolling: true,
+          cookie: {
+            httpOnly: true,
+            maxAge,
+            secure: isProduction,
+            sameSite: 'lax',
+          },
+        }),
+      )
+      .forRoutes('*');
+  }
+}
