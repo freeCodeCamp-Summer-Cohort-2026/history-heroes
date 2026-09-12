@@ -61,17 +61,20 @@ const Matching = z
     }),
   })
   .refine(({ content, successCriteria }) => {
-    const contentIds = [
-      ...content.left.map((e) => e.id),
-      ...content.right.map((e) => e.id),
-    ];
+    const contentIdsLeft = content.left.map((e) => e.id);
+    const contentIdsRight = content.right.map((e) => e.id);
 
-    const successIds = successCriteria.pairs.reduce(
-      (acc: string[], e) => [...acc, e.left, e.right],
-      [],
+    const successIdsLeft: string[] = [];
+    const successIdsRight: string[] = [];
+    successCriteria.pairs.forEach((e) => {
+      successIdsLeft.push(e.left);
+      successIdsRight.push(e.right);
+    });
+
+    return (
+      idsMatch(contentIdsLeft, successIdsLeft) &&
+      idsMatch(contentIdsRight, successIdsRight)
     );
-
-    return idsMatch(contentIds, successIds);
   });
 
 const ActivityTypes = z.discriminatedUnion('type', [Ordering, Matching]);
