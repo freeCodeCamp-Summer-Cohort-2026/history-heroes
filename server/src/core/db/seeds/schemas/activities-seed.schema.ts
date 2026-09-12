@@ -13,7 +13,7 @@ const idsMatch = (a: string[], b: string[]): boolean => {
 
   // check that all values of one set exist in the other
   for (const aVal of setA.values()) {
-    if (aVal === '' || !setB.has(aVal)) return false;
+    if (!setB.has(aVal)) return false;
   }
 
   return true;
@@ -24,11 +24,11 @@ const Ordering = z
     type: z.literal('ordering'),
     content: z.object({
       items: z
-        .array(z.object({ id: z.string(), label: z.string() }))
+        .array(z.object({ id: z.string().nonempty(), label: z.string() }))
         .nonempty(),
     }),
     successCriteria: z.object({
-      correctOrder: z.array(z.string()).nonempty(),
+      correctOrder: z.array(z.string().nonempty()).nonempty(),
     }),
   })
   .refine(({ content, successCriteria }): boolean => {
@@ -42,17 +42,19 @@ const Matching = z
   .object({
     type: z.literal('matching'),
     content: z.object({
-      left: z.array(z.object({ id: z.string(), label: z.string() })).nonempty(),
+      left: z
+        .array(z.object({ id: z.string().nonempty(), label: z.string() }))
+        .nonempty(),
       right: z
-        .array(z.object({ id: z.string(), label: z.string() }))
+        .array(z.object({ id: z.string().nonempty(), label: z.string() }))
         .nonempty(),
     }),
     successCriteria: z.object({
       pairs: z
         .array(
           z.object({
-            left: z.string(),
-            right: z.string(),
+            left: z.string().nonempty(),
+            right: z.string().nonempty(),
           }),
         )
         .nonempty(),
