@@ -300,6 +300,17 @@ describe('Activity item schema', () => {
 
         expectValidationFailure();
       });
+
+      it('should be invalid for ids on wrong sides of pair', () => {
+        dummyMatchingActivity.successCriteria.pairs.splice(1, 1, {
+          left: 'fourth',
+          right: 'third',
+        });
+
+        console.log(dummyMatchingActivity.successCriteria)
+        
+        expectValidationFailure();
+      })
     });
   });
 });
