@@ -1,4 +1,4 @@
-import { Controller, Get, NotFoundException } from '@nestjs/common';
+import { All, Controller, Get, NotFoundException } from '@nestjs/common';
 import { AppService } from './app.service';
 
 @Controller()
@@ -21,7 +21,7 @@ export class AppController {
    * **note** this "catchall" is required, but is meaningless (blame express 5)
    * ref:  https://docs.nestjs.com/controllers#route-wildcards
    */
-  @Get('*catchall')
+  @All('*catchall')
   getNotFound() {
     throw new NotFoundException('Route not found');
   }
