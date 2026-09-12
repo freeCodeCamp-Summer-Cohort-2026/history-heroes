@@ -1,8 +1,7 @@
 import { z } from 'zod';
 
 export const UserSeedItemSchema = z.object({
-  username: z.string().min(3).max(30),
-  email: z.string().email().optional(),
+  email: z.email(),
   password: z.string().min(1, 'Password is required for seed users'),
 });
 

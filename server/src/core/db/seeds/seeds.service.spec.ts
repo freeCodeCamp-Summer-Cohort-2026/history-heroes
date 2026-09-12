@@ -63,7 +63,7 @@ describe('SeedsService', () => {
     expect(mockTransaction).toHaveBeenCalled();
     expect(mockEntityManager.create).toHaveBeenCalledWith(
       User,
-      expect.objectContaining({ username: 'admin-hero' }),
+      expect.objectContaining({ email: 'admin@historyheroes.org' }),
     );
     expect(mockEntityManager.create).toHaveBeenCalledWith(
       Module,
