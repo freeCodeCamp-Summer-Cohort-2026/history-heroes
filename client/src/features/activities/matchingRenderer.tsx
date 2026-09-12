@@ -3,7 +3,7 @@ import type {
   MatchingContent,
   MatchingAnswer,
   ActivityRendererProps,
-} from '../features/activities/types'
+} from './types'
 
 type DraggedItem = { id: string; side: 'left' | 'right' } | null
 
