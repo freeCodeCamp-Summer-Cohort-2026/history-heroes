@@ -7,17 +7,27 @@ describe('UsersService', () => {
   let service: UsersService;
   const mockUser: User = {
     id: 1,
-    username: 'test-user',
     email: 'test@historyheroes.org',
     createdAt: new Date(),
     updatedAt: new Date(),
   };
 
+  const mockQueryBuilder = {
+    where: vi.fn().mockReturnThis(),
+    addSelect: vi.fn().mockReturnThis(),
+    getOne: vi.fn(),
+  };
+
   const mockUsersRepository = {
-    findOne: vi.fn().mockResolvedValue(mockUser),
+    createQueryBuilder: vi.fn().mockReturnValue(mockQueryBuilder),
+    save: vi.fn(),
   };
 
   beforeEach(async () => {
+    vi.clearAllMocks();
+    mockQueryBuilder.where.mockReturnThis();
+    mockQueryBuilder.addSelect.mockReturnThis();
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UsersService,
@@ -35,13 +45,92 @@ describe('UsersService', () => {
     expect(service).toBeDefined();
   });
 
-  describe('getMe', () => {
-    it('should return user data', async () => {
-      const result = await service.getMe();
-      expect(result).toEqual(mockUser);
-      expect(mockUsersRepository.findOne).toHaveBeenCalledWith({
-        where: { username: 'test-user' },
+  describe('getByEmail', () => {
+    it('should return user data when a user with the given email exists', async () => {
+      mockQueryBuilder.getOne.mockResolvedValue(mockUser);
+
+      const result = await service.getByEmail({
+        email: 'test@historyheroes.org',
       });
+
+      expect(result).toEqual(mockUser);
+      expect(mockUsersRepository.createQueryBuilder).toHaveBeenCalledWith(
+        'user',
+      );
+      expect(mockQueryBuilder.where).toHaveBeenCalledWith(
+        'user.email = :email',
+        {
+          email: 'test@historyheroes.org',
+        },
+      );
+      expect(mockQueryBuilder.addSelect).not.toHaveBeenCalled();
+    });
+
+    it('should include password in query when includePassword setting is true', async () => {
+      mockQueryBuilder.getOne.mockResolvedValue(mockUser);
+
+      const result = await service.getByEmail(
+        { email: 'test@historyheroes.org' },
+        { includePassword: true },
+      );
+
+      expect(result).toEqual(mockUser);
+      expect(mockUsersRepository.createQueryBuilder).toHaveBeenCalledWith(
+        'user',
+      );
+      expect(mockQueryBuilder.where).toHaveBeenCalledWith(
+        'user.email = :email',
+        {
+          email: 'test@historyheroes.org',
+        },
+      );
+      expect(mockQueryBuilder.addSelect).toHaveBeenCalledWith('user.password');
+    });
+
+    it('should return null when a user with the given email does not exist', async () => {
+      mockQueryBuilder.getOne.mockResolvedValue(null);
+
+      const result = await service.getByEmail({
+        email: 'nonexistent@historyheroes.org',
+      });
+
+      expect(result).toBeNull();
+      expect(mockUsersRepository.createQueryBuilder).toHaveBeenCalledWith(
+        'user',
+      );
+      expect(mockQueryBuilder.where).toHaveBeenCalledWith(
+        'user.email = :email',
+        {
+          email: 'nonexistent@historyheroes.org',
+        },
+      );
+    });
+  });
+
+  describe('create', () => {
+    it('should create and save a new user', async () => {
+      const newUserData = {
+        email: 'newuser@historyheroes.org',
+        password: 'password123',
+      };
+
+      const savedUser: User = {
+        id: 2,
+        email: newUserData.email,
+        password: newUserData.password,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      mockUsersRepository.save.mockResolvedValue(savedUser);
+
+      const result = await service.create(newUserData);
+
+      expect(result).toEqual(savedUser);
+      const expectedUser = new User();
+      expectedUser.email = newUserData.email;
+      expectedUser.password = newUserData.password;
+      expect(mockUsersRepository.save).toHaveBeenCalledWith(expectedUser);
     });
   });
 });

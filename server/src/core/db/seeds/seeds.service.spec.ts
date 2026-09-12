@@ -61,7 +61,6 @@ describe('SeedsService', () => {
     await service.runSeeds();
 
     expect(mockTransaction).toHaveBeenCalled();
-    // generic check to make sure this has just been called
     expect(mockEntityManager.create).toHaveBeenCalled();
   });
 });

@@ -6,6 +6,7 @@ import { DatabaseModule } from './core/db/database.module';
 import { SeedsModule } from './core/db/seeds/seeds.module';
 import { ModulesModule } from './modules/modules.module';
 import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -18,6 +19,9 @@ import { UsersModule } from './users/users.module';
     // core database and seeding modules
     DatabaseModule,
     SeedsModule,
+
+    // authentication module, primarily for session management
+    AuthModule,
 
     // feature modules
     ModulesModule,
