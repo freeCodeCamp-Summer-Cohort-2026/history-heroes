@@ -2,11 +2,6 @@ import { z } from 'zod';
 
 const idsMatch = (a: string[], b: string[]): boolean => {
   // create sets and check for duplicate ids
-  const setA = new Set(a);
-  if (a.length !== setA.size) return false;
-
-  const setB = new Set(b);
-  if (b.length !== setB.size) return false;
 
   /*
    Duplicate checking ensures one-to-one matching for matching activities.
@@ -23,6 +18,12 @@ const idsMatch = (a: string[], b: string[]): boolean => {
 
    Item A is duplicated within the left side, effectively pairing it with both B and C. Matching is not one-to-one. A Set made from the left side will collapse, causing the dupe check to fail.
    */
+
+  const setA = new Set(a);
+  if (a.length !== setA.size) return false;
+
+  const setB = new Set(b);
+  if (b.length !== setB.size) return false;
 
   // compare set sizes
   if (setA.size !== setB.size) return false;
