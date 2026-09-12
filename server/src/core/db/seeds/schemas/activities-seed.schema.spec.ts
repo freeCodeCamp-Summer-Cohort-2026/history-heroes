@@ -30,7 +30,7 @@ describe('Activity item schema', () => {
     expect(result.error).toBeDefined();
   });
 
-  describe('should be invalid against an ordering activity with various invalid id configurations', () => {
+  describe('ordering activity ids', () => {
     let dummyOrderingActivity: {
       id: string;
       type: string;
@@ -120,7 +120,7 @@ describe('Activity item schema', () => {
       });
     });
 
-    describe('misc invalid ids', () => {
+    describe('misc id cases', () => {
       it('should be invalid when there are matching empty ids', () => {
         dummyOrderingActivity.successCriteria.correctOrder.splice(1, 1, '');
         dummyOrderingActivity.content.items.splice(1, 1, {
@@ -145,7 +145,7 @@ describe('Activity item schema', () => {
     });
   });
 
-  describe('should be invalid against a matching activity with various invalid id configurations', () => {
+  describe('matching activity ids', () => {
     let dummyMatchingActivity: {
       id: string;
       type: string;
@@ -264,7 +264,7 @@ describe('Activity item schema', () => {
       });
     });
 
-    describe('misc invalid ids', () => {
+    describe('misc id cases', () => {
       it('should be invalid when there are matching empty ids', () => {
         dummyMatchingActivity.successCriteria.pairs.splice(1, 1, {
           left: '',
