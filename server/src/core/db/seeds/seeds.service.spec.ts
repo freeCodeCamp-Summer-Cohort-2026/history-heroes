@@ -61,6 +61,27 @@ describe('SeedsService', () => {
     await service.runSeeds();
 
     expect(mockTransaction).toHaveBeenCalled();
-    expect(mockEntityManager.create).toHaveBeenCalled();
+    // if create was called at all, could be any times, but should be at least once
+    expect(mockEntityManager.create).toHaveBeenCalledWith(
+      User,
+      expect.anything(),
+    );
+    expect(mockEntityManager.create).toHaveBeenCalledWith(
+      Module,
+      expect.anything(),
+    );
+
+    // save is always called, and called in this order, will be important
+    // later with other seeders are added.
+    expect(mockEntityManager.save).toHaveBeenNthCalledWith(
+      1,
+      User,
+      expect.anything(),
+    );
+    expect(mockEntityManager.save).toHaveBeenNthCalledWith(
+      2,
+      Module,
+      expect.anything(),
+    );
   });
 });
