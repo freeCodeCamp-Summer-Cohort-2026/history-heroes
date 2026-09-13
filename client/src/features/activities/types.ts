@@ -20,7 +20,8 @@ export type MatchingAnswer = {
 
 export type Activity =
   | {
-      id: 'ordering'
+      id: string
+      type: 'ordering'
       title: string
       checkStatement: string
       content: OrderingContent
@@ -49,5 +50,5 @@ export type ActivityRendererProps<TContent, TAnswer> = {
   content: TContent
   answer: TAnswer
   onAnswerChange: (answer: TAnswer) => void
-  disable: boolean
+  disabled: boolean
 }
