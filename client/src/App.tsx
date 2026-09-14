@@ -4,6 +4,7 @@ import ModuleCatalogPage from './pages/ModuleCatalogPage'
 import ModulePage from './pages/ModulePage'
 import NotFoundPage from './pages/NotFoundPage'
 import Layout from './components/Layout'
+import ComponentShowcase from './components/ComponentShowcase'
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
           path="/modules/:moduleId/lessons/:lessonId"
           element={<LessonPage />}
         />
+        <Route path="components" element={<ComponentShowcase />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
