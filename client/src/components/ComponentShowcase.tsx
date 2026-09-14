@@ -5,6 +5,7 @@ import FeedbackState from './FeedbackState'
 import LessonListItem from './LessonListItem'
 import ModuleCard from './ModuleCard'
 import FilterChips from './FilterChips'
+import ProgressIndicator from './ProgressIndicator'
 
 export default function ComponentShowcase() {
   return (
@@ -19,7 +20,6 @@ export default function ComponentShowcase() {
       {/* Buttons */}
       <section className="space-y-4">
         <h2 className="text-heading">Buttons</h2>
-
         <div className="flex flex-wrap gap-4">
           <Button>Primary button</Button>
           <Button variant="secondary">Secondary button</Button>
@@ -36,16 +36,23 @@ export default function ComponentShowcase() {
         />
       </section>
 
+      {/* Progress Indicator */}
+      <section className="space-y-4">
+        <h2 className="text-heading">Progress indicator</h2>
+        <div className="space-y-2">
+          <ProgressIndicator current={1} total={3} label="Lesson" />
+          <ProgressIndicator current={2} total={3} label="Activity" />
+        </div>
+      </section>
+
       {/* Module cards */}
       <section className="space-y-4">
         <h2 className="text-heading">Module cards</h2>
-
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           <ModuleCard
             title="Seven Wonders"
             description="Discover the wonders of the ancient world."
           />
-
           <ModuleCard
             title="Ancient Rome"
             description="Explore daily life, politics and culture in Rome."
@@ -56,20 +63,17 @@ export default function ComponentShowcase() {
       {/* Lesson list */}
       <section className="space-y-4">
         <h2 className="text-heading">Lesson list items</h2>
-
         <div className="space-y-3">
           <LessonListItem
             title="Locked lesson"
             description="You must complete the previous lesson first."
             state="locked"
           />
-
           <LessonListItem
             title="Unlocked lesson"
             description="Ready to start learning."
             state="unlocked"
           />
-
           <LessonListItem
             title="Completed lesson"
             description="You've finished this lesson."
@@ -81,13 +85,11 @@ export default function ComponentShowcase() {
       {/* Feedback */}
       <section className="space-y-4">
         <h2 className="text-heading">Feedback states</h2>
-
         <div className="space-y-4">
           <FeedbackState
             type="correct"
             message="Your answer matches the expected order."
           />
-
           <FeedbackState
             type="not-yet"
             message="The first two events are out of order."

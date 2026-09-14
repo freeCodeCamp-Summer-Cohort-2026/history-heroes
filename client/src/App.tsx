@@ -16,8 +16,8 @@ function App() {
           path="/modules/:moduleId/lessons/:lessonId"
           element={<LessonPage />}
         />
-        <Route path="*" element={<NotFoundPage />} />
         <Route path="components" element={<ComponentShowcase />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
   )
