@@ -13,6 +13,7 @@ Full stack web app for freeCodeCamp-Summer-Cohort-2026
 - [bradtaniguchi](https://github.com/bradtaniguchi) - developer
 - [tanveenk](https://github.com/tanveenk) - developer
 - [shy-away](https://github.com/shy-away) - developer
+- [riverkarnas](https://github.com/riverkarnas) - developer
 
 ## Getting Started
 
