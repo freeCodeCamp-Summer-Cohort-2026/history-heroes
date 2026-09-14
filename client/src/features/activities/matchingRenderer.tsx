@@ -70,7 +70,8 @@ export default function MatchingRenderer({
                 key={item.id}
                 onDragEnd={() => setDraggedItem(null)}
               >
-                {item.label} - {findOppositeLabel?.label}
+                {item.label}
+                {findOppositeLabel ? ` - ${findOppositeLabel.label}` : ''}
               </button>
             )
           })
@@ -112,12 +113,13 @@ export default function MatchingRenderer({
                 }}
                 onDragEnd={() => setDraggedItem(null)}
               >
-                {item.label} - {findOppositeLabel?.label}
+                {item.label}
+                {findOppositeLabel ? ` - ${findOppositeLabel.label}` : ''}
               </button>
             )
           })
         ) : (
-          <p>No item available</p>
+          <p>No items available</p>
         )}
       </div>
     </>
