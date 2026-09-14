@@ -6,12 +6,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import {
-  DataSource,
-  EntityManager,
-  FindOptionsWhere,
-  Repository,
-} from 'typeorm';
+import { DataSource, FindOptionsWhere, Repository } from 'typeorm';
 import * as fs from 'fs';
 import * as path from 'path';
 import { UserLessonProgress } from './entities/user-lesson-progress.entity';
