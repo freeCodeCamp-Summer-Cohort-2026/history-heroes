@@ -16,8 +16,14 @@
 
   /* Brand / primary */
   --color-primary: #1f2937;
-  --color-primary-focus: #334155;
+  --color-primary-focus: #53647c;
   --color-primary-content: #ffffff;
+
+  /* DaisyUI internal tokens */
+  --p: var(--color-primary);
+  --pf: var(--color-primary-focus);
+  --pc: var(--color-primary-content);
+  --p-focus: var(--color-primary-focus);
 
   /* Secondary */
   --color-secondary: #6b7280;
