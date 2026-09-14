@@ -9,6 +9,7 @@ type ModuleCardProps = {
 
 function safeImage(url?: string): string | undefined {
   if (!url) return undefined
+  if (url.startsWith('/')) return url
   try {
     const parsed = new URL(url)
     if (parsed.protocol !== 'https:') return undefined
