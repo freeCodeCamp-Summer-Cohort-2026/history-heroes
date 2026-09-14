@@ -122,8 +122,6 @@ Returns the lesson's activities in the order given by that lesson's `activityIds
 ]
 ```
 
-`successCriteria` is included in the response and the client evaluates the submission, consistent with [#64](https://github.com/freeCodeCamp-Summer-Cohort-2026/history-heroes/issues/64) scoping evaluation as client work. Preventing a learner from reading the answer out of the network tab is out of scope for Core.
-
 ### Labs
 
 `GET /api/v1/modules/:moduleId/lab`
