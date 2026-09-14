@@ -4,6 +4,7 @@ import Button from './Button'
 import FeedbackState from './FeedbackState'
 import LessonListItem from './LessonListItem'
 import ModuleCard from './ModuleCard'
+import FilterChips from './FilterChips'
 
 export default function ComponentShowcase() {
   return (
@@ -23,6 +24,16 @@ export default function ComponentShowcase() {
           <Button>Primary button</Button>
           <Button variant="secondary">Secondary button</Button>
         </div>
+      </section>
+
+      {/* Filter Chips */}
+      <section className="space-y-4">
+        <h2 className="text-heading">Filter chips</h2>
+        <FilterChips
+          options={['All', 'Ancient', 'Middle Ages']}
+          selected="All"
+          onSelect={(opt) => console.log(opt)}
+        />
       </section>
 
       {/* Module cards */}
