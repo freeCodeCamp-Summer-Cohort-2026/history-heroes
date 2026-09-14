@@ -73,6 +73,7 @@ To start the `server` project in dev mode
 cd server
 npm run dev
 ```
+
 ## Branch naming
 
 Branch off `main`, and name the branch after the issue you are working on:
@@ -119,22 +120,22 @@ docs: correct auth scope and remove settled open questions
 
 ### Types
 
-| Type | Use it for |
-| --- | --- |
-| `feat` | new functionality a user or another developer can see |
-| `fix` | correcting behavior that was already supposed to work |
-| `docs` | documentation only, including this file |
-| `chore` | tooling, configuration, dependencies, test setup, housekeeping |
-| `refactor` | restructuring code without changing what it does |
-| `test` | adding or correcting tests only |
+| Type       | Use it for                                                     |
+| ---------- | -------------------------------------------------------------- |
+| `feat`     | new functionality a user or another developer can see          |
+| `fix`      | correcting behavior that was already supposed to work          |
+| `docs`     | documentation only, including this file                        |
+| `chore`    | tooling, configuration, dependencies, test setup, housekeeping |
+| `refactor` | restructuring code without changing what it does               |
+| `test`     | adding or correcting tests only                                |
 
 ### Scopes
 
-| Scope | Means |
-| --- | --- |
-| `client` | anything under `client/` |
-| `api` | anything under `server/` |
-| `tools` | curriculum content, seed data and authoring scripts |
+| Scope    | Means                                               |
+| -------- | --------------------------------------------------- |
+| `client` | anything under `client/`                            |
+| `api`    | anything under `server/`                            |
+| `tools`  | curriculum content, seed data and authoring scripts |
 
 Leave the scope off when the change is repo-wide and does not belong to one half, such as `docs:` or `chore:` at the root.
 
@@ -151,3 +152,15 @@ Link the issue in the PR description with a closing keyword so it closes on merg
 ```
 Closes #69
 ```
+
+### Swagger Docs
+
+[Documentation for the API's endpoints]
+
+- To access Swagger Docs, have the server side running and access http://localhost:3000/api
+- Following instructions on adding a new Entity covers the response side, as no entity takes input yet for there to be request body information - however, zod schemas were tested in a sandbox and `z.object()` attched via `@Body({ schema })` shows its fields `(e.g.: name/age/breed)` correctly on the swagger docs page, no extra package needed.
+
+#### New Entity: controller file
+
+- Add `@ApiProperty` above every property inside the Dto object for that entity
+- Add `@ApiResponse({ type: ModuleDto })` under the `@Get` decorator if the `get` method returns an object, and `@ApiResponse({ type: [ModuleDto] })` if it returns an array of objects
