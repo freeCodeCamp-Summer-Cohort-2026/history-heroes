@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 import {
   BadRequestException,
   NotFoundException,
@@ -16,10 +17,23 @@ describe('ProgressService', () => {
     find: vi.fn(),
     create: vi.fn(),
     save: vi.fn(),
+    remove: vi.fn(),
+  };
+
+  const mockTransaction = vi.fn();
+  const mockEntityManager = {
+    getRepository: vi.fn().mockReturnValue(mockLessonProgressRepository),
+  };
+  const mockDataSource = {
+    transaction: mockTransaction,
   };
 
   beforeEach(async () => {
     vi.clearAllMocks();
+
+    mockTransaction.mockImplementation(async (callback: any) => {
+      return await callback(mockEntityManager);
+    });
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -27,6 +41,10 @@ describe('ProgressService', () => {
         {
           provide: getRepositoryToken(UserLessonProgress),
           useValue: mockLessonProgressRepository,
+        },
+        {
+          provide: DataSource,
+          useValue: mockDataSource,
         },
       ],
     }).compile();
@@ -60,7 +78,7 @@ describe('ProgressService', () => {
       ).rejects.toThrow(UnauthorizedException);
     });
 
-    it('should create and return a new progress record for an authenticated user', async () => {
+    it('should create and return a new progress record for an authenticated user within transaction', async () => {
       mockLessonProgressRepository.findOne.mockResolvedValue(null);
       const createdEntity = {
         id: 1,
@@ -79,6 +97,7 @@ describe('ProgressService', () => {
       });
 
       expect(result).toEqual(createdEntity);
+      expect(mockTransaction).toHaveBeenCalled();
       expect(mockLessonProgressRepository.create).toHaveBeenCalledWith(
         expect.objectContaining({
           lessonId: 'great-pyramid',
@@ -86,7 +105,9 @@ describe('ProgressService', () => {
           sessionId: 'sess-123',
         }),
       );
-      expect(mockLessonProgressRepository.save).toHaveBeenCalledWith(createdEntity);
+      expect(mockLessonProgressRepository.save).toHaveBeenCalledWith(
+        createdEntity,
+      );
     });
 
     it('should create and return a new progress record for an anonymous session', async () => {
@@ -146,7 +167,9 @@ describe('ProgressService', () => {
       mockLessonProgressRepository.findOne
         .mockResolvedValueOnce(null)
         .mockResolvedValueOnce(existing);
-      mockLessonProgressRepository.save.mockImplementation((item) => Promise.resolve(item));
+      mockLessonProgressRepository.save.mockImplementation((item) =>
+        Promise.resolve(item),
+      );
 
       const result = await service.recordLessonProgress({
         lessonId: 'great-pyramid',
@@ -157,6 +180,36 @@ describe('ProgressService', () => {
       expect(result.userId).toBe(42);
       expect(mockLessonProgressRepository.save).toHaveBeenCalledWith(
         expect.objectContaining({ id: 1, userId: 42 }),
+      );
+    });
+
+    it('should handle TOCTOU race conditions gracefully if concurrent insert occurs', async () => {
+      mockLessonProgressRepository.findOne
+        .mockResolvedValueOnce(null) // first check sees nothing
+        .mockResolvedValueOnce({
+          id: 99,
+          lessonId: 'great-pyramid',
+          userId: 42,
+        }); // concurrent check retrieves record
+      mockLessonProgressRepository.create.mockReturnValue({
+        lessonId: 'great-pyramid',
+        userId: 42,
+      });
+      mockLessonProgressRepository.save.mockRejectedValueOnce(
+        new Error('UNIQUE constraint failed'),
+      );
+
+      const result = await service.recordLessonProgress({
+        lessonId: 'great-pyramid',
+        userId: 42,
+      });
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          id: 99,
+          lessonId: 'great-pyramid',
+          userId: 42,
+        }),
       );
     });
   });
@@ -210,19 +263,74 @@ describe('ProgressService', () => {
       expect(learnerAProgress).not.toEqual(learnerBProgress);
     });
 
-    it('should return progress records for an authenticated user and link session records', async () => {
-      const records = [
+    it('should return progress records for an authenticated user and link session records atomically in a transaction', async () => {
+      const sessionRecords = [
         { id: 1, lessonId: 'great-pyramid', userId: 42, sessionId: 'sess-1' },
-        { id: 2, lessonId: 'hanging-gardens', userId: null, sessionId: 'sess-1' },
+        {
+          id: 2,
+          lessonId: 'hanging-gardens',
+          userId: null,
+          sessionId: 'sess-1',
+        },
       ];
-      mockLessonProgressRepository.find.mockResolvedValue(records);
-      mockLessonProgressRepository.save.mockImplementation((item) => Promise.resolve(item));
+      mockLessonProgressRepository.find.mockImplementation((query: any) => {
+        if (query?.where?.sessionId && !Array.isArray(query.where)) {
+          return Promise.resolve(sessionRecords);
+        }
+        if (query?.where?.userId && !Array.isArray(query.where)) {
+          return Promise.resolve([sessionRecords[0]]);
+        }
+        return Promise.resolve(sessionRecords);
+      });
+      mockLessonProgressRepository.save.mockImplementation((item) =>
+        Promise.resolve(item),
+      );
 
-      const result = await service.getProgress({ userId: 42, sessionId: 'sess-1' });
+      const result = await service.getProgress({
+        userId: 42,
+        sessionId: 'sess-1',
+      });
 
       expect(result).toHaveLength(2);
-      expect(records[1].userId).toBe(42);
-      expect(mockLessonProgressRepository.save).toHaveBeenCalledWith(records[1]);
+      expect(mockTransaction).toHaveBeenCalled();
+      expect(mockLessonProgressRepository.save).toHaveBeenCalledWith([
+        sessionRecords[1],
+      ]);
+      expect(sessionRecords[1].userId).toBe(42);
+    });
+
+    it('should prune duplicate session records if user already has completed lesson', async () => {
+      const sessionRecords = [
+        { id: 1, lessonId: 'great-pyramid', userId: null, sessionId: 'sess-1' },
+      ];
+      const userRecords = [
+        {
+          id: 2,
+          lessonId: 'great-pyramid',
+          userId: 42,
+          sessionId: 'other-sess',
+        },
+      ];
+      mockLessonProgressRepository.find.mockImplementation((query: any) => {
+        if (query?.where?.sessionId && !Array.isArray(query.where)) {
+          return Promise.resolve(sessionRecords);
+        }
+        if (query?.where?.userId && !Array.isArray(query.where)) {
+          return Promise.resolve(userRecords);
+        }
+        return Promise.resolve(userRecords);
+      });
+
+      const result = await service.getProgress({
+        userId: 42,
+        sessionId: 'sess-1',
+      });
+
+      expect(mockLessonProgressRepository.remove).toHaveBeenCalledWith([
+        sessionRecords[0],
+      ]);
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe(2);
     });
 
     it('should deduplicate progress items by lessonId', async () => {

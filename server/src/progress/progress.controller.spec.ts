@@ -80,7 +80,10 @@ describe('ProgressController', () => {
         sessionID: 'sess-123',
       } as unknown as Request;
 
-      const result = await controller.recordLessonProgress('great-pyramid', mockReq);
+      const result = await controller.recordLessonProgress(
+        'great-pyramid',
+        mockReq,
+      );
 
       expect(result).toEqual(mockResult);
       expect(mockProgressService.recordLessonProgress).toHaveBeenCalledWith({
@@ -105,7 +108,10 @@ describe('ProgressController', () => {
         sessionID: 'sess-123',
       } as unknown as Request;
 
-      const result = await controller.recordLessonProgressPut('great-pyramid', mockReq);
+      const result = await controller.recordLessonProgressPut(
+        'great-pyramid',
+        mockReq,
+      );
 
       expect(result).toEqual(mockResult);
       expect(mockProgressService.recordLessonProgress).toHaveBeenCalledWith({
@@ -132,7 +138,10 @@ describe('ProgressController', () => {
         sessionID: 'sess-123',
       } as unknown as Request;
 
-      const result = await controller.getLessonProgress('great-pyramid', mockReq);
+      const result = await controller.getLessonProgress(
+        'great-pyramid',
+        mockReq,
+      );
 
       expect(result).toEqual(mockResult);
     });

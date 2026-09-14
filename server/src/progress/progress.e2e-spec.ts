@@ -29,17 +29,11 @@ describe('ProgressController (e2e)', () => {
   it('/api/v1/progress/lessons/:lessonId (POST & PUT) rejects unknown lesson with 404', async () => {
     const agent = request.agent(app.getHttpServer());
 
-    await agent
-      .post('/api/v1/progress/lessons/nonexistent-lesson')
-      .expect(404);
+    await agent.post('/api/v1/progress/lessons/nonexistent-lesson').expect(404);
 
-    await agent
-      .put('/api/v1/progress/lessons/nonexistent-lesson')
-      .expect(404);
+    await agent.put('/api/v1/progress/lessons/nonexistent-lesson').expect(404);
 
-    await agent
-      .get('/api/v1/progress/lessons/nonexistent-lesson')
-      .expect(404);
+    await agent.get('/api/v1/progress/lessons/nonexistent-lesson').expect(404);
   });
 
   it('/api/v1/progress/lessons/:lessonId (POST) saves progress and /api/v1/progress (GET) retrieves it', async () => {
@@ -104,14 +98,10 @@ describe('ProgressController (e2e)', () => {
     });
 
     // Learner A completes great-pyramid
-    await agentA
-      .post('/api/v1/progress/lessons/great-pyramid')
-      .expect(201);
+    await agentA.post('/api/v1/progress/lessons/great-pyramid').expect(201);
 
     // Learner B completes hanging-gardens
-    await agentB
-      .post('/api/v1/progress/lessons/hanging-gardens')
-      .expect(201);
+    await agentB.post('/api/v1/progress/lessons/hanging-gardens').expect(201);
 
     // Verify Learner A only sees great-pyramid
     const responseA = await agentA.get('/api/v1/progress').expect(200);

@@ -2,27 +2,35 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  OnModuleInit,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import {
+  DataSource,
+  EntityManager,
+  FindOptionsWhere,
+  Repository,
+} from 'typeorm';
 import * as fs from 'fs';
 import * as path from 'path';
 import { UserLessonProgress } from './entities/user-lesson-progress.entity';
 
 @Injectable()
-export class ProgressService {
+export class ProgressService implements OnModuleInit {
   private validLessonIds: Set<string> | null = null;
 
   constructor(
     @InjectRepository(UserLessonProgress)
     private readonly lessonProgressRepository: Repository<UserLessonProgress>,
+    private readonly dataSource: DataSource,
   ) {}
 
-  /**
-   * Helper to resolve known authored lesson IDs from seeds/config.
-   */
-  private getValidLessonIds(): Set<string> {
+  async onModuleInit() {
+    await this.loadValidLessonIds();
+  }
+
+  private async loadValidLessonIds(): Promise<Set<string>> {
     if (this.validLessonIds) {
       return this.validLessonIds;
     }
@@ -34,20 +42,34 @@ export class ProgressService {
     ];
 
     for (const filePath of possiblePaths) {
-      if (fs.existsSync(filePath)) {
-        try {
-          const raw = fs.readFileSync(filePath, 'utf-8');
-          const data = JSON.parse(raw);
-          if (Array.isArray(data?.lessons)) {
-            this.validLessonIds = new Set(
-              data.lessons.map((l: { id: string }) => l.id),
-            );
-            return this.validLessonIds;
-          }
-        } catch {
-          // fallback to next path or default set
+      try {
+        const raw = await fs.promises.readFile(filePath, 'utf-8');
+        const data = JSON.parse(raw);
+        if (Array.isArray(data?.lessons)) {
+          this.validLessonIds = new Set(
+            data.lessons.map((l: { id: string }) => l.id),
+          );
+          return this.validLessonIds;
         }
+      } catch {
+        // fallback to next path or default set
       }
+    }
+
+    this.validLessonIds = new Set([
+      'great-pyramid',
+      'hanging-gardens',
+      'lighthouse-of-alexandria',
+    ]);
+    return this.validLessonIds;
+  }
+
+  /**
+   * Helper to resolve known authored lesson IDs from seeds/config.
+   */
+  private getValidLessonIds(): Set<string> {
+    if (this.validLessonIds) {
+      return this.validLessonIds;
     }
 
     this.validLessonIds = new Set([
@@ -63,6 +85,47 @@ export class ProgressService {
    */
   isValidLesson(lessonId: string): boolean {
     return this.getValidLessonIds().has(lessonId);
+  }
+
+  /**
+   * Helper function used within recordLessonProgress, to
+   * get the existing learning progress for the current user/session relative to the given lesson.
+   *
+   * This is to be used within a transaction to prevent a TOCTOU race
+   */
+  private async getExistingProgress(params: {
+    repo: Repository<UserLessonProgress>;
+    lessonId: string;
+    userId?: number | null;
+    sessionId?: string | null;
+  }): Promise<UserLessonProgress | null> {
+    const { repo, lessonId, userId, sessionId } = params;
+
+    let existing: UserLessonProgress | null = null;
+
+    if (userId) {
+      existing = await repo.findOne({
+        where: { lessonId, userId },
+      });
+    }
+
+    if (!existing && sessionId) {
+      existing = await repo.findOne({
+        where: { lessonId, sessionId },
+      });
+    }
+
+    if (!existing) {
+      return null;
+    }
+
+    if (userId && !existing.userId) {
+      // update the existing record to link it to the authenticated user
+      existing.userId = userId;
+      return await repo.save(existing);
+    }
+
+    return existing;
   }
 
   /**
@@ -88,42 +151,54 @@ export class ProgressService {
       throw new UnauthorizedException('No active user or session found');
     }
 
-    let existing: UserLessonProgress | null = null;
+    return await this.dataSource.transaction(async (manager) => {
+      const repo = manager.getRepository(UserLessonProgress);
 
-    if (userId) {
-      existing = await this.lessonProgressRepository.findOne({
-        where: { lessonId, userId },
-      });
-    }
+      const existing: UserLessonProgress | null =
+        await this.getExistingProgress({
+          repo,
+          lessonId,
+          userId,
+          sessionId,
+        });
 
-    if (!existing && sessionId) {
-      existing = await this.lessonProgressRepository.findOne({
-        where: { lessonId, sessionId },
-      });
-    }
-
-    if (existing) {
-      // If found via session and the user is now authenticated, link user to the existing record
-      if (userId && !existing.userId) {
-        existing.userId = userId;
-        return await this.lessonProgressRepository.save(existing);
+      if (existing) {
+        return existing;
       }
-      return existing;
-    }
 
-    const newRecord = this.lessonProgressRepository.create({
-      lessonId,
-      userId: userId ?? null,
-      sessionId: sessionId ?? null,
-      completedAt: new Date(),
+      const newRecord = repo.create({
+        lessonId,
+        userId: userId ?? null,
+        sessionId: sessionId ?? null,
+        completedAt: new Date(),
+      });
+
+      try {
+        return await repo.save(newRecord);
+      } catch {
+        // Handle TOCTOU race: concurrent request may have inserted in parallel
+        if (userId) {
+          const raceRecord = await repo.findOne({
+            where: { lessonId, userId },
+          });
+          if (raceRecord) return raceRecord;
+        }
+        if (sessionId) {
+          const raceRecord = await repo.findOne({
+            where: { lessonId, sessionId },
+          });
+          if (raceRecord) return raceRecord;
+        }
+        throw new BadRequestException(
+          'Failed to record lesson progress due to conflict',
+        );
+      }
     });
-
-    return await this.lessonProgressRepository.save(newRecord);
   }
 
   /**
    * Returns all progress for the current user's session and/or userId.
-   * If the user is authenticated, unlinked progress belonging to the same session is linked to the user.
+   * If the user is authenticated, unlinked progress belonging to the same session is linked to the user atomically.
    */
   async getProgress(options: {
     userId?: number | null;
@@ -133,6 +208,47 @@ export class ProgressService {
 
     if (!userId && !sessionId) {
       return [];
+    }
+
+    // Atomically link any unlinked session records to the authenticated user
+    if (userId && sessionId) {
+      await this.dataSource.transaction(async (manager) => {
+        const repo = manager.getRepository(UserLessonProgress);
+        const sessionRecords = await repo.find({
+          where: { sessionId },
+        });
+
+        const unlinkedRecords = sessionRecords.filter((r) => !r.userId);
+        if (unlinkedRecords.length === 0) {
+          return;
+        }
+
+        const userRecords = await repo.find({
+          where: { userId },
+        });
+        const existingLessonIds = new Set(userRecords.map((r) => r.lessonId));
+
+        const recordsToSave: UserLessonProgress[] = [];
+        const recordsToRemove: UserLessonProgress[] = [];
+
+        for (const record of unlinkedRecords) {
+          if (existingLessonIds.has(record.lessonId)) {
+            // User already has a progress record for this lesson; prune duplicate session record
+            recordsToRemove.push(record);
+          } else {
+            record.userId = userId;
+            recordsToSave.push(record);
+            existingLessonIds.add(record.lessonId);
+          }
+        }
+
+        if (recordsToRemove.length > 0) {
+          await repo.remove(recordsToRemove);
+        }
+        if (recordsToSave.length > 0) {
+          await repo.save(recordsToSave);
+        }
+      });
     }
 
     const whereConditions: FindOptionsWhere<UserLessonProgress>[] = [];
@@ -147,16 +263,6 @@ export class ProgressService {
       where: whereConditions,
       order: { completedAt: 'ASC' },
     });
-
-    if (userId) {
-      // Link any records belonging to this session that lack userId
-      for (const record of records) {
-        if (!record.userId) {
-          record.userId = userId;
-          await this.lessonProgressRepository.save(record);
-        }
-      }
-    }
 
     // Deduplicate by lessonId in case records exist for both sessionId and userId
     const uniqueMap = new Map<string, UserLessonProgress>();

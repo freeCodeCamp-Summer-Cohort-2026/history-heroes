@@ -47,6 +47,18 @@ export class ProgressController {
   }
 
   /**
+   * Records or confirms lesson completion for the active learner via PUT idempotently.
+   * Accessible at: PUT /api/v1/progress/lessons/:lessonId
+   */
+  @Put('lessons/:lessonId')
+  async recordLessonProgressPut(
+    @Param('lessonId') lessonId: string,
+    @Req() req: Request,
+  ): Promise<UserLessonProgress> {
+    return this.recordLessonProgress(lessonId, req);
+  }
+
+  /**
    * Returns progress for a specific lesson for the current user/session.
    * Accessible at: GET /api/v1/progress/lessons/:lessonId
    */

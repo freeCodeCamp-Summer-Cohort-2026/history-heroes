@@ -28,7 +28,7 @@ export class UserLessonProgress {
   @Index()
   sessionId?: string | null;
 
-  @CreateDateColumn()
+  @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   completedAt: Date;
 
   @CreateDateColumn()
