@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   NotFoundException,
   OnModuleInit,
   UnauthorizedException,
@@ -13,6 +14,7 @@ import { UserLessonProgress } from './entities/user-lesson-progress.entity';
 
 @Injectable()
 export class ProgressService implements OnModuleInit {
+  private readonly logger = new Logger(ProgressService.name);
   private validLessonIds: Set<string> | null = null;
 
   constructor(
@@ -170,7 +172,8 @@ export class ProgressService implements OnModuleInit {
 
       try {
         return await repo.save(newRecord);
-      } catch {
+      } catch (error) {
+        this.logger.error(error);
         // Handle TOCTOU race: concurrent request may have inserted in parallel
         if (userId) {
           const raceRecord = await repo.findOne({
