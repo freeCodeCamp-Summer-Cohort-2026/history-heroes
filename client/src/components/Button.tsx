@@ -18,7 +18,9 @@ export default function Button({
   className = '',
 }: ButtonProps) {
   const variantClass =
-    variant === 'primary' ? 'btn-primary' : 'btn-outline btn-secondary'
+    variant === 'primary'
+      ? 'btn-primary hover:bg-[var(--color-primary-focus)]'
+      : 'btn-outline btn-secondary'
 
   return (
     <button
