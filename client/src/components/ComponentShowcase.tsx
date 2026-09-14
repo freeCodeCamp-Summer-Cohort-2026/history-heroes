@@ -1,4 +1,4 @@
-/* This is just a page to test all the components, it is not needed for the project, just handy for now*/
+/* This is just a page to test all the components, it is not needed for the project, just handy for now */
 
 import Button from './Button'
 import FeedbackState from './FeedbackState'
@@ -88,12 +88,16 @@ export default function ComponentShowcase() {
         <div className="space-y-4">
           <FeedbackState
             type="correct"
-            message="Your answer matches the expected order."
+            checked="We checked whether all three events were placed in chronological order."
           />
+
           <FeedbackState
             type="not-yet"
-            message="The first two events are out of order."
+            checked="We checked whether all three events were placed in chronological order."
+            expected="Events should go from earliest to latest."
+            yours="The first two events are out of order."
             actionLabel="Try again"
+            onAction={() => console.log('Try again clicked')}
           />
         </div>
       </section>

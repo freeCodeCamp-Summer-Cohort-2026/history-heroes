@@ -1,27 +1,31 @@
 type FeedbackStateProps = {
   type: 'correct' | 'not-yet'
-  title?: string
-  message: string
+  checked: string
+  expected?: string
+  yours?: string
   actionLabel?: string
   onAction?: () => void
 }
 
 export default function FeedbackState({
   type,
-  title,
-  message,
+  checked,
+  expected,
+  yours,
   actionLabel,
   onAction,
 }: FeedbackStateProps) {
   const isCorrect = type === 'correct'
+  const panelClasses = isCorrect
+    ? 'border-success/30 bg-success/10'
+    : 'border-warning/30 bg-warning/10'
+
+  const icon = isCorrect ? '✓' : '!'
+  const title = isCorrect ? 'Correct' : 'Not yet'
 
   return (
     <section
-      className={`rounded-box border p-6 ${
-        isCorrect
-          ? 'border-success/30 bg-success/10'
-          : 'border-warning/30 bg-warning/10'
-      }`}
+      className={`rounded-box border p-6 ${panelClasses}`}
       aria-live="polite"
     >
       <div className="flex gap-3">
@@ -31,15 +35,41 @@ export default function FeedbackState({
           }`}
           aria-hidden="true"
         >
-          {isCorrect ? '✓' : '!'}
+          {icon}
         </span>
 
-        <div className="flex-1">
-          <h2 className="text-subheading font-semibold">
-            {title ?? (isCorrect ? 'Correct' : 'Not yet')}
-          </h2>
+        <div className="flex-1 space-y-4">
+          <h2 className="text-subheading font-semibold">{title}</h2>
 
-          <p className="mt-2 text-body">{message}</p>
+          {/* What we checked */}
+          <div>
+            <h3 className="text-small font-semibold opacity-70">
+              What we checked
+            </h3>
+            <p className="text-body mt-1">{checked}</p>
+          </div>
+
+          {/* Correct or Not Yet details */}
+          {isCorrect ? (
+            <p className="text-body mt-2">
+              Great job! Your order matches the expected order.
+            </p>
+          ) : (
+            <>
+              <div>
+                <h3 className="text-small font-semibold opacity-70">
+                  Expected
+                </h3>
+                <p className="text-body mt-1">{expected}</p>
+              </div>
+              <div>
+                <h3 className="text-small font-semibold opacity-70">
+                  Your answer
+                </h3>
+                <p className="text-body mt-1">{yours}</p>
+              </div>
+            </>
+          )}
 
           {actionLabel && (
             <button
