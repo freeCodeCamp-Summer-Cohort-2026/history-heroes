@@ -89,8 +89,8 @@ export default function ComponentShowcase() {
           <FeedbackState
             type="correct"
             checked="We checked whether all three events were placed in chronological order."
+            successMessage="Your answer matches the expected result."
           />
-
           <FeedbackState
             type="not-yet"
             checked="We checked whether all three events were placed in chronological order."

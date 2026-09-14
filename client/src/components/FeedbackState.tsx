@@ -2,6 +2,7 @@ type FeedbackStateProps =
   | {
       type: 'correct'
       checked: string
+      successMessage: string
       actionLabel?: string
       onAction?: () => void
     }
@@ -53,9 +54,7 @@ export default function FeedbackState(props: FeedbackStateProps) {
 
           {/* Correct or Not Yet details */}
           {isCorrect ? (
-            <p className="text-body mt-2">
-              Great job! Your order matches the expected order.
-            </p>
+            <p className="text-body mt-2">{props.successMessage}</p>
           ) : (
             <>
               <div>
