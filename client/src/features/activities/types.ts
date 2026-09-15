@@ -44,6 +44,7 @@ export type Activity =
     }
 
 export type ActivityAnswer = OrderingAnswer | MatchingAnswer
+export type ActivityAnswers = Partial<Record<string, ActivityAnswer>>
 export type ActivityResult = 'unsubmitted' | 'correct' | 'not-yet'
 
 export type ActivityRendererProps<TContent, TAnswer> = {
