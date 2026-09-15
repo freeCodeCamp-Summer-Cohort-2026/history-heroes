@@ -5,6 +5,33 @@ import {
 import * as seedActivitiesJson from './../../../../../data/seeds/initial-activities.json';
 
 describe('Activity item schema', () => {
+  let dummyOrderingActivity: {
+    id: string;
+    type: string;
+    title: string;
+    checkStatement: string;
+    content: {
+      items: { id: string; label: string }[];
+    };
+    successCriteria: {
+      correctOrder: string[];
+    };
+  };
+
+  let dummyMatchingActivity: {
+    id: string;
+    type: string;
+    title: string;
+    checkStatement: string;
+    content: {
+      left: { id: string; label: string }[];
+      right: { id: string; label: string }[];
+    };
+    successCriteria: {
+      pairs: { left: string; right: string }[];
+    };
+  };
+
   it('should exist', () => {
     expect(ActivitySeedItemSchema).toBeDefined();
   });
@@ -31,19 +58,6 @@ describe('Activity item schema', () => {
   });
 
   describe('ordering activity ids', () => {
-    let dummyOrderingActivity: {
-      id: string;
-      type: string;
-      title: string;
-      checkStatement: string;
-      content: {
-        items: { id: string; label: string }[];
-      };
-      successCriteria: {
-        correctOrder: string[];
-      };
-    };
-
     const expectValidationFailure = () => {
       const result = ActivitySeedItemSchema.safeParse(dummyOrderingActivity);
 
@@ -146,20 +160,6 @@ describe('Activity item schema', () => {
   });
 
   describe('matching activity ids', () => {
-    let dummyMatchingActivity: {
-      id: string;
-      type: string;
-      title: string;
-      checkStatement: string;
-      content: {
-        left: { id: string; label: string }[];
-        right: { id: string; label: string }[];
-      };
-      successCriteria: {
-        pairs: { left: string; right: string }[];
-      };
-    };
-
     const expectValidationFailure = () => {
       const result = ActivitySeedItemSchema.safeParse(dummyMatchingActivity);
 
