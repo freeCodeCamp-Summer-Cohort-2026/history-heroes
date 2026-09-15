@@ -4,7 +4,9 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
+import { Lesson } from './lesson.entity';
 
 @Entity('modules')
 export class Module {
@@ -17,8 +19,17 @@ export class Module {
   @Column({ type: 'varchar', length: 255 })
   description: string;
 
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  period: string | null;
+
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  theme: string | null;
+
   @Column({ type: 'integer', default: 0 })
   order: number;
+
+  @OneToMany(() => Lesson, (lesson) => lesson.module)
+  lessons: Lesson[];
 
   @CreateDateColumn()
   createdAt: Date;
