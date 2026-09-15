@@ -329,6 +329,21 @@ describe('Activity item schema', () => {
       });
     });
   });
+
+  describe('error messages', () => {
+    it('should produce different errors for different types of invalid input', () => {
+      const dummyActivityEmptyType = JSON.parse(JSON.stringify(dummyOrderingActivity));
+      dummyActivityEmptyType.type = '';
+
+      const dummyActivityNoSuccess = JSON.parse(JSON.stringify(dummyOrderingActivity));
+      delete dummyActivityNoSuccess.successCriteria;
+
+      const resultEmptyType = ActivitySeedItemSchema.safeParse(dummyActivityEmptyType);
+      const resultNoSuccess = ActivitySeedItemSchema.safeParse(dummyActivityNoSuccess);
+
+      expect(resultEmptyType.error?.message !== resultNoSuccess.error?.message).toBeTruthy();
+    });
+  });
 });
 
 describe('Activities file schema', () => {
