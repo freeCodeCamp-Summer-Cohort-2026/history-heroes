@@ -2,7 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ModulesController } from './modules.controller';
 import { ModulesService } from './modules.service';
 import { Module } from './entities/module.entity';
+import { LessonsService } from './lessons.service';
 
+// TODO: this test can possibly be removed, focus on e2e tests.
 describe('ModulesController', () => {
   let controller: ModulesController;
   const mockModules: Module[] = [
@@ -20,6 +22,10 @@ describe('ModulesController', () => {
     findAll: vi.fn().mockResolvedValue(mockModules),
   };
 
+  const mockLessonService = {
+    getModuleLessons: vi.fn().mockResolvedValue([]),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ModulesController],
@@ -27,6 +33,10 @@ describe('ModulesController', () => {
         {
           provide: ModulesService,
           useValue: mockModulesService,
+        },
+        {
+          provide: LessonsService,
+          useValue: mockLessonService,
         },
       ],
     }).compile();
