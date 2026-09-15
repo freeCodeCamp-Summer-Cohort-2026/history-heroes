@@ -22,7 +22,7 @@ describe('ModulesController (e2e)', () => {
     expect(response.body.length).toBeGreaterThan(0);
     expect(response.body[0]).toMatchObject({
       id: 'seven-wonders',
-      title: 'Seven Wonders',
+      title: 'The Seven Wonders of the Ancient World',
     });
   });
 });
