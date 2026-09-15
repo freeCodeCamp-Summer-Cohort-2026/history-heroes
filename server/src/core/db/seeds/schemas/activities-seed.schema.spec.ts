@@ -18,6 +18,31 @@ describe('Activity item schema', () => {
     };
   };
 
+  // reset dummy ordering activity before each test
+  beforeEach(() => {
+    dummyOrderingActivity = {
+      id: 'dummy-ordering-activity',
+      type: 'ordering',
+      title: 'Dummy ordering activity',
+      checkStatement: 'This is a dummy ordering activity',
+      content: {
+        items: [
+          {
+            id: 'first',
+            label: 'First',
+          },
+          {
+            id: 'second',
+            label: 'Second',
+          },
+        ],
+      },
+      successCriteria: {
+        correctOrder: ['first', 'second'],
+      },
+    };
+  });
+
   let dummyMatchingActivity: {
     id: string;
     type: string;
@@ -31,6 +56,44 @@ describe('Activity item schema', () => {
       pairs: { left: string; right: string }[];
     };
   };
+
+  // reset dummy matching activity before each test
+  beforeEach(() => {
+    dummyMatchingActivity = {
+      id: 'dummy-matching-activity',
+      type: 'matching',
+      title: 'Dummy matching activity',
+      checkStatement: 'This is a dummy matching activity',
+      content: {
+        left: [
+          {
+            id: 'first',
+            label: 'First',
+          },
+          {
+            id: 'third',
+            label: 'Third',
+          },
+        ],
+        right: [
+          {
+            id: 'second',
+            label: 'Second',
+          },
+          {
+            id: 'fourth',
+            label: 'Fourth',
+          },
+        ],
+      },
+      successCriteria: {
+        pairs: [
+          { left: 'first', right: 'second' },
+          { left: 'third', right: 'fourth' },
+        ],
+      },
+    };
+  });
 
   it('should exist', () => {
     expect(ActivitySeedItemSchema).toBeDefined();
@@ -64,31 +127,6 @@ describe('Activity item schema', () => {
       expect(result.success).toBeFalsy();
       expect(result.error).toBeDefined();
     };
-
-    // reset dummy activity before each test
-    beforeEach(() => {
-      dummyOrderingActivity = {
-        id: 'dummy-ordering-activity',
-        type: 'ordering',
-        title: 'Dummy ordering activity',
-        checkStatement: 'This is a dummy ordering activity',
-        content: {
-          items: [
-            {
-              id: 'first',
-              label: 'First',
-            },
-            {
-              id: 'second',
-              label: 'Second',
-            },
-          ],
-        },
-        successCriteria: {
-          correctOrder: ['first', 'second'],
-        },
-      };
-    });
 
     it('shoudld be valid for unmodified dummy activity', () => {
       ActivitySeedItemSchema.parse(dummyOrderingActivity);
@@ -166,44 +204,6 @@ describe('Activity item schema', () => {
       expect(result.success).toBeFalsy();
       expect(result.error).toBeDefined();
     };
-
-    // reset dummy activity before each test
-    beforeEach(() => {
-      dummyMatchingActivity = {
-        id: 'dummy-matching-activity',
-        type: 'matching',
-        title: 'Dummy matching activity',
-        checkStatement: 'This is a dummy matching activity',
-        content: {
-          left: [
-            {
-              id: 'first',
-              label: 'First',
-            },
-            {
-              id: 'third',
-              label: 'Third',
-            },
-          ],
-          right: [
-            {
-              id: 'second',
-              label: 'Second',
-            },
-            {
-              id: 'fourth',
-              label: 'Fourth',
-            },
-          ],
-        },
-        successCriteria: {
-          pairs: [
-            { left: 'first', right: 'second' },
-            { left: 'third', right: 'fourth' },
-          ],
-        },
-      };
-    });
 
     it('shoudld be valid for unmodified dummy activity', () => {
       ActivitySeedItemSchema.parse(dummyMatchingActivity);
