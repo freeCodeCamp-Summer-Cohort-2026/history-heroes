@@ -3,13 +3,9 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
-  UpdateDateColumn,
-  ManyToOne,
-  JoinColumn,
   Unique,
   Index,
 } from 'typeorm';
-import { Activity } from './activity.entity';
 
 @Entity('lesson_activity_assignments')
 @Unique(['lessonId', 'orderIndex'])
