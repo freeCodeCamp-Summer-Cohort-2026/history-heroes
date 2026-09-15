@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Lesson } from './entities/lesson.entity';
+import { Module as ModuleEntity } from './entities/module.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -8,13 +9,21 @@ export class LessonsService {
   constructor(
     @InjectRepository(Lesson)
     private readonly lessonsRepository: Repository<Lesson>,
+    @InjectRepository(ModuleEntity)
+    private readonly modulesRepository: Repository<ModuleEntity>,
   ) {}
+
   /**
    * Returns all lessons and the lessons activities for the given module.
    *
    * Returns in order-index value
    */
-  public getModuleLessons(moduleId: string) {
+  public async getModuleLessons(moduleId: string) {
+    const module = await this.modulesRepository.findOneBy({ id: moduleId });
+    if (!module) {
+      throw new NotFoundException(`Module with id "${moduleId}" not found`);
+    }
+
     return this.lessonsRepository.find({
       where: {
         moduleId,
