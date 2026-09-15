@@ -12,7 +12,7 @@ import { Module } from './module.entity';
 @Unique('UQ_lessons_module_order_index', ['moduleId', 'orderIndex'])
 export class Lesson {
   @PrimaryColumn({ type: 'varchar', length: 50 })
-  id: string;
+  LessonId: string;
 
   @Column({ name: 'moduleId', type: 'varchar', length: 50 })
   moduleId: string;
