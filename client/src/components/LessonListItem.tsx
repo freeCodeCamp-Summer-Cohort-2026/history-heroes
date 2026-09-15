@@ -32,7 +32,6 @@ export default function LessonListItem({
   onClick,
 }: LessonListItemProps) {
   const styles = stateStyles[state]
-
   const isLocked = state === 'locked'
 
   return (
@@ -40,23 +39,21 @@ export default function LessonListItem({
       type="button"
       disabled={isLocked}
       onClick={onClick}
-      className={`flex w-full items-center justify-between gap-4 border border-base-300 p-4 text-left transition ${styles.container} ${
+      className={`flex flex-col sm:flex-row w-full items-start sm:items-center justify-between gap-3 sm:gap-4 border border-base-300 p-4 text-left transition ${styles.container} ${
         !isLocked ? 'hover:bg-base-200' : 'cursor-not-allowed'
       }`}
     >
-      <div>
+      <div className="flex-1">
         <h3 className="text-subheading font-semibold">{title}</h3>
-
         {description && (
           <p className="mt-1 text-small opacity-70">{description}</p>
         )}
-
         <span className="mt-2 block text-caption uppercase tracking-wide">
           {styles.label}
         </span>
       </div>
 
-      <span className="text-lg font-bold" aria-hidden="true">
+      <span className="text-lg font-bold sm:ml-4" aria-hidden="true">
         {styles.icon}
       </span>
     </button>
