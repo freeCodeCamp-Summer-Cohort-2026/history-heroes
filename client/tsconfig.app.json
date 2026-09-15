@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
-    "target": "esnext",
-    "lib": ["ESNext", "DOM"],
+    "target": "es2023",
+    "lib": ["ES2023", "DOM"],
     "module": "esnext",
     "types": ["vite/client", "vitest/globals", "@testing-library/jest-dom"],
     "allowArbitraryExtensions": true,
