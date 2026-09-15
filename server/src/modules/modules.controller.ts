@@ -1,4 +1,10 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  NotFoundException,
+  Param,
+  UseGuards,
+} from '@nestjs/common';
 import { ModulesService } from './modules.service';
 import { Module } from './entities/module.entity';
 import { GetModuleLessonsResponseDto } from './dto/get-module-lessons-response.dto';
@@ -25,8 +31,16 @@ export class ModulesController {
   public async getModuleLessons(
     @Param('moduleId') moduleId: string,
   ): Promise<GetModuleLessonsResponseDto> {
+    const [module, lessons] = await Promise.all([
+      this.modulesService.findById(moduleId),
+      this.lessonsService.getModuleLessons(moduleId),
+    ]);
+    if (!module) {
+      throw new NotFoundException(`Module with ID ${moduleId} not found.`);
+    }
+
     return {
-      lessons: await this.lessonsService.getModuleLessons(moduleId),
+      lessons,
     };
   }
 }
