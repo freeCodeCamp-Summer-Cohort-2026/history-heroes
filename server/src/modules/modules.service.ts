@@ -11,6 +11,15 @@ export class ModulesService {
   ) {}
 
   /**
+   * Returns the learning module with the given ID, or throws an error if not found.
+   */
+  async findById(moduleId: string): Promise<Module | null> {
+    const module = await this.modulesRepository.findOne({
+      where: { id: moduleId },
+    });
+    return module;
+  }
+  /**
    * Returns a list of all learning modules in the database, ordered by their display order.
    */
   async findAll(): Promise<Module[]> {

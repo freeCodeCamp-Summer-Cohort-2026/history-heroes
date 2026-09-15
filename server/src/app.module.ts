@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { DatabaseModule } from './core/db/database.module';
 import { SeedsModule } from './core/db/seeds/seeds.module';
 import { ModulesModule } from './modules/modules.module';
+import { LessonsModule } from './lessons/lessons.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ActivitiesModule } from './activities/activities.module';
@@ -27,6 +28,7 @@ import { ProgressModule } from './progress/progress.module';
 
     // feature modules
     ModulesModule,
+    LessonsModule,
     UsersModule,
     ActivitiesModule,
     ProgressModule
