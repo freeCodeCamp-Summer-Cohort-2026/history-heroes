@@ -32,7 +32,7 @@ export interface MatchingSuccessCriteria {
 }
 
 export type ActivityContent =
-  OrderingContent | MatchingContent | Record<string, any>;
+  OrderingContent | MatchingContent;
 
 export type ActivitySuccessCriteria =
-  OrderingSuccessCriteria | MatchingSuccessCriteria | Record<string, any>;
+  OrderingSuccessCriteria | MatchingSuccessCriteria;
