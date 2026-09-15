@@ -1,14 +1,8 @@
-import {
-  Controller,
-  Get,
-  NotFoundException,
-  Param,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, NotFoundException, Param } from '@nestjs/common';
 import { ModulesService } from './modules.service';
 import { Module } from './entities/module.entity';
 import { GetModuleLessonsResponseDto } from './dto/get-module-lessons-response.dto';
-import { LessonsService } from './lessons.service';
+import { LessonsService } from '../lessons/lessons.service';
 
 @Controller('modules')
 export class ModulesController {

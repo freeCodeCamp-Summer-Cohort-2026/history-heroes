@@ -4,12 +4,12 @@ import { ModulesController } from './modules.controller';
 import { ModulesService } from './modules.service';
 import { Module as ModuleEntity } from './entities/module.entity';
 import { Lesson } from './entities/lesson.entity';
-import { LessonsService } from './lessons.service';
+import { LessonsModule } from '../lessons/lessons.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ModuleEntity, Lesson])],
+  imports: [TypeOrmModule.forFeature([ModuleEntity, Lesson]), LessonsModule],
   controllers: [ModulesController],
-  providers: [ModulesService, LessonsService],
-  exports: [ModulesService, LessonsService],
+  providers: [ModulesService],
+  exports: [ModulesService],
 })
 export class ModulesModule {}
