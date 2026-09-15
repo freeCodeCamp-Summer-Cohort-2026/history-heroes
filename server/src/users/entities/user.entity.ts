@@ -12,10 +12,7 @@ export class User {
   id: number;
 
   @Column({ unique: true })
-  username: string;
-
-  @Column({ nullable: true })
-  email?: string;
+  email: string;
 
   /**
    * SECURITY WARNING: Storing plaintext passwords is insecure and temporary.
@@ -24,7 +21,10 @@ export class User {
    *
    * Issue ref: #46
    */
-  @Column({ select: false })
+  @Column({
+    // select is false as we never implicitly return this information.
+    select: false,
+  })
   password?: string;
 
   @CreateDateColumn()

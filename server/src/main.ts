@@ -6,7 +6,13 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    // more opinionated route config routeConflictPolicy
+    // ref: https://docs.nestjs.com/controllers#route-conflicts-and-resolution-order
+    routeConflictPolicy: { duplicate: 'error', shadow: 'warn' },
+    // this is required to have non-wildcard routes (the catchall) override the wildcard route, otherwise the catchall will always be used
+    routeResolutionStrategy: 'specificity',
+  });
 
   app.use(helmet());
   app.setGlobalPrefix('api/v1');

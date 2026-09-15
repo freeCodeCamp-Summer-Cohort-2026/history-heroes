@@ -11,6 +11,9 @@ Full stack web app for freeCodeCamp-Summer-Cohort-2026
 - [kaymade](https://github.com/kaymade) - team lead
 - [blue](https://github.com/Blue111-png) - developer
 - [bradtaniguchi](https://github.com/bradtaniguchi) - developer
+- [lorevdh](https://github.com/Lorevdh) - developer
+- [riverkarnas](https://github.com/riverkarnas) - developer
+- [shy-away](https://github.com/shy-away) - developer
 - [tanveenk](https://github.com/tanveenk) - developer
 
 ## Getting Started
