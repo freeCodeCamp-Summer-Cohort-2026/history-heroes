@@ -33,8 +33,6 @@ export class ModulesController {
       throw new NotFoundException(`Module with ID ${moduleId} not found.`);
     }
 
-    return {
-      lessons,
-    };
+    return lessons;
   }
 }
