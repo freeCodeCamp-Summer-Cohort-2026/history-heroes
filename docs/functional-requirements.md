@@ -132,11 +132,13 @@ Returns that module's lab. A 404 means either the module id is unknown or that m
 {
   "id": "seven-wonders-lab",
   "moduleId": "seven-wonders",
-  "title": "The Seven Wonders Timeline",
+  "title": "The Seven Wonders Review",
   "description": "A lab covering the whole seven wonders module.",
-  "activityIds": ["order-all-seven-wonders"]
+  "activityIds": ["match-wonders-to-locations"]
 }
 ```
+
+The example deliberately avoids ordering all seven wonders by date. Several construction dates are ranges rather than years, so a cross-wonder date ordering is not defensible, which is why the module has no such activity.
 
 `GET /api/v1/labs/:labId/activities`
 
