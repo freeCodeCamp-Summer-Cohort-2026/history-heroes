@@ -42,7 +42,7 @@ describe('Lesson entity', () => {
       orderIndex: 1,
     });
 
-    const stored = await lessons.findOneBy({ LessonId: 'lesson-foundation' });
+    const stored = await lessons.findOneBy({ id: 'lesson-foundation' });
 
     expect(stored).not.toBeNull();
     expect(stored?.moduleId).toBe('ancient-rome');
