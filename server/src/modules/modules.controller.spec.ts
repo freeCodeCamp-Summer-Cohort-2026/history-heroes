@@ -4,6 +4,7 @@ import { ModulesController } from './modules.controller';
 import { ModulesService } from './modules.service';
 import { Module } from './entities/module.entity';
 import { LessonsService } from '../lessons/lessons.service';
+import { Lesson } from './entities/lesson.entity';
 
 // TODO: this test can possibly be removed, focus on e2e tests.
 describe('ModulesController', () => {
@@ -22,6 +23,27 @@ describe('ModulesController', () => {
     },
   ];
 
+  const orderedLessons: Lesson[] = [
+    {
+      id: 'great-pyramid',
+      moduleId: 'seven-wonders',
+      title: 'The Great Pyramid of Giza',
+      description: 'First wonder lesson',
+      contents: 'Content for Great Pyramid',
+      orderIndex: 1,
+      module: null as any,
+    },
+    {
+      id: 'hanging-gardens',
+      moduleId: 'seven-wonders',
+      title: 'The Hanging Gardens of Babylon',
+      description: 'Second wonder lesson',
+      contents: 'Content for Hanging Gardens',
+      orderIndex: 2,
+      module: null as any,
+    },
+  ];
+
   const mockModulesService = {
     findAll: vi.fn().mockResolvedValue(mockModules),
     findById: vi.fn().mockResolvedValue(mockModules[0]),
@@ -32,6 +54,8 @@ describe('ModulesController', () => {
   };
 
   beforeEach(async () => {
+    vi.clearAllMocks();
+
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ModulesController],
       providers: [
@@ -61,12 +85,26 @@ describe('ModulesController', () => {
   });
 
   describe('getModuleLessons', () => {
-    it('should return lessons when module exists', async () => {
+    it('should return an empty lesson collection when module exists with no lessons', async () => {
       mockModulesService.findById.mockResolvedValue(mockModules[0]);
       mockLessonService.getModuleLessons.mockResolvedValue([]);
 
       const result = await controller.getModuleLessons('seven-wonders');
-      expect(result).toEqual({ lessons: [] });
+      expect(result).toEqual([]);
+      expect(mockModulesService.findById).toHaveBeenCalledWith('seven-wonders');
+      expect(mockLessonService.getModuleLessons).toHaveBeenCalledWith(
+        'seven-wonders',
+      );
+    });
+
+    it('should return ordered lessons when module exists', async () => {
+      mockModulesService.findById.mockResolvedValue(mockModules[0]);
+      mockLessonService.getModuleLessons.mockResolvedValue(orderedLessons);
+
+      const result = await controller.getModuleLessons('seven-wonders');
+
+      expect(result).toEqual(orderedLessons);
+      expect(result.map((lesson) => lesson.orderIndex)).toEqual([1, 2]);
       expect(mockModulesService.findById).toHaveBeenCalledWith('seven-wonders');
       expect(mockLessonService.getModuleLessons).toHaveBeenCalledWith(
         'seven-wonders',

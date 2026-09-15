@@ -49,7 +49,7 @@ describe('ModulesController (e2e)', () => {
         .get('/api/v1/modules/seven-wonders/lessons')
         .expect(200);
 
-      expect(response.body).toEqual({ lessons: [] });
+      expect(response.body).toEqual([]);
     });
 
     it('returns 404 for an unknown module', async () => {
@@ -88,14 +88,14 @@ describe('ModulesController (e2e)', () => {
         .get('/api/v1/modules/seven-wonders/lessons')
         .expect(200);
 
-      expect(response.body.lessons).toHaveLength(2);
-      expect(response.body.lessons[0]).toMatchObject({
+      expect(response.body).toHaveLength(2);
+      expect(response.body[0]).toMatchObject({
         id: 'great-pyramid',
         moduleId: 'seven-wonders',
         title: 'The Great Pyramid of Giza',
         orderIndex: 1,
       });
-      expect(response.body.lessons[1]).toMatchObject({
+      expect(response.body[1]).toMatchObject({
         id: 'hanging-gardens',
         moduleId: 'seven-wonders',
         title: 'The Hanging Gardens of Babylon',
@@ -150,9 +150,9 @@ describe('ModulesController (e2e)', () => {
         .get('/api/v1/modules/seven-wonders/lessons')
         .expect(200);
 
-      expect(response.body.lessons).toHaveLength(1);
-      expect(response.body.lessons[0].id).toBe('great-pyramid');
-      expect(response.body.lessons[0].moduleId).toBe('seven-wonders');
+      expect(response.body).toHaveLength(1);
+      expect(response.body[0].id).toBe('great-pyramid');
+      expect(response.body[0].moduleId).toBe('seven-wonders');
     });
 
     it('accessible without authentication', async () => {
@@ -160,7 +160,7 @@ describe('ModulesController (e2e)', () => {
         .get('/api/v1/modules/seven-wonders/lessons')
         .expect(200);
 
-      expect(response.body).toEqual({ lessons: [] });
+      expect(response.body).toEqual([]);
     });
   });
 });

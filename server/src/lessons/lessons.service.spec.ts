@@ -18,6 +18,16 @@ describe('LessonsService', () => {
     module: null as any,
   };
 
+  const secondModuleLesson: Lesson = {
+    id: 'mona-lisa',
+    moduleId: 'renaissance-art',
+    title: 'The Mona Lisa',
+    description: 'Renaissance lesson',
+    contents: 'Content there',
+    orderIndex: 1,
+    module: null as any,
+  };
+
   const mockModule: ModuleEntity = {
     id: 'seven-wonders',
     title: 'Seven Wonders',
@@ -76,6 +86,23 @@ describe('LessonsService', () => {
       expect(mockLessonsRepository.find).not.toHaveBeenCalled();
     });
 
+    it('should return an empty lesson collection when the module exists but has no lessons', async () => {
+      mockModulesRepository.findOneBy.mockResolvedValue(mockModule);
+      mockLessonsRepository.find.mockResolvedValue([]);
+
+      const result = await service.getModuleLessons('seven-wonders');
+
+      expect(mockLessonsRepository.find).toHaveBeenCalledWith({
+        where: {
+          moduleId: 'seven-wonders',
+        },
+        order: {
+          orderIndex: 'ASC',
+        },
+      });
+      expect(result).toEqual([]);
+    });
+
     it('should return lessons ordered by orderIndex ASC when the module exists', async () => {
       mockModulesRepository.findOneBy.mockResolvedValue(mockModule);
       mockLessonsRepository.find.mockResolvedValue([mockLesson]);
@@ -94,6 +121,23 @@ describe('LessonsService', () => {
         },
       });
       expect(result).toEqual([mockLesson]);
+    });
+
+    it('should query only lessons belonging to the requested module', async () => {
+      mockModulesRepository.findOneBy.mockResolvedValue(mockModule);
+      mockLessonsRepository.find.mockResolvedValue([mockLesson]);
+
+      const result = await service.getModuleLessons('seven-wonders');
+
+      expect(mockLessonsRepository.find).toHaveBeenCalledWith({
+        where: {
+          moduleId: 'seven-wonders',
+        },
+        order: {
+          orderIndex: 'ASC',
+        },
+      });
+      expect(result).not.toContainEqual(secondModuleLesson);
     });
   });
 });
