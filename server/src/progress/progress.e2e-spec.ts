@@ -21,7 +21,7 @@ describe('ProgressController (e2e)', () => {
     const agent = request.agent(app.getHttpServer());
 
     const response = await agent.get('/api/v1/progress').expect(200);
-
+    console.log(response.body);
     expect(Array.isArray(response.body)).toBe(true);
     expect(response.body).toHaveLength(0);
   });
@@ -133,4 +133,39 @@ describe('ProgressController (e2e)', () => {
 
     await expect(progressRepo.insert(duplicate)).rejects.toThrow();
   });
+
+  // Tests progress saving across sessions
+  it('saves progress across sessions', async () => {
+    const agentA = await createAuthenticatedAgent(app, {
+      email: 'test@historyheroes.org',
+      password: 'local-dev-only',
+    });
+
+    await agentA.post('/api/v1/progress/lessons/great-pyramid').expect(201);
+
+    /** I feel like the answer has something to do with the following snippet from this own code: 
+     * it('/api/v1/progress/lessons/:lessonId (POST) saves progress and /api/v1/progress (GET) retrieves it', async () => {
+    const agent = request.agent(app.getHttpServer());
+
+    const postResponse = await agent
+      .post('/api/v1/progress/lessons/great-pyramid')
+      .expect(201);
+
+    expect(postResponse.body).toMatchObject({
+      lessonId: 'great-pyramid',
+    });
+    expect(postResponse.body.completedAt).toBeDefined();
+
+    const getResponse = await agent.get('/api/v1/progress').expect(200);
+
+    expect(Array.isArray(getResponse.body)).toBe(true);
+    expect(getResponse.body).toHaveLength(1);
+    expect(getResponse.body[0]).toMatchObject({
+      lessonId: 'great-pyramid',
+    });
+     * **/
+    
+
+  }  
+  )
 });
