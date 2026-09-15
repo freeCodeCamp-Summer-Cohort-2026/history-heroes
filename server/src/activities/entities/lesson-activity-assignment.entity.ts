@@ -5,7 +5,10 @@ import {
   CreateDateColumn,
   Unique,
   Index,
+  JoinColumn,
+  ManyToOne,
 } from 'typeorm';
+import { Activity } from './activity.entity';
 
 @Entity('lesson_activity_assignments')
 @Unique(['lessonId', 'orderIndex'])
@@ -16,6 +19,10 @@ export class LessonActivityAssignment {
 
   @Column({ name: 'lesson_id', type: 'varchar', length: 100 })
   lessonId: string;
+
+  @ManyToOne(() => Activity, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'activity_id' })
+  activity: Activity;
 
   @Column({ name: 'activity_id', type: 'varchar', length: 100 })
   activityId: string;
