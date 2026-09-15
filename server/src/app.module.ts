@@ -8,6 +8,7 @@ import { ModulesModule } from './modules/modules.module';
 import { LessonsModule } from './lessons/lessons.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { ActivitiesModule } from './activities/activities.module';
 import { ProgressModule } from './progress/progress.module';
 
 @Module({
@@ -29,7 +30,8 @@ import { ProgressModule } from './progress/progress.module';
     ModulesModule,
     LessonsModule,
     UsersModule,
-    ProgressModule,
+    ActivitiesModule,
+    ProgressModule
   ],
   controllers: [AppController],
   providers: [AppService],

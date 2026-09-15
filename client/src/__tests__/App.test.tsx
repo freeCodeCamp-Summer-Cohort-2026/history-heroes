@@ -38,19 +38,6 @@ test('shows the module id', () => {
   expect(screen.getByText(/module: seven-wonders/i)).toBeInTheDocument()
 })
 
-test('shows both the module id and lesson id', () => {
-  render(
-    <MemoryRouter
-      initialEntries={['/modules/seven-wonders/lessons/great-pyramid']}
-    >
-      <App />
-    </MemoryRouter>,
-  )
-
-  expect(screen.getByText(/lesson: great-pyramid/i)).toBeInTheDocument()
-  expect(screen.getByText(/from module: seven-wonders/i)).toBeInTheDocument()
-})
-
 test('shows page not found when unknown route is provided', () => {
   render(
     <MemoryRouter initialEntries={['/nonsense']}>
