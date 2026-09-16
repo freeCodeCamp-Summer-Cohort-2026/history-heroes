@@ -69,18 +69,22 @@ export class LessonsService {
    * Returns in order-index value
    */
   public async getModuleLessons(moduleId: string): Promise<Lesson[]> {
-    const module = await this.modulesRepository.findOneBy({ id: moduleId });
+    const [module, lessons] = await Promise.all([
+      this.modulesRepository.findOneBy({ id: moduleId }),
+      this.lessonsRepository.find({
+        where: {
+          moduleId,
+        },
+        order: {
+          orderIndex: 'ASC',
+        },
+      }),
+    ]);
+
     if (!module) {
       throw new NotFoundException(`Module with id "${moduleId}" not found`);
     }
 
-    return this.lessonsRepository.find({
-      where: {
-        moduleId,
-      },
-      order: {
-        orderIndex: 'ASC',
-      },
-    });
+    return lessons;
   }
 }

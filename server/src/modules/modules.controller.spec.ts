@@ -86,38 +86,38 @@ describe('ModulesController', () => {
 
   describe('getModuleLessons', () => {
     it('should return an empty lesson collection when module exists with no lessons', async () => {
-      mockModulesService.findById.mockResolvedValue(mockModules[0]);
       mockLessonService.getModuleLessons.mockResolvedValue([]);
 
       const result = await controller.getModuleLessons('seven-wonders');
       expect(result).toEqual([]);
-      expect(mockModulesService.findById).toHaveBeenCalledWith('seven-wonders');
       expect(mockLessonService.getModuleLessons).toHaveBeenCalledWith(
         'seven-wonders',
       );
     });
 
     it('should return ordered lessons when module exists', async () => {
-      mockModulesService.findById.mockResolvedValue(mockModules[0]);
       mockLessonService.getModuleLessons.mockResolvedValue(orderedLessons);
 
       const result = await controller.getModuleLessons('seven-wonders');
 
       expect(result).toEqual(orderedLessons);
       expect(result.map((lesson) => lesson.orderIndex)).toEqual([1, 2]);
-      expect(mockModulesService.findById).toHaveBeenCalledWith('seven-wonders');
       expect(mockLessonService.getModuleLessons).toHaveBeenCalledWith(
         'seven-wonders',
       );
     });
 
     it('should throw NotFoundException when module does not exist', async () => {
-      mockModulesService.findById.mockResolvedValue(null);
-      mockLessonService.getModuleLessons.mockResolvedValue([]);
+      mockLessonService.getModuleLessons.mockRejectedValue(
+        new NotFoundException('Module with id "nonexistent-module" not found'),
+      );
 
       await expect(
         controller.getModuleLessons('nonexistent-module'),
       ).rejects.toThrow(NotFoundException);
+      expect(mockLessonService.getModuleLessons).toHaveBeenCalledWith(
+        'nonexistent-module',
+      );
     });
   });
 });
