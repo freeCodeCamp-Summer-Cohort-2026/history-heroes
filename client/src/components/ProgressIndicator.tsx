@@ -10,7 +10,7 @@ export default function ProgressIndicator({
   label = 'Lesson',
 }: ProgressIndicatorProps) {
   return (
-    <div className="text-sm text-base-content/70">
+    <div className="text-xs sm:text-sm text-base-content/70">
       {label} {current}/{total}
     </div>
   )
