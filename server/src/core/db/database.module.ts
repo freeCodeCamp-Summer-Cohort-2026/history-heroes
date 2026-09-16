@@ -39,7 +39,9 @@ function normalizeToBoolean(val: string | boolean | unknown): boolean {
         return {
           type: 'better-sqlite3',
           database: resolvedPath,
-          prepareDatabase: (database: { pragma: (statement: string) => void }) => {
+          prepareDatabase: (database: {
+            pragma: (statement: string) => void;
+          }) => {
             database.pragma('foreign_keys = ON');
           },
           autoLoadEntities: true,
