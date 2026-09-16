@@ -16,7 +16,7 @@ export default function FilterChips({
           key={option}
           type="button"
           onClick={() => onSelect(option)}
-          className={`btn btn-sm ${
+          className={`btn btn-sm w-full sm:w-auto ${
             selected === option ? 'btn-primary' : 'btn-outline btn-secondary'
           }`}
         >

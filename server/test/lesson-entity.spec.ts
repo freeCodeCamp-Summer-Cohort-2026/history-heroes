@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
 import { Module } from '../src/modules/entities/module.entity';
-import { Lesson } from '../src/modules/entities/lesson.entity';
+import { Lesson } from '../src/lessons/entities/lesson.entity';
 
 describe('Lesson entity', () => {
   let dataSource: DataSource;
