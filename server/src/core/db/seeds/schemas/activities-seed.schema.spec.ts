@@ -3,6 +3,7 @@ import {
   ActivitySeedItemSchema,
 } from './activities-seed.schema';
 import * as seedActivitiesJson from './../../../../../data/seeds/initial-activities.json';
+import z, { ZodSafeParseResult } from 'zod';
 
 describe('Activity item schema', () => {
   let dummyOrderingActivity: {
@@ -349,9 +350,9 @@ describe('Activity item schema', () => {
         dummyActivityNoSuccess,
       );
 
-      expect(
-        resultEmptyType.error?.message !== resultNoSuccess.error?.message,
-      ).toBeTruthy();
+      expect(resultEmptyType.error?.issues[0].message).not.toEqual(
+        resultNoSuccess.error?.issues[0].message,
+      );
     });
   });
 });
