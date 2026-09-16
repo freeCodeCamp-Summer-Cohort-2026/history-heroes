@@ -27,7 +27,7 @@ export default function Button({
       type={type}
       disabled={disabled}
       onClick={onClick}
-      className={`btn ${variantClass} w-full sm:w-auto ${className}`}
+      className={`btn ${variantClass} ${className}`}
     >
       {children}
     </button>

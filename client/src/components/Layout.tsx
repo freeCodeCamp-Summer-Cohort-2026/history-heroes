@@ -11,7 +11,7 @@ export default function Layout() {
         </div>
 
         <div className="flex-none mt-2 sm:mt-0">
-          <ul className="menu menu-horizontal sm:menu-horizontal px-1 flex-wrap sm:flex-nowrap">
+          <ul className="menu menu-horizontal px-1 flex-wrap sm:flex-nowrap">
             <li>
               <Link to="/" className="text-sm sm:text-base">
                 Modules
