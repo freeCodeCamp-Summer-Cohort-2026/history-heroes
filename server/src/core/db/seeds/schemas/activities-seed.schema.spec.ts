@@ -3,7 +3,6 @@ import {
   ActivitySeedItemSchema,
 } from './activities-seed.schema';
 import * as seedActivitiesJson from './../../../../../data/seeds/initial-activities.json';
-import z, { ZodSafeParseResult } from 'zod';
 
 describe('Activity item schema', () => {
   let dummyOrderingActivity: {
