@@ -346,4 +346,17 @@ describe('Activities file schema', () => {
     expect(result.success).toBeFalsy();
     expect(result.error).toBeDefined();
   });
+
+  it('should reject duplicate activity ids', () => {
+    const duplicateActivities = {
+      activities: [
+        seedActivitiesJson.activities[0],
+        seedActivitiesJson.activities[0],
+      ],
+    };
+    const result = ActivitySeedFileSchema.safeParse(duplicateActivities);
+
+    expect(result.success).toBeFalsy();
+    expect(result.error?.issues[0].message).toContain('Duplicate activity id');
+  });
 });

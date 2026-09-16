@@ -7,6 +7,7 @@ import { User } from '../../../users/entities/user.entity';
 import { EntitySeeder } from './seeders/seeder.interface';
 import { UserSeeder } from './seeders/user.seeder.service';
 import { ModuleSeeder } from './seeders/module.seeder.service';
+import { LessonSeeder } from './seeders/lesson.seeder.service';
 
 @Injectable()
 export class SeedsService implements OnApplicationBootstrap {
@@ -22,8 +23,9 @@ export class SeedsService implements OnApplicationBootstrap {
     private readonly dataSource: DataSource,
     userSeeder: UserSeeder,
     moduleSeeder: ModuleSeeder,
+    lessonSeeder: LessonSeeder,
   ) {
-    this.seeders = [userSeeder, moduleSeeder];
+    this.seeders = [userSeeder, moduleSeeder, lessonSeeder];
   }
 
   async onApplicationBootstrap() {
