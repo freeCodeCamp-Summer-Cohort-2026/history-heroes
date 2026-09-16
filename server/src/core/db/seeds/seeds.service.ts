@@ -8,6 +8,8 @@ import { EntitySeeder } from './seeders/seeder.interface';
 import { UserSeeder } from './seeders/user.seeder.service';
 import { ModuleSeeder } from './seeders/module.seeder.service';
 import { LessonSeeder } from './seeders/lesson.seeder.service';
+import { ActivitySeeder } from './seeders/activity.seeder.service';
+import { LessonActivityAssignmentSeeder } from './seeders/lesson-activity-assignment.seeder.service';
 
 @Injectable()
 export class SeedsService implements OnApplicationBootstrap {
@@ -24,8 +26,18 @@ export class SeedsService implements OnApplicationBootstrap {
     userSeeder: UserSeeder,
     moduleSeeder: ModuleSeeder,
     lessonSeeder: LessonSeeder,
+    activitySeeder: ActivitySeeder,
+    lessonActivityAssignmentSeeder: LessonActivityAssignmentSeeder,
   ) {
-    this.seeders = [userSeeder, moduleSeeder, lessonSeeder];
+    this.seeders = [
+      userSeeder,
+      moduleSeeder,
+      lessonSeeder,
+      activitySeeder,
+      // this is a relational seeder, this has to go last as it requires
+      // lesson and activities to exist first.
+      lessonActivityAssignmentSeeder,
+    ];
   }
 
   async onApplicationBootstrap() {
