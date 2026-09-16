@@ -8,20 +8,20 @@
       "content": {
         "items": [
           {
-            "id": "flatten-the-ground",
-            "label": "Flatten the ground and clear the site"
-          },
-          {
-            "id": "mine-and-move-stone",
-            "label": "Mine the stone from the quarries and move it to the building site"
-          },
-          {
             "id": "build-the-core",
             "label": "Build the core of the pyramid, piece by piece"
           },
           {
+            "id": "flatten-the-ground",
+            "label": "Flatten the ground and clear the site"
+          },
+          {
             "id": "add-the-casing",
             "label": "Add the smooth limestone casing over the outside"
+          },
+          {
+            "id": "mine-and-move-stone",
+            "label": "Mine the stone from the quarries and move it to the building site"
           }
         ]
       },
@@ -42,20 +42,20 @@
       "content": {
         "items": [
           {
-            "id": "babylon-story",
-            "label": "A Babylonian king is said to build a garden for his wife"
-          },
-          {
-            "id": "greek-accounts",
-            "label": "Greek and Roman writers describe the gardens, centuries later"
-          },
-          {
             "id": "babylon-excavation",
             "label": "An excavation team digs up Babylon and finds no gardens"
           },
           {
+            "id": "babylon-story",
+            "label": "A Babylonian king is said to build a garden for his wife"
+          },
+          {
             "id": "nineveh-argument",
             "label": "A modern scholar argues the gardens were really at Nineveh"
+          },
+          {
+            "id": "greek-accounts",
+            "label": "Greek and Roman writers describe the gardens, centuries later"
           }
         ]
       },
@@ -94,20 +94,20 @@
         ],
         "right": [
           {
-            "id": "rooms-and-ramp",
-            "label": "Held rooms for the workers and a ramp for hauling fuel"
-          },
-          {
-            "id": "higher-and-narrower",
-            "label": "Carried the tower higher and narrower"
-          },
-          {
             "id": "held-the-fire",
             "label": "Held the burning fire at the very top"
           },
           {
             "id": "cast-the-light",
             "label": "Cast the light out across the water"
+          },
+          {
+            "id": "rooms-and-ramp",
+            "label": "Held rooms for the workers and a ramp for hauling fuel"
+          },
+          {
+            "id": "higher-and-narrower",
+            "label": "Carried the tower higher and narrower"
           }
         ]
       },
@@ -129,6 +129,202 @@
             "left": "polished-mirror",
             "right": "cast-the-light"
           }
+        ]
+      }
+    },
+    {
+      "id": "match-zeus-materials",
+      "type": "matching",
+      "title": "Match each material to how it was used",
+      "checkStatement": "This checks if you matched each material with the way it was used on the statue.",
+      "content": {
+        "left": [
+          {
+            "id": "wooden-frame",
+            "label": "The wooden frame"
+          },
+          {
+            "id": "ivory-plates",
+            "label": "The carved ivory plates"
+          },
+          {
+            "id": "gold-sheets",
+            "label": "The sheets of gold"
+          },
+          {
+            "id": "olive-oil",
+            "label": "The olive oil"
+          }
+        ],
+        "right": [
+          {
+            "id": "made-the-robe",
+            "label": "Made up Zeus's robe and sandals"
+          },
+          {
+            "id": "kept-ivory-from-cracking",
+            "label": "Kept the ivory from cracking"
+          },
+          {
+            "id": "held-it-up",
+            "label": "Held the whole statue up from the inside"
+          },
+          {
+            "id": "made-the-skin",
+            "label": "Made up Zeus's skin"
+          }
+        ]
+      },
+      "successCriteria": {
+        "pairs": [
+          {
+            "left": "wooden-frame",
+            "right": "held-it-up"
+          },
+          {
+            "left": "ivory-plates",
+            "right": "made-the-skin"
+          },
+          {
+            "left": "gold-sheets",
+            "right": "made-the-robe"
+          },
+          {
+            "left": "olive-oil",
+            "right": "kept-ivory-from-cracking"
+          }
+        ]
+      }
+    },
+    {
+      "id": "order-temple-of-artemis-events",
+      "type": "ordering",
+      "title": "Put the temple's story in order",
+      "checkStatement": "This checks if you put these four events from the temple's history in the order they happened, starting with the earliest.",
+      "content": {
+        "items": [
+          {
+            "id": "herostratus-burns-temple",
+            "label": "Herostratus burns the temple down to become famous"
+          },
+          {
+            "id": "wood-finds-remains",
+            "label": "John Turtle Wood finds the temple's remains buried under mud"
+          },
+          {
+            "id": "croesus-pays-for-temple",
+            "label": "King Croesus helps pay for a grand marble temple"
+          },
+          {
+            "id": "alexander-offer-refused",
+            "label": "The Ephesians turn down Alexander the Great's offer to pay for the rebuilding"
+          }
+        ]
+      },
+      "successCriteria": {
+        "correctOrder": [
+          "croesus-pays-for-temple",
+          "herostratus-burns-temple",
+          "alexander-offer-refused",
+          "wood-finds-remains"
+        ]
+      }
+    },
+    {
+      "id": "match-mausoleum-people",
+      "type": "matching",
+      "title": "Match each person or group to their part in the story",
+      "checkStatement": "This checks if you matched each person or group with the part they played in the tomb's story.",
+      "content": {
+        "left": [
+          {
+            "id": "mausolus",
+            "label": "Mausolus"
+          },
+          {
+            "id": "artemisia",
+            "label": "Artemisia"
+          },
+          {
+            "id": "four-sculptors",
+            "label": "The four Greek sculptors"
+          },
+          {
+            "id": "knights-of-st-john",
+            "label": "The Knights of St. John"
+          }
+        ],
+        "right": [
+          {
+            "id": "decorated-the-sides",
+            "label": "Each decorated one side of the tomb"
+          },
+          {
+            "id": "reused-the-stones",
+            "label": "Used the fallen stones to build a castle"
+          },
+          {
+            "id": "ruler-in-the-tomb",
+            "label": "The ruler the tomb was built for"
+          },
+          {
+            "id": "took-charge-of-building",
+            "label": "Took charge of building the tomb after the ruler died"
+          }
+        ]
+      },
+      "successCriteria": {
+        "pairs": [
+          {
+            "left": "mausolus",
+            "right": "ruler-in-the-tomb"
+          },
+          {
+            "left": "artemisia",
+            "right": "took-charge-of-building"
+          },
+          {
+            "left": "four-sculptors",
+            "right": "decorated-the-sides"
+          },
+          {
+            "left": "knights-of-st-john",
+            "right": "reused-the-stones"
+          }
+        ]
+      }
+    },
+    {
+      "id": "order-colossus-events",
+      "type": "ordering",
+      "title": "Put the story of the Colossus in order",
+      "checkStatement": "This checks if you put these four events in the order they happened, from the first to the last.",
+      "content": {
+        "items": [
+          {
+            "id": "earthquake-snaps-statue",
+            "label": "An earthquake snaps the statue at the knees"
+          },
+          {
+            "id": "demetrius-gives-up",
+            "label": "Demetrius gives up his attack and leaves his equipment behind"
+          },
+          {
+            "id": "visitors-see-the-pieces",
+            "label": "Visitors travel to see the broken pieces lying on the ground"
+          },
+          {
+            "id": "equipment-pays-for-statue",
+            "label": "The people of Rhodes sell the equipment to pay for the statue"
+          }
+        ]
+      },
+      "successCriteria": {
+        "correctOrder": [
+          "demetrius-gives-up",
+          "equipment-pays-for-statue",
+          "earthquake-snaps-statue",
+          "visitors-see-the-pieces"
         ]
       }
     }
