@@ -6,7 +6,7 @@ import {
   PrimaryColumn,
   Unique,
 } from 'typeorm';
-import { Module } from './module.entity';
+import { Module } from '../../modules/entities/module.entity';
 
 @Entity('lessons')
 @Unique('UQ_lessons_module_order_index', ['moduleId', 'orderIndex'])

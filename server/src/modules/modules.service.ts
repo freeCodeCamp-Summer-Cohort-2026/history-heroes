@@ -19,6 +19,7 @@ export class ModulesService {
     });
     return module;
   }
+
   /**
    * Returns a list of all learning modules in the database, ordered by their display order.
    */

@@ -1,4 +1,4 @@
-import { Lesson } from '../entities/lesson.entity';
+import { Lesson } from '../../lessons/entities/lesson.entity';
 
 /**
  * Interface representing the return data type for

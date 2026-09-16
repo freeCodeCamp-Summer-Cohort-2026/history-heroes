@@ -4,7 +4,7 @@ import { ModulesController } from './modules.controller';
 import { ModulesService } from './modules.service';
 import { Module } from './entities/module.entity';
 import { LessonsService } from '../lessons/lessons.service';
-import { Lesson } from './entities/lesson.entity';
+import { Lesson } from '../lessons/entities/lesson.entity';
 
 // TODO: this test can possibly be removed, focus on e2e tests.
 describe('ModulesController', () => {

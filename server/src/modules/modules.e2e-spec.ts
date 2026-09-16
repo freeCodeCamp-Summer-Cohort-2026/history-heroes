@@ -4,7 +4,7 @@ import request from 'supertest';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Not, Repository } from 'typeorm';
 import { createAuthenticatedAgent, createTestApp } from '../../test/e2e-helper';
-import { Lesson } from './entities/lesson.entity';
+import { Lesson } from '../lessons/entities/lesson.entity';
 import { Module as ModuleEntity } from './entities/module.entity';
 
 describe('ModulesController (e2e)', () => {
