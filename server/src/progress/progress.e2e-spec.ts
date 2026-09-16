@@ -135,6 +135,9 @@ describe('ProgressController (e2e)', () => {
   });
 
   // Tests progress saving across sessions
+
+  // TODO: finish assertions on getResponse, confirm status code, check env error (express-session)
+  
   it('saves progress across sessions', async () => {
     const agentA = await createAuthenticatedAgent(app, {
       email: 'test@historyheroes.org',
@@ -143,7 +146,7 @@ describe('ProgressController (e2e)', () => {
 
     await agentA.post('/api/v1/progress/lessons/great-pyramid').expect(201);
 
-    /** I feel like the answer has something to do with the following snippet from this own code: 
+    /** I feel like the answer has something to do with the following snippet from this own code
      * it('/api/v1/progress/lessons/:lessonId (POST) saves progress and /api/v1/progress (GET) retrieves it', async () => {
     const agent = request.agent(app.getHttpServer());
 
