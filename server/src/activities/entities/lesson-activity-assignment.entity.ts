@@ -9,6 +9,7 @@ import {
   ManyToOne,
 } from 'typeorm';
 import { Activity } from './activity.entity';
+import { Lesson } from '../../lessons/entities/lesson.entity';
 
 @Entity('lesson_activity_assignments')
 @Unique(['lessonId', 'orderIndex'])
@@ -16,6 +17,10 @@ import { Activity } from './activity.entity';
 export class LessonActivityAssignment {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @ManyToOne(() => Lesson, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'lesson_id' })
+  lesson: Lesson;
 
   @Column({ name: 'lesson_id', type: 'varchar', length: 100 })
   lessonId: string;
