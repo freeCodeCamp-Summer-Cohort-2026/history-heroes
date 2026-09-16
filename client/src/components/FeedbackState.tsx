@@ -28,12 +28,12 @@ export default function FeedbackState(props: FeedbackStateProps) {
 
   return (
     <section
-      className={`rounded-box border p-6 ${panelClasses}`}
+      className={`rounded-box border p-4 sm:p-6 ${panelClasses}`}
       aria-live="polite"
     >
-      <div className="flex gap-3">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
         <span
-          className={`text-xl font-bold ${
+          className={`text-lg sm:text-xl font-bold ${
             isCorrect ? 'text-success' : 'text-warning'
           }`}
           aria-hidden="true"
@@ -41,7 +41,7 @@ export default function FeedbackState(props: FeedbackStateProps) {
           {icon}
         </span>
 
-        <div className="flex-1 space-y-4">
+        <div className="flex-1 space-y-3 sm:space-y-4">
           <h2 className="text-subheading font-semibold">{title}</h2>
 
           {/* What we checked */}
@@ -76,7 +76,7 @@ export default function FeedbackState(props: FeedbackStateProps) {
             <button
               type="button"
               onClick={onAction}
-              className="btn btn-secondary mt-4"
+              className="btn btn-secondary w-full sm:w-auto mt-4"
             >
               {actionLabel}
             </button>

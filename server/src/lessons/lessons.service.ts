@@ -64,7 +64,7 @@ export class LessonsService {
   }
 
   /**
-   * Returns all lessons and the lessons activities for the given module.
+   * Returns all lessons and the lessons for the given module.
    *
    * Returns in order-index value
    */

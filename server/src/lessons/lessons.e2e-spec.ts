@@ -108,7 +108,10 @@ describe('LessonsController (e2e)', () => {
           content: {
             items: [
               { id: 'stage-quarry', label: 'Quarrying limestone blocks' },
-              { id: 'stage-transport', label: 'Transporting stones across the Nile' },
+              {
+                id: 'stage-transport',
+                label: 'Transporting stones across the Nile',
+              },
               { id: 'stage-core', label: 'Constructing the inner core' },
               { id: 'stage-casing', label: 'Fitting smooth limestone casing' },
             ],
@@ -187,7 +190,9 @@ describe('LessonsController (e2e)', () => {
       expect(response.body.id).toBe('great-pyramid');
       expect(response.body.moduleId).toBe('seven-wonders');
       expect(response.body.title).toBe('The Great Pyramid of Giza');
-      expect(response.body.description).toBe('The oldest of the seven wonders.');
+      expect(response.body.description).toBe(
+        'The oldest of the seven wonders.',
+      );
       expect(response.body.contents).toBe(
         'Full detailed lesson content for Great Pyramid...',
       );
@@ -211,7 +216,10 @@ describe('LessonsController (e2e)', () => {
       expect(firstActivity.content).toEqual({
         items: [
           { id: 'stage-quarry', label: 'Quarrying limestone blocks' },
-          { id: 'stage-transport', label: 'Transporting stones across the Nile' },
+          {
+            id: 'stage-transport',
+            label: 'Transporting stones across the Nile',
+          },
           { id: 'stage-core', label: 'Constructing the inner core' },
           { id: 'stage-casing', label: 'Fitting smooth limestone casing' },
         ],
@@ -249,7 +257,9 @@ describe('LessonsController (e2e)', () => {
       });
 
       // Confirm other lesson's activity is excluded
-      const activityIds = response.body.activities.map((a: { id: string }) => a.id);
+      const activityIds = response.body.activities.map(
+        (a: { id: string }) => a.id,
+      );
       expect(activityIds).not.toContain('activity-hanging-gardens');
     });
 
