@@ -354,6 +354,51 @@ describe('Activity item schema', () => {
         resultNoSuccess.error?.issues[0].message,
       );
     });
+
+    describe('distinct errors for differently invalid ids', () => {
+      let messageMissingId: string;
+      let messageMismatchedIds: string;
+      let messageDupeIds: string;
+
+      beforeEach(() => {
+        const dummyActivityMissingId = JSON.parse(
+          JSON.stringify(dummyMatchingActivity),
+        );
+        dummyActivityMissingId.content.left.pop();
+        messageMissingId = ActivitySeedItemSchema.safeParse(
+          dummyActivityMissingId,
+        ).error?.issues[0].message!;
+
+        const dummyActivityMismatchedIds = JSON.parse(
+          JSON.stringify(dummyMatchingActivity),
+        );
+        dummyActivityMismatchedIds.successCriteria.pairs[0].left = 'invalid';
+        messageMismatchedIds = ActivitySeedItemSchema.safeParse(
+          dummyActivityMismatchedIds,
+        ).error?.issues[0].message!;
+
+        const dummyActivityDupeIds = JSON.parse(
+          JSON.stringify(dummyMatchingActivity),
+        );
+        const dupeId = dummyActivityDupeIds.content.left[0].id;
+        dummyActivityDupeIds.content.left.splice[1].id = dupeId;
+        messageDupeIds =
+          ActivitySeedItemSchema.safeParse(dummyActivityDupeIds).error
+            ?.issues[0].message!;
+      });
+
+      it('should distinguish missing ids from mismatched ids', () => {
+        expect(messageMissingId).not.toEqual(messageMismatchedIds);
+      });
+
+      it('should distinguish missing ids from duplicate ids', () => {
+        expect(messageMissingId).not.toEqual(messageDupeIds);
+      });
+
+      it('should distinguish mismatched ids from duplicate ids', () => {
+        expect(messageMismatchedIds).not.toEqual(messageDupeIds);
+      });
+    });
   });
 });
 
