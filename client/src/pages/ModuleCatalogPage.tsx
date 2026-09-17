@@ -26,8 +26,13 @@ export default function ModuleCatalogPage() {
   }, [])
 
   return (
-    <div>
-      <h1 className="text-display">Modules</h1>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-display">Modules</h1>
+        <p className="mt-2 text-body text-base-content/70">
+          Pick a module to start exploring history.
+        </p>
+      </div>
       {isLoading && <p className="text-body">Loading modules...</p>}
       {error && <p className="text-body">{error}</p>}
       {!isLoading && !error && (
