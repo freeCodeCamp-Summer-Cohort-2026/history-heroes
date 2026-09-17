@@ -29,12 +29,26 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for branch naming, commit conventions and
 
 Self hosting is the primary and currently the only way to utilize this codebase in a "production" setting. The targeted way is to download the latest release binary from the [releases page](https://github.com/freeCodeCamp-Summer-Cohort-2026/history-heroes).
 
-WIP...
-<!--
-  TBD:
-  - add dockerfile for single isolated docker deployment, runs with pre-built binaries.
-  - update these instructions on usage with docker, and document environment variables for configuration.
--->
+### Build from source
+
+To get a "final prod build" run the following commands in order from the root of the project. This assumes you've already followed CONTRIBUTING.md and can run the stack locally.
+
+```bash
+cd client
+npm run build
+cd ..
+cd server
+npm run build
+cd ..
+npm run compose-prod-build
+cd dist
+```
+
+The final top level `dist` folder is the final deployment target, you just need `npm install` and to run `npm run start`.
+
+### Download and run stack
+
+TBD... this will provide instructions to the download and running the entire stack as-is as the above "build from source" will be done automatically on merge to main (and tagged).
 
 ## Documentation
 
