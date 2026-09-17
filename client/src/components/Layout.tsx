@@ -1,8 +1,9 @@
-import { Outlet, Link } from 'react-router-dom'
+import { Outlet, Link, ScrollRestoration } from 'react-router-dom'
 
 export default function Layout() {
   return (
     <div className="page-shell bg-base-100 min-h-screen flex flex-col">
+      <ScrollRestoration />
       <header className="navbar border-b border-base-300 bg-base-100 flex-wrap sm:flex-nowrap">
         <div className="flex-1">
           <Link to="/" className="text-heading font-bold">

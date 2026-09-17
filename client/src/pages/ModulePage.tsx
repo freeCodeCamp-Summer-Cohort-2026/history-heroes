@@ -5,7 +5,7 @@ export default function ModulePage() {
 
   return (
     <div>
-      <h1>Module: {moduleId}</h1>
+      <h1 className="text-display">Module: {moduleId}</h1>
       {/* temporary: replace with the real lesson list once #52 lands */}
       <ul>
         <li>

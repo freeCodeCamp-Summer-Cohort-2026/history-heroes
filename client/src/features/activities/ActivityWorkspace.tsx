@@ -11,7 +11,7 @@ export default function ActivityWorkspace({
     <section aria-label="Lesson activities">
       {activities.map((activity) => (
         <div key={activity.id}>
-          <h2>{activity.title}</h2>
+          <h2 className="text-heading">{activity.title}</h2>
         </div>
       ))}
     </section>
