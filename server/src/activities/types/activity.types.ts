@@ -31,8 +31,7 @@ export interface MatchingSuccessCriteria {
   pairs: MatchingPair[];
 }
 
-export type ActivityContent =
-  OrderingContent | MatchingContent;
+export type ActivityContent = OrderingContent | MatchingContent;
 
 export type ActivitySuccessCriteria =
   OrderingSuccessCriteria | MatchingSuccessCriteria;
