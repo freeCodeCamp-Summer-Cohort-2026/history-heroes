@@ -25,13 +25,14 @@ export default function ModuleCatalogPage() {
       .finally(() => setIsLoading(false))
   }, [])
 
-  if (isLoading) return <p>Loading modules...</p>
-  if (error) return <p>{error}</p>
-
   return (
     <div>
-      <h1>Modules</h1>
-      <ModuleCatalog modules={modules} onModuleSelect={handleModuleSelect} />
+      <h1 className="text-display">Modules</h1>
+      {isLoading && <p className="text-body">Loading modules...</p>}
+      {error && <p className="text-body">{error}</p>}
+      {!isLoading && !error && (
+        <ModuleCatalog modules={modules} onModuleSelect={handleModuleSelect} />
+      )}
     </div>
   )
 }

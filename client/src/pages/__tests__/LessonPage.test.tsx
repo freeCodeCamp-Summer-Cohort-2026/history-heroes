@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
-import App from '../../App'
+import { createMemoryRouter, RouterProvider } from 'react-router-dom'
+import { routes } from '../../App'
 import type { Activity } from '../../features/activities/types'
 import type { Lesson } from '../../features/lesson/model/Lesson'
 
@@ -60,9 +60,9 @@ function mockServer(activities: Activity[]) {
 
 function renderAt(path: string) {
   render(
-    <MemoryRouter initialEntries={[path]}>
-      <App />
-    </MemoryRouter>,
+    <RouterProvider
+      router={createMemoryRouter(routes, { initialEntries: [path] })}
+    />,
   )
 }
 

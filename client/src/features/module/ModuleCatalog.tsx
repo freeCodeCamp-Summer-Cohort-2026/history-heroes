@@ -13,10 +13,10 @@ export default function ModuleCatalog({
     <ul>
       {modules.map((oneModule) => (
         <li key={oneModule.id}>
-          <h2>{oneModule.title}</h2>
-          <p>{oneModule.description}</p>
-          {oneModule.period && <p>{oneModule.period}</p>}
-          {oneModule.theme && <p>{oneModule.theme}</p>}
+          <h2 className="text-subheading">{oneModule.title}</h2>
+          <p className="text-body">{oneModule.description}</p>
+          {oneModule.period && <p className="text-small">{oneModule.period}</p>}
+          {oneModule.theme && <p className="text-small">{oneModule.theme}</p>}
           <button type="button" onClick={() => onModuleSelect(oneModule.id)}>
             Start Learning!
           </button>
