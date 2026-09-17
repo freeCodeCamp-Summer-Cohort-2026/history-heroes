@@ -145,6 +145,7 @@ describe('ProgressController (e2e)', () => {
       .expect(201);
 
     const cookie = postResponse.headers['set-cookie'];
+    expect(cookie).toBeDefined();
 
     await app.close();
 
