@@ -5,6 +5,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { createAuthenticatedAgent, createTestApp } from '../../test/e2e-helper';
 import { UserLessonProgress } from './entities/user-lesson-progress.entity';
+import { browserFormat } from 'vitest/internal/browser';
 
 describe('ProgressController (e2e)', () => {
   let app: INestApplication<App>;
@@ -134,41 +135,26 @@ describe('ProgressController (e2e)', () => {
     await expect(progressRepo.insert(duplicate)).rejects.toThrow();
   });
 
-  // Tests progress saving across sessions
+  // Tests progress saving across new app instance
 
-  // TODO: finish assertions on getResponse, confirm status code, check env error (express-session)
-  
   it('saves progress across sessions', async () => {
-    const agentA = await createAuthenticatedAgent(app, {
-      email: 'test@historyheroes.org',
-      password: 'local-dev-only',
-    });
+    
+    const agentA = request.agent(app.getHttpServer());
 
-    await agentA.post('/api/v1/progress/lessons/great-pyramid').expect(201);
-
-    /** I feel like the answer has something to do with the following snippet from this own code
-     * it('/api/v1/progress/lessons/:lessonId (POST) saves progress and /api/v1/progress (GET) retrieves it', async () => {
-    const agent = request.agent(app.getHttpServer());
-
-    const postResponse = await agent
-      .post('/api/v1/progress/lessons/great-pyramid')
+    const postResponse = await agentA.post('/api/v1/progress/lessons/great-pyramid')
       .expect(201);
 
-    expect(postResponse.body).toMatchObject({
-      lessonId: 'great-pyramid',
-    });
-    expect(postResponse.body.completedAt).toBeDefined();
+    const cookie = postResponse.headers['set-cookie'];
 
-    const getResponse = await agent.get('/api/v1/progress').expect(200);
+    await app.close();
 
-    expect(Array.isArray(getResponse.body)).toBe(true);
+    app = await createTestApp();
+
+    const agentB = await request.agent(app.getHttpServer());
+
+    const getResponse = await agentB.get('/api/v1/progress').set('Cookie', cookie[0]).expect(200);
     expect(getResponse.body).toHaveLength(1);
-    expect(getResponse.body[0]).toMatchObject({
-      lessonId: 'great-pyramid',
-    });
-     * **/
-    
-
+    expect(getResponse.body[0].lessonId).toBe('great-pyramid');
   }  
   )
 });
