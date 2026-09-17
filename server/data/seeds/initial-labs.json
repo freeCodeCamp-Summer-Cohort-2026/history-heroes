@@ -1,0 +1,14 @@
+{
+  "labs": [
+    {
+      "id": "seven-wonders-lab",
+      "moduleId": "seven-wonders",
+      "title": "The Seven Wonders of the Ancient World Review",
+      "description": "Show that you know how the ancient wonders compare in size and that you understand the difference between a popular story about the ancient wonders vs. what the evidence actually supports.",
+      "activityIds": [
+        "order-wonders-by-height",
+        "match-wonder-claims-to-evidence"
+      ]
+    }
+  ]
+}
