@@ -5,6 +5,7 @@
   "scripts": {
     "prepare": "husky"
   },
+  "license": "MIT",
   "lint-staged": {
     "*.{json,md}": [
       "prettier --write"
