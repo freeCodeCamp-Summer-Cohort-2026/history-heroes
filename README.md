@@ -25,6 +25,17 @@ This project has two halves that run separately. Start with the client if you ar
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for branch naming, commit conventions and the PR process.
 
+## Self hosting
+
+Self hosting is the primary and currently the only way to utilize this codebase in a "production" setting. The targeted way is to download the latest release binary from the [releases page](https://github.com/freeCodeCamp-Summer-Cohort-2026/history-heroes).
+
+WIP...
+<!--
+  TBD:
+  - add dockerfile for single isolated docker deployment, runs with pre-built binaries.
+  - update these instructions on usage with docker, and document environment variables for configuration.
+-->
+
 ## Documentation
 
 - [Functional requirements](docs/functional-requirements.md)
