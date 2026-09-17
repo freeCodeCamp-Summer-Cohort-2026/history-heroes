@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { routes } from '../App'
 
@@ -64,4 +64,18 @@ test('shows the site heading', () => {
   expect(
     screen.getByRole('link', { name: /history heroes/i }),
   ).toBeInTheDocument()
+})
+
+test('scrolls to the top when the page changes', async () => {
+  const scrollSpy = vi.spyOn(window, 'scrollTo')
+  const router = createMemoryRouter(routes, {
+    initialEntries: ['/modules/seven-wonders'],
+  })
+  render(<RouterProvider router={router} />)
+
+  scrollSpy.mockClear()
+  fireEvent.click(screen.getByRole('link', { name: /history heroes/i }))
+  await screen.findByRole('heading', { name: /modules/i })
+
+  expect(scrollSpy).toHaveBeenCalledWith(0, 0)
 })
