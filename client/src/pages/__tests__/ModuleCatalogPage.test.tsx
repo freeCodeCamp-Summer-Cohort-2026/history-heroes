@@ -73,3 +73,32 @@ test('opens the second module when it is selected', async () => {
     await screen.findByRole('heading', { name: /module: second-module/i }),
   ).toBeInTheDocument()
 })
+
+test('shows each module as a card', async () => {
+  render(
+    <RouterProvider
+      router={createMemoryRouter(routes, { initialEntries: ['/'] })}
+    />,
+  )
+
+  expect(await screen.findAllByRole('article')).toHaveLength(2)
+})
+
+test('shows an empty state when there are no modules', async () => {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => [],
+    }),
+  )
+  render(
+    <RouterProvider
+      router={createMemoryRouter(routes, { initialEntries: ['/'] })}
+    />,
+  )
+
+  expect(
+    await screen.findByText(/no modules are available yet/i),
+  ).toBeInTheDocument()
+})
