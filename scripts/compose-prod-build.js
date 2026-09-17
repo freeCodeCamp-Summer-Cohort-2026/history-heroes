@@ -9,4 +9,10 @@ const fs = require("fs");
  */
 (async () => {
   // TODO: Implement this script to copy the client build into the server's public folder and prepare the server for production deployment.
+  //
+  // for client:
+  // - move the client into the server's public folder
+  // for server:
+  // - mkdir /data/seeds
+  // - cp -r ../data/seeds ./data/seeds, need to make this optional
 })();
