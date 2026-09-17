@@ -26,6 +26,8 @@ export class ModuleSeeder implements EntitySeeder<ModuleSeedData> {
         id: item.id,
         title: item.title,
         description: item.description,
+        period: item.period,
+        theme: item.theme,
         order: item.order ?? 0,
       }),
     );
