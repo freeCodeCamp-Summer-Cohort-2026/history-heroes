@@ -38,9 +38,11 @@ export default function LessonPage() {
 
   return (
     <div>
-      <h1>{lesson.title}</h1>
+      <h1 className="text-display">{lesson.title}</h1>
       {lesson.contents.split('\n\n').map((paragraph, index) => (
-        <p key={index}>{paragraph}</p>
+        <p className="text-body" key={index}>
+          {paragraph}
+        </p>
       ))}
       <ActivityWorkspace activities={activities} />
     </div>
