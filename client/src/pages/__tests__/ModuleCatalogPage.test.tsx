@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
-import App from '../../App'
+import { createMemoryRouter, RouterProvider } from 'react-router-dom'
+import { routes } from '../../App'
 
 const testModules = [
   {
@@ -31,9 +31,9 @@ afterEach(() => {
 
 test('displays both modules', async () => {
   render(
-    <MemoryRouter initialEntries={['/']}>
-      <App />
-    </MemoryRouter>,
+    <RouterProvider
+      router={createMemoryRouter(routes, { initialEntries: ['/'] })}
+    />,
   )
 
   expect(await screen.findByText('Test Module One')).toBeInTheDocument()
@@ -42,9 +42,9 @@ test('displays both modules', async () => {
 
 test('opens the first module when it is selected', async () => {
   render(
-    <MemoryRouter initialEntries={['/']}>
-      <App />
-    </MemoryRouter>,
+    <RouterProvider
+      router={createMemoryRouter(routes, { initialEntries: ['/'] })}
+    />,
   )
 
   const buttons = await screen.findAllByRole('button', {
@@ -59,9 +59,9 @@ test('opens the first module when it is selected', async () => {
 
 test('opens the second module when it is selected', async () => {
   render(
-    <MemoryRouter initialEntries={['/']}>
-      <App />
-    </MemoryRouter>,
+    <RouterProvider
+      router={createMemoryRouter(routes, { initialEntries: ['/'] })}
+    />,
   )
 
   const buttons = await screen.findAllByRole('button', {
