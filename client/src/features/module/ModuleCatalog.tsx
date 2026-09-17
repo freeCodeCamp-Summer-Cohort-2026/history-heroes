@@ -17,6 +17,8 @@ export default function ModuleCatalog({
           <ModuleCard
             title={oneModule.title}
             description={oneModule.description}
+            period={oneModule.period}
+            theme={oneModule.theme}
             onStart={() => onModuleSelect(oneModule.id)}
           />
         </li>
