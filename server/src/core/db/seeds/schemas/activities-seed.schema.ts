@@ -32,11 +32,11 @@ const idsMatch = (a: string[], b: string[]): string | undefined => {
   if (b.length !== setB.size) return idErrors.DUPLICATE;
 
   // compare set sizes
-  if (setA.size !== setB.size) return idErrors.MISMATCHED;
+  if (setA.size !== setB.size) return idErrors.MISSING;
 
   // check that all values of one set exist in the other
   for (const aVal of setA.values()) {
-    if (!setB.has(aVal)) return idErrors.MISSING;
+    if (!setB.has(aVal)) return idErrors.MISMATCHED;
   }
 };
 
