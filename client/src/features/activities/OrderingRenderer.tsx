@@ -21,9 +21,11 @@ export default function OrderingRenderer({
   ): string[] {
     const currentOrderCopy = [...currentOrder]
     const dragIndex = currentOrderCopy.findIndex((id) => id === draggedId)
+    if (dragIndex === -1) return currentOrder
 
     const removedItem = currentOrderCopy.splice(dragIndex, 1)
     const dropIndex = currentOrderCopy.findIndex((id) => id === droppedId)
+    if (dropIndex === -1) return currentOrder
 
     currentOrderCopy.splice(dropIndex, 0, removedItem[0])
 
