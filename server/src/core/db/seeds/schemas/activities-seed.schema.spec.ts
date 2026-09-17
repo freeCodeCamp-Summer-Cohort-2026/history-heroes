@@ -380,7 +380,7 @@ describe('Activity item schema', () => {
           JSON.stringify(dummyMatchingActivity),
         );
         const dupeId = dummyActivityDupeIds.content.left[0].id;
-        dummyActivityDupeIds.content.left.splice[1].id = dupeId;
+        dummyActivityDupeIds.content.left[1].id = dupeId;
         messageDupeIds =
           ActivitySeedItemSchema.safeParse(dummyActivityDupeIds).error
             ?.issues[0].message!;
