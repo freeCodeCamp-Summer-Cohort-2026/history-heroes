@@ -327,6 +327,109 @@
           "visitors-see-the-pieces"
         ]
       }
+    },
+    {
+      "id": "order-wonders-by-height",
+      "type": "ordering",
+      "title": "Put the wonders in order by height",
+      "checkStatement": "This checks if you ordered the ancient wonders by height, from tallest first down to shortest.",
+      "content": {
+        "items": [
+          {
+            "id": "mausoleum-at-halicarnassus",
+            "label": "The Mausoleum at Halicarnassus"
+          },
+          {
+            "id": "statue-of-zeus",
+            "label": "The Statue of Zeus"
+          },
+          {
+            "id": "great-pyramid",
+            "label": "The Great Pyramid of Giza"
+          },
+          {
+            "id": "colossus-of-rhodes",
+            "label": "The Colossus of Rhodes"
+          },
+          {
+            "id": "lighthouse-of-alexandria",
+            "label": "The Lighthouse of Alexandria"
+          }
+        ]
+      },
+      "successCriteria": {
+        "correctOrder": [
+          "great-pyramid",
+          "lighthouse-of-alexandria",
+          "mausoleum-at-halicarnassus",
+          "colossus-of-rhodes",
+          "statue-of-zeus"
+        ]
+      }
+    },
+    {
+      "id": "match-wonder-claims-to-evidence",
+      "type": "matching",
+      "title": "Match each claim to the evidence against it",
+      "checkStatement": "This checks if you matched each wonder with the evidence that makes historians doubt it.",
+      "content": {
+        "left": [
+          {
+            "id": "slaves-built-pyramid",
+            "label": "Slaves built the Great Pyramid"
+          },
+          {
+            "id": "gardens-in-babylon",
+            "label": "The Hanging Gardens stood in Babylon"
+          },
+          {
+            "id": "colossus-over-harbor",
+            "label": "The Colossus stood with one foot on each side of the harbor"
+          },
+          {
+            "id": "mirror-burned-ships",
+            "label": "The lighthouse's mirror could set enemy ships on fire"
+          }
+        ],
+        "right": [
+          {
+            "id": "too-heavy-to-stand",
+            "label": "A bronze statue spread that wide could not hold up its own weight"
+          },
+          {
+            "id": "exaggerated-story",
+            "label": "It is almost certainly false, a sign of how impressive the tower seemed"
+          },
+          {
+            "id": "paid-workers",
+            "label": "Workers' villages show they were paid, fed, and worked as a team"
+          },
+          {
+            "id": "no-babylon-evidence",
+            "label": "Babylon's own records never mention it, and digging there found no garden"
+          }
+        ]
+      },
+      "successCriteria": {
+        "pairs": [
+          {
+            "left": "slaves-built-pyramid",
+            "right": "paid-workers"
+          },
+          {
+            "left": "gardens-in-babylon",
+            "right": "no-babylon-evidence"
+          },
+          {
+            "left": "colossus-over-harbor",
+            "right": "too-heavy-to-stand"
+          },
+          {
+            "left": "mirror-burned-ships",
+            "right": "exaggerated-story"
+          }
+        ]
+      }
     }
   ]
 }

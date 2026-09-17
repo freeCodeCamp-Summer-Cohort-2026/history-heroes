@@ -1,6 +1,6 @@
-import { render, screen } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
-import App from '../App'
+import { render, screen, fireEvent } from '@testing-library/react'
+import { createMemoryRouter, RouterProvider } from 'react-router-dom'
+import { routes } from '../App'
 
 beforeEach(() => {
   vi.stubGlobal(
@@ -18,9 +18,9 @@ afterEach(() => {
 
 test('renders the module catalog', async () => {
   render(
-    <MemoryRouter initialEntries={['/']}>
-      <App />
-    </MemoryRouter>,
+    <RouterProvider
+      router={createMemoryRouter(routes, { initialEntries: ['/'] })}
+    />,
   )
 
   expect(
@@ -30,9 +30,11 @@ test('renders the module catalog', async () => {
 
 test('shows the module id', () => {
   render(
-    <MemoryRouter initialEntries={['/modules/seven-wonders']}>
-      <App />
-    </MemoryRouter>,
+    <RouterProvider
+      router={createMemoryRouter(routes, {
+        initialEntries: ['/modules/seven-wonders'],
+      })}
+    />,
   )
 
   expect(screen.getByText(/module: seven-wonders/i)).toBeInTheDocument()
@@ -40,9 +42,9 @@ test('shows the module id', () => {
 
 test('shows page not found when unknown route is provided', () => {
   render(
-    <MemoryRouter initialEntries={['/nonsense']}>
-      <App />
-    </MemoryRouter>,
+    <RouterProvider
+      router={createMemoryRouter(routes, { initialEntries: ['/nonsense'] })}
+    />,
   )
 
   expect(
@@ -52,14 +54,28 @@ test('shows page not found when unknown route is provided', () => {
 
 test('shows the site heading', () => {
   render(
-    <MemoryRouter
-      initialEntries={['/modules/seven-wonders/lessons/great-pyramid']}
-    >
-      <App />
-    </MemoryRouter>,
+    <RouterProvider
+      router={createMemoryRouter(routes, {
+        initialEntries: ['/modules/seven-wonders/lessons/great-pyramid'],
+      })}
+    />,
   )
 
   expect(
     screen.getByRole('link', { name: /history heroes/i }),
   ).toBeInTheDocument()
+})
+
+test('scrolls to the top when the page changes', async () => {
+  const scrollSpy = vi.spyOn(window, 'scrollTo')
+  const router = createMemoryRouter(routes, {
+    initialEntries: ['/modules/seven-wonders'],
+  })
+  render(<RouterProvider router={router} />)
+
+  scrollSpy.mockClear()
+  fireEvent.click(screen.getByRole('link', { name: /history heroes/i }))
+  await screen.findByRole('heading', { name: /modules/i })
+
+  expect(scrollSpy).toHaveBeenCalledWith(0, 0)
 })

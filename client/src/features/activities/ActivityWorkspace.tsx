@@ -29,7 +29,7 @@ export default function ActivityWorkspace({
 
       {activities.map((activity) => (
         <div key={activity.id}>
-          <h2 className="text-xl font-bold">{activity.title}</h2>
+          <h2 className="text-heading">{activity.title}</h2>
 
           {submissionState?.checkStatement && (
             <p className="mt-3 text-base-content/70">
