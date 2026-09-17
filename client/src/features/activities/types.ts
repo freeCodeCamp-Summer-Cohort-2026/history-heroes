@@ -52,3 +52,8 @@ export type ActivityRendererProps<TContent, TAnswer> = {
   onAnswerChange: (answer: TAnswer) => void
   disabled: boolean
 }
+
+export interface SubmissionState {
+  result: 'correct' | 'notYet'
+  checkStatement?: string | null
+}
