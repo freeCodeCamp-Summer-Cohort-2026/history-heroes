@@ -20,7 +20,7 @@ export interface EntitySeeder<T = any> {
    * The "seed the database" method, that is called within an SQL transaction.
    *
    * @param entityManager the entity manager ref from sqlite3, used to perform the actual inserts into the database in a transaction, so all pass or all fail.
-   * @param data the actual zchema data to save into the database, which has already been validated against the schema.
+   * @param data the actual schema data to save into the database, which has already been validated against the schema.
    */
   seed(entityManager: EntityManager, data: T): Promise<void>;
 }

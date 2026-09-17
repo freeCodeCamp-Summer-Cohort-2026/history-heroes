@@ -3,8 +3,14 @@ import { DataSource } from 'typeorm';
 import { SeedsService } from './seeds.service';
 import { User } from '../../../users/entities/user.entity';
 import { Module } from '../../../modules/entities/module.entity';
+import { Lesson } from '../../../lessons/entities/lesson.entity';
+import { Activity } from '../../../activities/entities/activity.entity';
+import { LessonActivityAssignment } from '../../../activities/entities/lesson-activity-assignment.entity';
 import { UserSeeder } from './seeders/user.seeder.service';
 import { ModuleSeeder } from './seeders/module.seeder.service';
+import { LessonSeeder } from './seeders/lesson.seeder.service';
+import { ActivitySeeder } from './seeders/activity.seeder.service';
+import { LessonActivityAssignmentSeeder } from './seeders/lesson-activity-assignment.seeder.service';
 
 describe('SeedsService', () => {
   let service: SeedsService;
@@ -25,6 +31,9 @@ describe('SeedsService', () => {
       providers: [
         UserSeeder,
         ModuleSeeder,
+        LessonSeeder,
+        ActivitySeeder,
+        LessonActivityAssignmentSeeder,
         SeedsService,
         {
           provide: DataSource,
@@ -46,7 +55,7 @@ describe('SeedsService', () => {
     expect(mockTransaction).not.toHaveBeenCalled();
   });
 
-  it('should run seed transaction for users and modules when database is empty', async () => {
+  it('should run seed transaction for all entities when database is empty', async () => {
     mockCount.mockResolvedValue(0);
 
     const mockEntityManager = {
@@ -70,6 +79,18 @@ describe('SeedsService', () => {
       Module,
       expect.anything(),
     );
+    expect(mockEntityManager.create).toHaveBeenCalledWith(
+      Lesson,
+      expect.anything(),
+    );
+    expect(mockEntityManager.create).toHaveBeenCalledWith(
+      Activity,
+      expect.anything(),
+    );
+    expect(mockEntityManager.create).toHaveBeenCalledWith(
+      LessonActivityAssignment,
+      expect.anything(),
+    );
 
     // save is always called, and called in this order, will be important
     // later with other seeders are added.
@@ -81,6 +102,21 @@ describe('SeedsService', () => {
     expect(mockEntityManager.save).toHaveBeenNthCalledWith(
       2,
       Module,
+      expect.anything(),
+    );
+    expect(mockEntityManager.save).toHaveBeenNthCalledWith(
+      3,
+      Lesson,
+      expect.anything(),
+    );
+    expect(mockEntityManager.save).toHaveBeenNthCalledWith(
+      4,
+      Activity,
+      expect.anything(),
+    );
+    expect(mockEntityManager.save).toHaveBeenNthCalledWith(
+      5,
+      LessonActivityAssignment,
       expect.anything(),
     );
   });

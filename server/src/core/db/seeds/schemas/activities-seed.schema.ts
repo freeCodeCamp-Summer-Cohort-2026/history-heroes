@@ -104,11 +104,28 @@ export const ActivitySeedItemSchema = z
   })
   .and(ActivityTypes);
 
-export const ActivitySeedFileSchema = z.object({
-  activities: z
-    .array(ActivitySeedItemSchema)
-    .nonempty('Activities array cannot be empty'),
-});
+export const ActivitySeedFileSchema = z
+  .object({
+    activities: z
+      .array(ActivitySeedItemSchema)
+      .nonempty('Activities array cannot be empty'),
+  })
+  .superRefine(({ activities }, ctx) => {
+    const seenIds = new Set<string>();
+
+    for (let i = 0; i < activities.length; i++) {
+      const activity = activities[i];
+
+      if (seenIds.has(activity.id)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Duplicate activity id: '${activity.id}'`,
+          path: ['activities', i, 'id'],
+        });
+      }
+      seenIds.add(activity.id);
+    }
+  });
 
 export type ActivitySeedItem = z.infer<typeof ActivitySeedItemSchema>;
 export type ActivitySeedData = z.infer<typeof ActivitySeedFileSchema>;
