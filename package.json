@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "prepare": "husky"
+    "prepare": "husky",
+    "compose-prod-build": "node scripts/compose-prod-build.js"
   },
   "license": "MIT",
   "lint-staged": {
