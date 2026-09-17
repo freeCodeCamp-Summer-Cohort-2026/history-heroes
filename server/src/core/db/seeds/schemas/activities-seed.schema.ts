@@ -57,7 +57,11 @@ const Ordering = z
     const successIds = successCriteria.correctOrder;
 
     const matchResult = idsMatch(contentIds, successIds);
-    if (matchResult) ctx.addIssue(matchResult);
+    if (matchResult)
+      ctx.addIssue({
+        code: 'custom',
+        message: matchResult,
+      });
   });
 
 const Matching = z
@@ -94,10 +98,10 @@ const Matching = z
     });
 
     const leftResult = idsMatch(contentIdsLeft, successIdsLeft);
-    const rightResult = idsMatch(contentIdsRight, successIdsRight)
+    const rightResult = idsMatch(contentIdsRight, successIdsRight);
 
-    if (leftResult) ctx.addIssue(leftResult);
-    if (rightResult) ctx.addIssue(rightResult);
+    if (leftResult) ctx.addIssue({ code: 'custom', message: leftResult });
+    if (rightResult) ctx.addIssue({ code: 'custom', message: rightResult });
   });
 
 const ActivityTypes = z.discriminatedUnion('type', [Ordering, Matching]);
