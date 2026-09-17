@@ -7,6 +7,8 @@ const testModules = [
     id: 'first-module',
     title: 'Test Module One',
     description: 'A test module.',
+    period: 'Ancient World',
+    theme: 'Architecture and Engineering',
   },
   {
     id: 'second-module',
@@ -101,4 +103,15 @@ test('shows an empty state when there are no modules', async () => {
   expect(
     await screen.findByText(/no modules are available yet/i),
   ).toBeInTheDocument()
+})
+
+test('shows the period and theme on a module card', async () => {
+  render(
+    <RouterProvider
+      router={createMemoryRouter(routes, { initialEntries: ['/'] })}
+    />,
+  )
+
+  expect(await screen.findByText('Ancient World')).toBeInTheDocument()
+  expect(screen.getByText('Architecture and Engineering')).toBeInTheDocument()
 })
