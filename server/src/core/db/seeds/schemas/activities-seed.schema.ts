@@ -1,6 +1,12 @@
 import { z } from 'zod';
 
-const idsMatch = (a: string[], b: string[]): boolean => {
+const idErrors = {
+  MISMATCHED: 'Mismatched ID(s)',
+  MISSING: 'Missing ID(s)',
+  DUPLICATE: 'Duplicate ID(s)',
+};
+
+const idsMatch = (a: string[], b: string[]): string | undefined => {
   // create sets and check for duplicate ids
 
   /*
@@ -20,20 +26,18 @@ const idsMatch = (a: string[], b: string[]): boolean => {
    */
 
   const setA = new Set(a);
-  if (a.length !== setA.size) return false;
+  if (a.length !== setA.size) return idErrors.DUPLICATE;
 
   const setB = new Set(b);
-  if (b.length !== setB.size) return false;
+  if (b.length !== setB.size) return idErrors.DUPLICATE;
 
   // compare set sizes
-  if (setA.size !== setB.size) return false;
+  if (setA.size !== setB.size) return idErrors.MISSING;
 
   // check that all values of one set exist in the other
   for (const aVal of setA.values()) {
-    if (!setB.has(aVal)) return false;
+    if (!setB.has(aVal)) return idErrors.MISMATCHED;
   }
-
-  return true;
 };
 
 const Ordering = z
@@ -48,11 +52,16 @@ const Ordering = z
       correctOrder: z.array(z.string().nonempty()).nonempty(),
     }),
   })
-  .refine(({ content, successCriteria }): boolean => {
+  .superRefine(({ content, successCriteria }, ctx): void => {
     const contentIds = content.items.map((item) => item.id);
     const successIds = successCriteria.correctOrder;
 
-    return idsMatch(contentIds, successIds);
+    const matchResult = idsMatch(contentIds, successIds);
+    if (matchResult)
+      ctx.addIssue({
+        code: 'custom',
+        message: matchResult,
+      });
   });
 
 const Matching = z
@@ -77,7 +86,7 @@ const Matching = z
         .nonempty(),
     }),
   })
-  .refine(({ content, successCriteria }) => {
+  .superRefine(({ content, successCriteria }, ctx): void => {
     const contentIdsLeft = content.left.map((e) => e.id);
     const contentIdsRight = content.right.map((e) => e.id);
 
@@ -88,10 +97,11 @@ const Matching = z
       successIdsRight.push(e.right);
     });
 
-    return (
-      idsMatch(contentIdsLeft, successIdsLeft) &&
-      idsMatch(contentIdsRight, successIdsRight)
-    );
+    const leftResult = idsMatch(contentIdsLeft, successIdsLeft);
+    const rightResult = idsMatch(contentIdsRight, successIdsRight);
+
+    if (leftResult) ctx.addIssue({ code: 'custom', message: leftResult });
+    if (rightResult) ctx.addIssue({ code: 'custom', message: rightResult });
   });
 
 const ActivityTypes = z.discriminatedUnion('type', [Ordering, Matching]);

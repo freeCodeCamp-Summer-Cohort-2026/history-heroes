@@ -5,6 +5,96 @@ import {
 import * as seedActivitiesJson from './../../../../../data/seeds/initial-activities.json';
 
 describe('Activity item schema', () => {
+  let dummyOrderingActivity: {
+    id: string;
+    type: string;
+    title: string;
+    checkStatement: string;
+    content: {
+      items: { id: string; label: string }[];
+    };
+    successCriteria: {
+      correctOrder: string[];
+    };
+  };
+
+  // reset dummy ordering activity before each test
+  beforeEach(() => {
+    dummyOrderingActivity = {
+      id: 'dummy-ordering-activity',
+      type: 'ordering',
+      title: 'Dummy ordering activity',
+      checkStatement: 'This is a dummy ordering activity',
+      content: {
+        items: [
+          {
+            id: 'first',
+            label: 'First',
+          },
+          {
+            id: 'second',
+            label: 'Second',
+          },
+        ],
+      },
+      successCriteria: {
+        correctOrder: ['first', 'second'],
+      },
+    };
+  });
+
+  let dummyMatchingActivity: {
+    id: string;
+    type: string;
+    title: string;
+    checkStatement: string;
+    content: {
+      left: { id: string; label: string }[];
+      right: { id: string; label: string }[];
+    };
+    successCriteria: {
+      pairs: { left: string; right: string }[];
+    };
+  };
+
+  // reset dummy matching activity before each test
+  beforeEach(() => {
+    dummyMatchingActivity = {
+      id: 'dummy-matching-activity',
+      type: 'matching',
+      title: 'Dummy matching activity',
+      checkStatement: 'This is a dummy matching activity',
+      content: {
+        left: [
+          {
+            id: 'first',
+            label: 'First',
+          },
+          {
+            id: 'third',
+            label: 'Third',
+          },
+        ],
+        right: [
+          {
+            id: 'second',
+            label: 'Second',
+          },
+          {
+            id: 'fourth',
+            label: 'Fourth',
+          },
+        ],
+      },
+      successCriteria: {
+        pairs: [
+          { left: 'first', right: 'second' },
+          { left: 'third', right: 'fourth' },
+        ],
+      },
+    };
+  });
+
   it('should exist', () => {
     expect(ActivitySeedItemSchema).toBeDefined();
   });
@@ -31,50 +121,12 @@ describe('Activity item schema', () => {
   });
 
   describe('ordering activity ids', () => {
-    let dummyOrderingActivity: {
-      id: string;
-      type: string;
-      title: string;
-      checkStatement: string;
-      content: {
-        items: { id: string; label: string }[];
-      };
-      successCriteria: {
-        correctOrder: string[];
-      };
-    };
-
     const expectValidationFailure = () => {
       const result = ActivitySeedItemSchema.safeParse(dummyOrderingActivity);
 
       expect(result.success).toBeFalsy();
       expect(result.error).toBeDefined();
     };
-
-    // reset dummy activity before each test
-    beforeEach(() => {
-      dummyOrderingActivity = {
-        id: 'dummy-ordering-activity',
-        type: 'ordering',
-        title: 'Dummy ordering activity',
-        checkStatement: 'This is a dummy ordering activity',
-        content: {
-          items: [
-            {
-              id: 'first',
-              label: 'First',
-            },
-            {
-              id: 'second',
-              label: 'Second',
-            },
-          ],
-        },
-        successCriteria: {
-          correctOrder: ['first', 'second'],
-        },
-      };
-    });
 
     it('shoudld be valid for unmodified dummy activity', () => {
       ActivitySeedItemSchema.parse(dummyOrderingActivity);
@@ -146,64 +198,12 @@ describe('Activity item schema', () => {
   });
 
   describe('matching activity ids', () => {
-    let dummyMatchingActivity: {
-      id: string;
-      type: string;
-      title: string;
-      checkStatement: string;
-      content: {
-        left: { id: string; label: string }[];
-        right: { id: string; label: string }[];
-      };
-      successCriteria: {
-        pairs: { left: string; right: string }[];
-      };
-    };
-
     const expectValidationFailure = () => {
       const result = ActivitySeedItemSchema.safeParse(dummyMatchingActivity);
 
       expect(result.success).toBeFalsy();
       expect(result.error).toBeDefined();
     };
-
-    // reset dummy activity before each test
-    beforeEach(() => {
-      dummyMatchingActivity = {
-        id: 'dummy-matching-activity',
-        type: 'matching',
-        title: 'Dummy matching activity',
-        checkStatement: 'This is a dummy matching activity',
-        content: {
-          left: [
-            {
-              id: 'first',
-              label: 'First',
-            },
-            {
-              id: 'third',
-              label: 'Third',
-            },
-          ],
-          right: [
-            {
-              id: 'second',
-              label: 'Second',
-            },
-            {
-              id: 'fourth',
-              label: 'Fourth',
-            },
-          ],
-        },
-        successCriteria: {
-          pairs: [
-            { left: 'first', right: 'second' },
-            { left: 'third', right: 'fourth' },
-          ],
-        },
-      };
-    });
 
     it('shoudld be valid for unmodified dummy activity', () => {
       ActivitySeedItemSchema.parse(dummyMatchingActivity);
@@ -326,6 +326,76 @@ describe('Activity item schema', () => {
         });
 
         ActivitySeedItemSchema.parse(dummyMatchingActivity);
+      });
+    });
+  });
+
+  describe('error messages', () => {
+    it('should produce different errors for different types of invalid input', () => {
+      const dummyActivityEmptyType = JSON.parse(
+        JSON.stringify(dummyOrderingActivity),
+      );
+      dummyActivityEmptyType.type = '';
+
+      const dummyActivityNoSuccess = JSON.parse(
+        JSON.stringify(dummyOrderingActivity),
+      );
+      delete dummyActivityNoSuccess.successCriteria;
+
+      const resultEmptyType = ActivitySeedItemSchema.safeParse(
+        dummyActivityEmptyType,
+      );
+      const resultNoSuccess = ActivitySeedItemSchema.safeParse(
+        dummyActivityNoSuccess,
+      );
+
+      expect(resultEmptyType.error?.issues[0].message).not.toEqual(
+        resultNoSuccess.error?.issues[0].message,
+      );
+    });
+
+    describe('distinct errors for differently invalid ids', () => {
+      let messageMissingId: string;
+      let messageMismatchedIds: string;
+      let messageDupeIds: string;
+
+      beforeEach(() => {
+        const dummyActivityMissingId = JSON.parse(
+          JSON.stringify(dummyMatchingActivity),
+        );
+        dummyActivityMissingId.content.left.pop();
+        messageMissingId = ActivitySeedItemSchema.safeParse(
+          dummyActivityMissingId,
+        ).error?.issues[0].message!;
+
+        const dummyActivityMismatchedIds = JSON.parse(
+          JSON.stringify(dummyMatchingActivity),
+        );
+        dummyActivityMismatchedIds.successCriteria.pairs[0].left = 'invalid';
+        messageMismatchedIds = ActivitySeedItemSchema.safeParse(
+          dummyActivityMismatchedIds,
+        ).error?.issues[0].message!;
+
+        const dummyActivityDupeIds = JSON.parse(
+          JSON.stringify(dummyMatchingActivity),
+        );
+        const dupeId = dummyActivityDupeIds.content.left[0].id;
+        dummyActivityDupeIds.content.left[1].id = dupeId;
+        messageDupeIds =
+          ActivitySeedItemSchema.safeParse(dummyActivityDupeIds).error
+            ?.issues[0].message!;
+      });
+
+      it('should distinguish missing ids from mismatched ids', () => {
+        expect(messageMissingId).not.toEqual(messageMismatchedIds);
+      });
+
+      it('should distinguish missing ids from duplicate ids', () => {
+        expect(messageMissingId).not.toEqual(messageDupeIds);
+      });
+
+      it('should distinguish mismatched ids from duplicate ids', () => {
+        expect(messageMismatchedIds).not.toEqual(messageDupeIds);
       });
     });
   });
