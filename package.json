@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "prepare": "husky",
+    "clean": "rimraf dist",
     "compose-prod-build": "node scripts/compose-prod-build.js"
   },
   "license": "MIT",
@@ -17,5 +18,8 @@
     "husky": "^9.1.7",
     "lint-staged": "^15.4.3",
     "prettier": "^3.9.6"
+  },
+  "dependencies": {
+    "rimraf": "^6.1.3"
   }
 }
