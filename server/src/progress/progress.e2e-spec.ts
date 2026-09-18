@@ -133,4 +133,26 @@ describe('ProgressController (e2e)', () => {
 
     await expect(progressRepo.insert(duplicate)).rejects.toThrow();
   });
+
+  it('tests session progress retrieval across app restart', async () => {
+    
+    const agentA = request.agent(app.getHttpServer());
+
+    const postResponse = await agentA.post('/api/v1/progress/lessons/great-pyramid')
+      .expect(201);
+
+    const cookie = postResponse.headers['set-cookie'];
+    expect(cookie).toBeDefined();
+
+    await app.close();
+
+    app = await createTestApp();
+
+    const agentB = request.agent(app.getHttpServer());
+
+    const getResponse = await agentB.get('/api/v1/progress').set('Cookie', cookie[0]).expect(200);
+    expect(getResponse.body).toHaveLength(1);
+    expect(getResponse.body[0].lessonId).toBe('great-pyramid');
+  }  
+  )
 });
