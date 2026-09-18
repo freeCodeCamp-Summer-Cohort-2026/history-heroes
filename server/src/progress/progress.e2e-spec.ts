@@ -134,9 +134,7 @@ describe('ProgressController (e2e)', () => {
     await expect(progressRepo.insert(duplicate)).rejects.toThrow();
   });
 
-  // Tests progress saving across new app instance
-
-  it('saves progress across sessions', async () => {
+  it('tests session progress retrieval across app restart', async () => {
     
     const agentA = request.agent(app.getHttpServer());
 
