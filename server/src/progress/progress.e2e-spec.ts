@@ -22,7 +22,7 @@ describe('ProgressController (e2e)', () => {
     const agent = request.agent(app.getHttpServer());
 
     const response = await agent.get('/api/v1/progress').expect(200);
-    console.log(response.body);
+    
     expect(Array.isArray(response.body)).toBe(true);
     expect(response.body).toHaveLength(0);
   });
