@@ -55,7 +55,7 @@ test('opens the first module when it is selected', async () => {
   fireEvent.click(buttons[0])
 
   expect(
-    await screen.findByRole('heading', { name: /module: first-module/i }),
+    await screen.findByRole('heading', { level: 1, name: 'Test Module One' }),
   ).toBeInTheDocument()
 })
 
@@ -72,7 +72,7 @@ test('opens the second module when it is selected', async () => {
   fireEvent.click(buttons[1])
 
   expect(
-    await screen.findByRole('heading', { name: /module: second-module/i }),
+    await screen.findByRole('heading', { level: 1, name: 'Test Module Two' }),
   ).toBeInTheDocument()
 })
 
