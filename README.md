@@ -54,7 +54,7 @@ Self hosting is the primary and currently the only way to utilize this codebase 
    npm install --omit=dev
    ```
 
-4. **(Optional) Configure environment variables**:
+4. **Configure environment variables**:
    By default, the server runs on port `3000` with the SQLite database stored at `data/dev.sqlite`. You can customize settings via environment variables (or by creating a `.env` file):
 
    ```bash
