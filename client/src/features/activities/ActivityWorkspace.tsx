@@ -18,6 +18,18 @@ export default function ActivityWorkspace({
 
   return (
     <section aria-label="Lesson activities" className="space-y-6">
+      {activities.map((activity) => (
+        <div key={activity.id}>
+          <h2 className="text-heading">{activity.title}</h2>
+        </div>
+      ))}
+
+      {submissionState?.checkStatement && (
+        <p className="mt-3 text-base-content/70">
+          {submissionState.checkStatement}
+        </p>
+      )}
+
       {import.meta.env.DEV && (
         <button
           className="btn btn-primary"
@@ -31,18 +43,6 @@ export default function ActivityWorkspace({
         >
           Test submission
         </button>
-      )}
-
-      {activities.map((activity) => (
-        <div key={activity.id}>
-          <h2 className="text-heading">{activity.title}</h2>
-        </div>
-      ))}
-
-      {submissionState?.checkStatement && (
-        <p className="mt-3 text-base-content/70">
-          {submissionState.checkStatement}
-        </p>
       )}
     </section>
   )
