@@ -61,7 +61,6 @@ Self hosting is the primary and currently the only way to utilize this codebase 
    PORT=3000
    NODE_ENV=production
    DATABASE_STORAGE=data/app.sqlite
-   DATABASE_SYNCHRONIZE=true
    SESSION_SECRET=replace-with-a-secure-random-secret
    ```
 
