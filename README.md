@@ -83,6 +83,7 @@ cd ..
 cd server
 npm run build
 cd ..
+npm run clean
 npm run compose-prod-build
 cd dist
 npm install --omit=dev
