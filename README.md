@@ -27,11 +27,55 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for branch naming, commit conventions and
 
 ## Self hosting
 
-Self hosting is the primary and currently the only way to utilize this codebase in a "production" setting. The targeted way is to download the latest release binary from the [releases page](https://github.com/freeCodeCamp-Summer-Cohort-2026/history-heroes).
+Self hosting is the primary and currently the only way to utilize this codebase in a "production" setting. The targeted way is to download the latest release bundle from the [releases page](https://github.com/freeCodeCamp-Summer-Cohort-2026/history-heroes/releases).
+
+### Download and run stack
+
+1. **Download the latest release archive** (`history-heroes-dist.zip` or `history-heroes-dist.tar.gz`) from the [GitHub Releases](https://github.com/freeCodeCamp-Summer-Cohort-2026/history-heroes/releases) page.
+
+2. **Extract the archive** to a directory of your choice:
+
+   ```bash
+   unzip history-heroes-dist.zip -d history-heroes
+   cd history-heroes
+   ```
+
+   _(or using tar)_:
+
+   ```bash
+   mkdir history-heroes
+   tar -xzf history-heroes-dist.tar.gz -C history-heroes
+   cd history-heroes
+   ```
+
+3. **Install production dependencies**:
+
+   ```bash
+   npm install --omit=dev
+   ```
+
+4. **(Optional) Configure environment variables**:
+   By default, the server runs on port `3000` with the SQLite database stored at `data/dev.sqlite`. You can customize settings via environment variables (or by creating a `.env` file):
+
+   ```bash
+   PORT=3000
+   NODE_ENV=production
+   DATABASE_STORAGE=data/app.sqlite
+   DATABASE_SYNCHRONIZE=true
+   SESSION_SECRET=replace-with-a-secure-random-secret
+   ```
+
+5. **Start the application**:
+
+   ```bash
+   npm run start
+   ```
+
+   The full-stack application (frontend client and backend API) will now be accessible at `http://localhost:3000`.
 
 ### Build from source
 
-To get a "final prod build" run the following commands in order from the root of the project. This assumes you've already followed CONTRIBUTING.md and can run the stack locally.
+To build the production bundle directly from source instead of downloading a release:
 
 ```bash
 cd client
@@ -42,13 +86,9 @@ npm run build
 cd ..
 npm run compose-prod-build
 cd dist
+npm install --omit=dev
+npm run start
 ```
-
-The final top level `dist` folder is the final deployment target, you just need `npm install` and to run `npm run start`.
-
-### Download and run stack
-
-TBD... this will provide instructions to the download and running the entire stack as-is as the above "build from source" will be done automatically on merge to main (and tagged).
 
 ## Documentation
 

@@ -1,0 +1,57 @@
+name: Release
+
+# This workflow is triggered on push of a new tag.
+on:
+  push:
+    tags:
+      - "v*.*.*"
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+
+      - name: Install Root Dependencies
+        run: npm ci
+
+      - name: Build Client
+        working-directory: client
+        run: |
+          npm ci
+          npm run build
+
+      - name: Build Server
+        working-directory: server
+        run: |
+          cp .env.example .env
+          npm ci
+          npm run build
+
+      - name: Compose Production Distribution
+        run: npm run compose-prod-build
+
+      - name: Package Dist Archives
+        run: |
+          tar -czf history-heroes-dist.tar.gz -C dist .
+          cd dist && zip -r ../history-heroes-dist.zip . && cd ..
+
+      - name: Create GitHub Release and Upload Assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            history-heroes-dist.tar.gz
+            history-heroes-dist.zip
+          generate_release_notes: true
