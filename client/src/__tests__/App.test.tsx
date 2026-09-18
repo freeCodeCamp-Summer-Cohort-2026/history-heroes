@@ -28,7 +28,7 @@ test('renders the module catalog', async () => {
   ).toBeInTheDocument()
 })
 
-test('shows the module id', () => {
+test('shows a message for an unknown module', async () => {
   render(
     <RouterProvider
       router={createMemoryRouter(routes, {
@@ -37,7 +37,9 @@ test('shows the module id', () => {
     />,
   )
 
-  expect(screen.getByText(/module: seven-wonders/i)).toBeInTheDocument()
+  expect(
+    await screen.findByText('That module could not be found.'),
+  ).toBeInTheDocument()
 })
 
 test('shows page not found when unknown route is provided', () => {
@@ -73,6 +75,7 @@ test('scrolls to the top when the page changes', async () => {
   })
   render(<RouterProvider router={router} />)
 
+  await screen.findByText('That module could not be found.')
   scrollSpy.mockClear()
   fireEvent.click(screen.getByRole('link', { name: /history heroes/i }))
   await screen.findByRole('heading', { name: /modules/i })
