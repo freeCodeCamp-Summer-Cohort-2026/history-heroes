@@ -10,6 +10,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ActivitiesModule } from './activities/activities.module';
 import { ProgressModule } from './progress/progress.module';
+import { LabsController } from './labs/labs.controller';
 
 @Module({
   imports: [
@@ -33,7 +34,7 @@ import { ProgressModule } from './progress/progress.module';
     ActivitiesModule,
     ProgressModule
   ],
-  controllers: [AppController],
+  controllers: [AppController, LabsController],
   providers: [AppService],
 })
 export class AppModule {}
