@@ -44,6 +44,7 @@ export type Activity =
     }
 
 export type ActivityAnswer = OrderingAnswer | MatchingAnswer
+
 export type ActivityResult = 'unsubmitted' | 'correct' | 'not-yet'
 
 export type ActivityRendererProps<TContent, TAnswer> = {
@@ -51,9 +52,4 @@ export type ActivityRendererProps<TContent, TAnswer> = {
   answer: TAnswer
   onAnswerChange: (answer: TAnswer) => void
   disabled: boolean
-}
-
-export interface SubmissionState {
-  result: 'correct' | 'notYet'
-  checkStatement?: string | null
 }

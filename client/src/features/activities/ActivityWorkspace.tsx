@@ -1,9 +1,13 @@
 import { useState } from 'react'
-import type { Activity } from './types'
-import type { SubmissionState } from './types'
+import type { Activity, ActivityResult } from './types'
 
 export type ActivityWorkspaceProps = {
   activities: Activity[]
+}
+
+type SubmissionState = {
+  result: ActivityResult
+  checkStatement?: string | null
 }
 
 export default function ActivityWorkspace({
@@ -14,18 +18,20 @@ export default function ActivityWorkspace({
 
   return (
     <section aria-label="Lesson activities" className="space-y-6">
-      <button
-        className="btn btn-primary"
-        onClick={() =>
-          setSubmissionState({
-            result: 'notYet',
-            checkStatement:
-              'We checked whether your answer matches the expected order.',
-          })
-        }
-      >
-        Test submission
-      </button>
+      {import.meta.env.DEV && (
+        <button
+          className="btn btn-primary"
+          onClick={() =>
+            setSubmissionState({
+              result: 'not-yet',
+              checkStatement:
+                'We checked whether your answer matches the expected order.',
+            })
+          }
+        >
+          Test submission
+        </button>
+      )}
 
       {activities.map((activity) => (
         <div key={activity.id}>
