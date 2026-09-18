@@ -150,7 +150,7 @@ describe('ProgressController (e2e)', () => {
 
     app = await createTestApp();
 
-    const agentB = await request.agent(app.getHttpServer());
+    const agentB = request.agent(app.getHttpServer());
 
     const getResponse = await agentB.get('/api/v1/progress').set('Cookie', cookie[0]).expect(200);
     expect(getResponse.body).toHaveLength(1);
