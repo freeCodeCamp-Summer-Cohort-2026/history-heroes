@@ -79,6 +79,46 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
+## testing register/login from nodejs
+
+Without a UI or some external tool like postman, to test registration and login methods directly we can just use `node` itself from the terminal.
+
+This isn't perfect as there's no way to carry around the cookie returned, but its a quick and dirty way to test the endpoints.
+
+To begin just go in your terminal and type `node`, this will start a node [REPL](https://nodejs.org/learn/command-line/how-to-use-the-nodejs-repl) instance.
+
+To exit the REPL instance, use ctrl+c twice.
+
+### Testing registering
+
+Paste the following into your terminal. Change the values for email and password as you want.
+
+```js
+await fetch('http://localhost:3000/api/v1/auth/register', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    email: 'test-user@mail.com',
+    password: 'local-dev-only',
+  }),
+}).then((res) => res.json());
+```
+
+### Testing login
+
+Paste the following into your terminal. Change the values for email and password as you want.
+
+```js
+await fetch('http://localhost:3000/api/v1/auth/login', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    email: 'test-user@mail.com',
+    password: 'local-dev-only',
+  }),
+}).then((res) => res.json());
+```
+
 ## Resources
 
 Check out a few resources that may come in handy when working with NestJS:
