@@ -33,11 +33,22 @@ export default function ModuleCatalogPage() {
           Pick a module to start exploring history.
         </p>
       </div>
-      {isLoading && <p className="text-body">Loading modules...</p>}
-      {error && <p className="text-body">{error}</p>}
-      {!isLoading && !error && (
-        <ModuleCatalog modules={modules} onModuleSelect={handleModuleSelect} />
-      )}
+      {(() => {
+        if (isLoading) return <p className="text-body">Loading modules...</p>
+        if (error) return <p className="text-body">{error}</p>
+        if (modules.length === 0)
+          return (
+            <p className="text-body">
+              No modules are available yet. Check back soon!
+            </p>
+          )
+        return (
+          <ModuleCatalog
+            modules={modules}
+            onModuleSelect={handleModuleSelect}
+          />
+        )
+      })()}
     </div>
   )
 }

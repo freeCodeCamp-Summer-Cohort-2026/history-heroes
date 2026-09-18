@@ -10,14 +10,6 @@ export default function ModuleCatalog({
   modules,
   onModuleSelect,
 }: ModuleCatalogProps) {
-  if (modules.length === 0) {
-    return (
-      <p className="text-body">
-        No modules are available yet. Check back soon!
-      </p>
-    )
-  }
-
   return (
     <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {modules.map((oneModule) => (
