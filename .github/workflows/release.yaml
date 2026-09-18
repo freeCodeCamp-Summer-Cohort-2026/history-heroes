@@ -1,6 +1,5 @@
 name: Release
 
-# This workflow is triggered on push of a new tag.
 on:
   push:
     tags:
@@ -49,9 +48,10 @@ jobs:
           cd dist && zip -r ../history-heroes-dist.zip . && cd ..
 
       - name: Create GitHub Release and Upload Assets
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            history-heroes-dist.tar.gz
-            history-heroes-dist.zip
-          generate_release_notes: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ github.ref_name }}" \
+            history-heroes-dist.tar.gz \
+            history-heroes-dist.zip \
+            --generate-notes
