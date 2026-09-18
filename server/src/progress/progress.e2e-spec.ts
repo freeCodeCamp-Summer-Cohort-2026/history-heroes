@@ -5,7 +5,6 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { createAuthenticatedAgent, createTestApp } from '../../test/e2e-helper';
 import { UserLessonProgress } from './entities/user-lesson-progress.entity';
-import { browserFormat } from 'vitest/internal/browser';
 
 describe('ProgressController (e2e)', () => {
   let app: INestApplication<App>;
@@ -22,7 +21,7 @@ describe('ProgressController (e2e)', () => {
     const agent = request.agent(app.getHttpServer());
 
     const response = await agent.get('/api/v1/progress').expect(200);
-    
+
     expect(Array.isArray(response.body)).toBe(true);
     expect(response.body).toHaveLength(0);
   });
