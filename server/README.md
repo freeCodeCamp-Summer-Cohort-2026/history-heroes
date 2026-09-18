@@ -39,7 +39,7 @@ Seeding only runs against a database that has no users in it, so an existing dat
 
 **note**: Passwords in `data/seeds/initial-users.json` are stored as plaintext and are placeholders, not real credentials. Password hashing is tracked in #46 and is not required for Core, since Core does not implement a login flow.
 
-### delete and re-create the database
+### Delete and re-create the database
 
 To delete and re-create the database, you just need to delete the sqlite database file, and start the server again. The seeding process is part of the server startup, so it will re-create the database and seed it again.
 
@@ -52,6 +52,34 @@ To visually inspect or edit the database file, you can use:
 
 - **VS Code Extension**: _SQLite Viewer_ (qwtel.sqlite-viewer) or _SQLite_ (alexcvzz.vscode-sqlite).
 - **GUI Clients**: [DB Browser for SQLite](https://sqlitebrowser.org/) or [DBeaver](https://dbeaver.io/).
+
+### Database Migrations (TypeORM CLI)
+
+When preparing schema changes for production or releasing stable versions, use TypeORM CLI migrations instead of relying on runtime schema synchronization (`DATABASE_SYNCHRONIZE`).
+
+The CLI connects via [src/core/db/data-source.ts](src/core/db/data-source.ts), a standalone TypeORM DataSource configured to discover entity classes and migration files outside of NestJS runtime dependency injection.
+
+#### Available CLI Commands
+
+| Command                                                                | Description                                                                              |
+| ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `npm run migration:show`                                               | Displays all applied and pending migrations                                              |
+| `npm run migration:generate -- src/core/db/migrations/<MigrationName>` | Generates a new migration file by comparing entities against the current database schema |
+| `npm run migration:create -- src/core/db/migrations/<MigrationName>`   | Creates a blank migration file for custom data migrations                                |
+| `npm run migration:run`                                                | Executes all pending migrations                                                          |
+| `npm run migration:revert`                                             | Rolls back the most recently executed migration                                          |
+
+#### Workflow for Schema Migrations
+
+1. Modify or add entities under `src/**/*.entity.ts`.
+2. Generate the diff migration:
+   ```bash
+   npm run migration:generate -- src/core/db/migrations/AddFeatureName
+   ```
+3. Apply the migration:
+   ```bash
+   npm run migration:run
+   ```
 
 ## Compile and run the project
 
@@ -130,6 +158,6 @@ Check out a few resources that may come in handy when working with NestJS:
 - To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
 - Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
 - Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
+- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com/).
 - To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com/).
