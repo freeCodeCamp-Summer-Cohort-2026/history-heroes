@@ -25,7 +25,7 @@ export default function LessonPage() {
     fetchLessons(moduleId)
       .then((lessonData) => setLessons(lessonData))
       .catch((err) =>
-        setError(err instanceof Error ? err.message : 'Unable to loa lesson.'),
+        setError(err instanceof Error ? err.message : 'Unable to load lesson.'),
       )
       .finally(() => setIsLoading(false))
 
