@@ -7,6 +7,24 @@ import ModuleCard from './ModuleCard'
 import FilterChips from './FilterChips'
 import ProgressIndicator from './ProgressIndicator'
 import type { Lesson } from '../features/lesson/model/Lesson'
+import type { ModuleSummary } from '../features/module/model/ModuleSummary'
+
+const showcaseModules: ModuleSummary[] = [
+  {
+    id: 'seven-wonders',
+    title: 'Seven Wonders',
+    description: 'Discover the wonders of the ancient world.',
+    period: 'Ancient',
+    theme: 'Architecture',
+  },
+  {
+    id: 'ancient-rome',
+    title: 'Ancient Rome',
+    description: 'Explore daily life, politics and culture in Rome.',
+    period: 'Classical',
+    theme: 'Civilization',
+  },
+]
 
 const showcaseLessons: Record<string, Lesson> = {
   locked: {
@@ -80,14 +98,9 @@ export default function ComponentShowcase() {
       <section className="space-y-4">
         <h2 className="text-heading">Module cards</h2>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <ModuleCard
-            title="Seven Wonders"
-            description="Discover the wonders of the ancient world."
-          />
-          <ModuleCard
-            title="Ancient Rome"
-            description="Explore daily life, politics and culture in Rome."
-          />
+          {showcaseModules.map((module) => (
+            <ModuleCard key={module.id} module={module} />
+          ))}
         </div>
       </section>
 
