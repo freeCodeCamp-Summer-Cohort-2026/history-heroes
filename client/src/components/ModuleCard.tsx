@@ -1,5 +1,4 @@
 import type { ModuleSummary } from '../features/module/model/ModuleSummary'
-import Button from './Button'
 import ButtonLink from './ButtonLink'
 
 export default function ModuleCard({ module }: { module: ModuleSummary }) {
