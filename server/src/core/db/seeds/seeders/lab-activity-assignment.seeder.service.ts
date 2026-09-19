@@ -39,8 +39,6 @@ export class LabActivityAssignmentSeeder implements EntitySeeder<LabSeedData> {
       });
     }
 
-    this.logger.log("Between creating entities and saving them")
-
     if (assignmentEntities.length > 0) {
       await entityManager.save(LabActivityAssignment, assignmentEntities);
       this.logger.log(
