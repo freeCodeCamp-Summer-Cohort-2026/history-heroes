@@ -13,7 +13,4 @@ export class Lab {
 
   @Column({ type: 'varchar', length: 255 })
   description: string;
-
-  @Column({ type: 'array' })
-  activityIds: string[];
 }
