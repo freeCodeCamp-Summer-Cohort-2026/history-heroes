@@ -1,4 +1,3 @@
-import {} from '../../activities/entities/activity.entity';
 import {
   ActivityContent,
   ActivitySuccessCriteria,
