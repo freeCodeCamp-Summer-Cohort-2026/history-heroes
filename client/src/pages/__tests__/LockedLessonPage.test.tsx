@@ -32,7 +32,7 @@ test('explains that the lesson is locked', () => {
 test('goes back to the module page', async () => {
   renderLockedPage()
 
-  fireEvent.click(screen.getByRole('button', { name: /back to the module/i }))
+  fireEvent.click(screen.getByText('Back to the module', { selector: 'a' }))
 
   expect(
     await screen.findByRole('heading', { name: /module page/i }),
@@ -42,7 +42,7 @@ test('goes back to the module page', async () => {
 test('goes back to the catalog', async () => {
   renderLockedPage()
 
-  fireEvent.click(screen.getByRole('button', { name: /back to all modules/i }))
+  fireEvent.click(screen.getByText('Back to all modules', { selector: 'a' }))
 
   expect(
     await screen.findByRole('heading', { name: /catalog page/i }),

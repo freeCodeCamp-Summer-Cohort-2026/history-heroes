@@ -1,9 +1,8 @@
-import { useNavigate, useParams } from 'react-router-dom'
-import Button from '../components/Button'
+import { useParams } from 'react-router-dom'
+import ButtonLink from '../components/ButtonLink'
 
 export default function LockedLessonPage() {
   const { moduleId } = useParams()
-  const navigate = useNavigate()
 
   return (
     <div className="space-y-6">
@@ -12,12 +11,10 @@ export default function LockedLessonPage() {
         Finish the lessons before this one to unlock it.
       </p>
       <div className="flex flex-col gap-3 sm:flex-row">
-        <Button onClick={() => navigate(`/modules/${moduleId}`)}>
-          Back to the module
-        </Button>
-        <Button variant="secondary" onClick={() => navigate('/')}>
+        <ButtonLink to={`/modules/${moduleId}`}>Back to the module</ButtonLink>
+        <ButtonLink variant="secondary" to="/">
           Back to all modules
-        </Button>
+        </ButtonLink>
       </div>
     </div>
   )

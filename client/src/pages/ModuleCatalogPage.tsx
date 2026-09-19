@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import ModuleCatalog from '../features/module/ModuleCatalog'
 import { fetchModules } from '../features/module/model/api'
 import type { ModuleSummary } from '../features/module/model/ModuleSummary'
@@ -8,11 +7,6 @@ export default function ModuleCatalogPage() {
   const [modules, setModules] = useState<ModuleSummary[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const navigate = useNavigate()
-
-  function handleModuleSelect(id: string) {
-    navigate(`/modules/${id}`)
-  }
 
   useEffect(() => {
     fetchModules()
@@ -42,12 +36,7 @@ export default function ModuleCatalogPage() {
               No modules are available yet. Check back soon!
             </p>
           )
-        return (
-          <ModuleCatalog
-            modules={modules}
-            onModuleSelect={handleModuleSelect}
-          />
-        )
+        return <ModuleCatalog modules={modules} />
       })()}
     </div>
   )

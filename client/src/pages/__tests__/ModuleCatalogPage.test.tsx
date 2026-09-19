@@ -49,10 +49,10 @@ test('opens the first module when it is selected', async () => {
     />,
   )
 
-  const buttons = await screen.findAllByRole('button', {
-    name: /start learning/i,
+  const startLearningButtons = await screen.findAllByText('Start learning', {
+    selector: 'a',
   })
-  fireEvent.click(buttons[0])
+  fireEvent.click(startLearningButtons[0])
 
   expect(
     await screen.findByRole('heading', { level: 1, name: 'Test Module One' }),
@@ -66,10 +66,10 @@ test('opens the second module when it is selected', async () => {
     />,
   )
 
-  const buttons = await screen.findAllByRole('button', {
-    name: /start learning/i,
+  const startLearningButtons = await screen.findAllByText('Start learning', {
+    selector: 'a',
   })
-  fireEvent.click(buttons[1])
+  fireEvent.click(startLearningButtons[1])
 
   expect(
     await screen.findByRole('heading', { level: 1, name: 'Test Module Two' }),
