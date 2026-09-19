@@ -19,7 +19,10 @@ export default function ActivityWorkspace({
   return (
     <section aria-label="Lesson activities" className="space-y-6">
       {activities.map((activity) => (
-        <div key={activity.id}>
+        <div
+          key={activity.id}
+          className="rounded-box border border-base-300 p-4 sm:p-6"
+        >
           <h2 className="text-heading">{activity.title}</h2>
         </div>
       ))}
