@@ -1,5 +1,6 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, NotFoundException, Param } from '@nestjs/common';
 import { LabsService } from './labs.service';
+import { LabResponseDto } from './dtos/get-lab-response.dto';
 
 @Controller('labs')
 export class LabsController {
@@ -10,5 +11,15 @@ export class LabsController {
    * @param moduleId The ID of the module associated with the returned lab
    */
   @Get(':moduleId')
-  public async getLabByModuleId(@Param('moduleId') moduleId: string) {}
+  public async getLabByModuleId(
+    @Param('moduleId') moduleId: string,
+  ): Promise<LabResponseDto> {
+    const lab = await this.labsService.findByModuleId(moduleId);
+
+    if (!lab) {
+      throw new NotFoundException(`Lab with module ID ${moduleId} not found.`);
+    }
+
+    return lab;
+  }
 }
