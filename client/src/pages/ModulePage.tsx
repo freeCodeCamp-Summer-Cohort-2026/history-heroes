@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import LessonListItem from '../components/LessonListItem'
 import ProgressIndicator from '../components/ProgressIndicator'
 import { fetchModules } from '../features/module/model/api'
@@ -9,7 +9,6 @@ import type { Lesson } from '../features/lesson/model/Lesson'
 
 export default function ModulePage() {
   const { moduleId } = useParams()
-  const navigate = useNavigate()
 
   const [currentModule, setCurrentModule] = useState<ModuleSummary | null>(null)
   const [lessons, setLessons] = useState<Lesson[]>([])
@@ -75,12 +74,8 @@ export default function ModulePage() {
               <li key={lesson.id}>
                 {/* temporary: the first lesson is open and the rest are locked until #52 lands */}
                 <LessonListItem
-                  title={lesson.title}
-                  description={lesson.description}
+                  lesson={lesson}
                   state={index === 0 ? 'unlocked' : 'locked'}
-                  onClick={() =>
-                    navigate(`/modules/${moduleId}/lessons/${lesson.id}`)
-                  }
                 />
               </li>
             ))}
