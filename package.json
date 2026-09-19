@@ -9,7 +9,21 @@
   },
   "license": "MIT",
   "lint-staged": {
-    "*.{json,md}": [
+    "client/**/*.{ts,tsx,js,jsx}": [
+      "npx --prefix client eslint --fix",
+      "prettier --write"
+    ],
+    "client/**/*.{json,css,html,md}": [
+      "prettier --write"
+    ],
+    "server/**/*.ts": [
+      "npx --prefix server oxlint",
+      "prettier --write"
+    ],
+    "server/**/*.{json,md}": [
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
       "prettier --write"
     ]
   },
