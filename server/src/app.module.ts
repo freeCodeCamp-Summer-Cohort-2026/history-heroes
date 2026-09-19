@@ -10,8 +10,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ActivitiesModule } from './activities/activities.module';
 import { ProgressModule } from './progress/progress.module';
-import { LabsController } from './labs/labs.controller';
-import { LabsService } from './labs/labs.service';
+import { LabsModule } from './labs/labs.module';
 
 @Module({
   imports: [
@@ -33,9 +32,10 @@ import { LabsService } from './labs/labs.service';
     LessonsModule,
     UsersModule,
     ActivitiesModule,
-    ProgressModule
+    ProgressModule,
+    LabsModule
   ],
-  controllers: [AppController, LabsController],
-  providers: [AppService, LabsService],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
