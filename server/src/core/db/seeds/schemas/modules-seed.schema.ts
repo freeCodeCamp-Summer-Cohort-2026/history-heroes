@@ -4,6 +4,8 @@ export const ModuleSeedItemSchema = z.object({
   id: z.string().min(1),
   title: z.string().min(3).max(100),
   description: z.string().max(255),
+  period: z.string().min(1).max(100),
+  theme: z.string().min(1).max(100),
   order: z.number().int().nonnegative().optional(),
 });
 

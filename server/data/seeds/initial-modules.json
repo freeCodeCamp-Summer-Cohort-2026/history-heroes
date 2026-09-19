@@ -4,6 +4,8 @@
       "id": "seven-wonders",
       "title": "The Seven Wonders of the Ancient World",
       "description": "Learn and explore the 7 ancient wonders of the world.",
+      "period": "Ancient World",
+      "theme": "Architecture and Engineering",
       "order": 1
     }
   ]
