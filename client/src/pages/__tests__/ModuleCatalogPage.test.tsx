@@ -7,6 +7,8 @@ const testModules = [
     id: 'first-module',
     title: 'Test Module One',
     description: 'A test module.',
+    period: 'Ancient World',
+    theme: 'Architecture and Engineering',
   },
   {
     id: 'second-module',
@@ -53,7 +55,7 @@ test('opens the first module when it is selected', async () => {
   fireEvent.click(buttons[0])
 
   expect(
-    await screen.findByRole('heading', { name: /module: first-module/i }),
+    await screen.findByRole('heading', { level: 1, name: 'Test Module One' }),
   ).toBeInTheDocument()
 })
 
@@ -70,6 +72,46 @@ test('opens the second module when it is selected', async () => {
   fireEvent.click(buttons[1])
 
   expect(
-    await screen.findByRole('heading', { name: /module: second-module/i }),
+    await screen.findByRole('heading', { level: 1, name: 'Test Module Two' }),
   ).toBeInTheDocument()
+})
+
+test('shows each module as a card', async () => {
+  render(
+    <RouterProvider
+      router={createMemoryRouter(routes, { initialEntries: ['/'] })}
+    />,
+  )
+
+  expect(await screen.findAllByRole('article')).toHaveLength(2)
+})
+
+test('shows an empty state when there are no modules', async () => {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => [],
+    }),
+  )
+  render(
+    <RouterProvider
+      router={createMemoryRouter(routes, { initialEntries: ['/'] })}
+    />,
+  )
+
+  expect(
+    await screen.findByText(/no modules are available yet/i),
+  ).toBeInTheDocument()
+})
+
+test('shows the period and theme on a module card', async () => {
+  render(
+    <RouterProvider
+      router={createMemoryRouter(routes, { initialEntries: ['/'] })}
+    />,
+  )
+
+  expect(await screen.findByText('Ancient World')).toBeInTheDocument()
+  expect(screen.getByText('Architecture and Engineering')).toBeInTheDocument()
 })

@@ -3,6 +3,8 @@ import Button from './Button'
 type ModuleCardProps = {
   title: string
   description: string
+  period?: string
+  theme?: string
   image?: string
   onStart?: () => void
 }
@@ -22,6 +24,8 @@ function safeImage(url?: string): string | undefined {
 export default function ModuleCard({
   title,
   description,
+  period,
+  theme,
   image,
   onStart,
 }: ModuleCardProps) {
@@ -39,6 +43,12 @@ export default function ModuleCard({
         <div>
           <h2 className="text-subheading font-semibold">{title}</h2>
           <p className="mt-2 text-body text-base-content/70">{description}</p>
+          {(period || theme) && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {period && <span className="badge badge-outline">{period}</span>}
+              {theme && <span className="badge badge-outline">{theme}</span>}
+            </div>
+          )}
         </div>
 
         <div className="card-actions justify-end">
