@@ -3,6 +3,15 @@ import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { routes } from '../../App'
 import type { Activity } from '../../features/activities/types'
 import type { Lesson } from '../../features/lesson/model/Lesson'
+import type { ModuleSummary } from '../../features/module/model/ModuleSummary'
+
+const testModules: ModuleSummary[] = [
+  {
+    id: 'first-module',
+    title: 'Test Module One',
+    description: 'A test module.',
+  },
+]
 
 const testLessons: Lesson[] = [
   {
@@ -13,6 +22,15 @@ const testLessons: Lesson[] = [
     orderIndex: 1,
     contents: 'The first paragraph.\n\nThe second paragraph.',
     activityIds: ['first-activity', 'second-activity'],
+  },
+  {
+    id: 'second-lesson',
+    moduleId: 'first-module',
+    title: 'Test Lesson Two',
+    description: 'Another test lesson',
+    orderIndex: 2,
+    contents: 'The last paragraph.',
+    activityIds: [],
   },
 ]
 
@@ -51,8 +69,11 @@ function mockServer(activities: Activity[]) {
     vi.fn().mockImplementation((url: string) =>
       Promise.resolve({
         ok: true,
-        json: async () =>
-          url.includes('/activities') ? activities : testLessons,
+        json: async () => {
+          if (url.includes('/activities')) return activities
+          if (url.includes('/lessons')) return testLessons
+          return testModules
+        },
       }),
     ),
   )
@@ -110,4 +131,40 @@ test('displays a loading message while the lesson loads', () => {
   renderAt('/modules/first-module/lessons/first-lesson')
 
   expect(screen.getByText('Loading lesson...')).toBeInTheDocument()
+})
+
+test('shows the lesson position in its module', async () => {
+  renderAt('/modules/first-module/lessons/first-lesson')
+
+  expect(await screen.findByText('Lesson 1 of 2')).toBeInTheDocument()
+})
+
+test('links back to its module', async () => {
+  renderAt('/modules/first-module/lessons/first-lesson')
+
+  expect(
+    await screen.findByRole('link', { name: 'Back to Test Module One' }),
+  ).toHaveAttribute('href', '/modules/first-module')
+})
+
+test('still shows the lesson text when the activities fail to load', async () => {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockImplementation((url: string) =>
+      Promise.resolve({
+        ok: !url.includes('/activities'),
+        status: 500,
+        json: async () =>
+          url.includes('/lessons') ? testLessons : testModules,
+      }),
+    ),
+  )
+  renderAt('/modules/first-module/lessons/first-lesson')
+
+  expect(await screen.findByText('The first paragraph.')).toBeInTheDocument()
+  expect(
+    await screen.findByText(
+      'The activities for this lesson could not be loaded.',
+    ),
+  ).toBeInTheDocument()
 })
