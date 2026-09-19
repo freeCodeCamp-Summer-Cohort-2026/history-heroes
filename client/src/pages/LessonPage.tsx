@@ -12,6 +12,26 @@ import type { Lesson } from '../features/lesson/model/Lesson'
 export default function LessonPage() {
   const { moduleId, lessonId } = useParams()
 
+  if (!moduleId || !lessonId) {
+    return <p>That lesson could not be found.</p>
+  }
+
+  return (
+    <LessonPageContent
+      key={`${moduleId}:${lessonId}`}
+      moduleId={moduleId}
+      lessonId={lessonId}
+    />
+  )
+}
+
+function LessonPageContent({
+  moduleId,
+  lessonId,
+}: {
+  moduleId: string
+  lessonId: string
+}) {
   const [lessons, setLessons] = useState<Lesson[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -20,8 +40,6 @@ export default function LessonPage() {
   const [moduleTitle, setModuleTitle] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!moduleId || !lessonId) return
-
     fetchLessons(moduleId)
       .then((lessonData) => setLessons(lessonData))
       .catch((err) =>
