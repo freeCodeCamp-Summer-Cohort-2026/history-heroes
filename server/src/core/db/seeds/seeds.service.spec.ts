@@ -11,6 +11,10 @@ import { ModuleSeeder } from './seeders/module.seeder.service';
 import { LessonSeeder } from './seeders/lesson.seeder.service';
 import { ActivitySeeder } from './seeders/activity.seeder.service';
 import { LessonActivityAssignmentSeeder } from './seeders/lesson-activity-assignment.seeder.service';
+import { LabSeeder } from './seeders/lab.seeder.service';
+import { LabActivityAssignmentSeeder } from './seeders/lab-activity-assignment.seeder.service';
+import { Lab } from '../../../labs/entities/lab.entity';
+import { LabActivityAssignment } from '../../../activities/entities/lab-activity-assignment.entity';
 
 describe('SeedsService', () => {
   let service: SeedsService;
@@ -34,6 +38,8 @@ describe('SeedsService', () => {
         LessonSeeder,
         ActivitySeeder,
         LessonActivityAssignmentSeeder,
+        LabSeeder,
+        LabActivityAssignmentSeeder,
         SeedsService,
         {
           provide: DataSource,
@@ -91,6 +97,14 @@ describe('SeedsService', () => {
       LessonActivityAssignment,
       expect.anything(),
     );
+    expect(mockEntityManager.create).toHaveBeenCalledWith(
+      Lab,
+      expect.anything(),
+    );
+    expect(mockEntityManager.create).toHaveBeenCalledWith(
+      LabActivityAssignment,
+      expect.anything(),
+    );
 
     // save is always called, and called in this order, will be important
     // later with other seeders are added.
@@ -116,7 +130,17 @@ describe('SeedsService', () => {
     );
     expect(mockEntityManager.save).toHaveBeenNthCalledWith(
       5,
+      Lab,
+      expect.anything(),
+    );
+    expect(mockEntityManager.save).toHaveBeenNthCalledWith(
+      6,
       LessonActivityAssignment,
+      expect.anything(),
+    );
+    expect(mockEntityManager.save).toHaveBeenNthCalledWith(
+      7,
+      LabActivityAssignment,
       expect.anything(),
     );
   });
