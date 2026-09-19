@@ -6,6 +6,37 @@ import LessonListItem from './LessonListItem'
 import ModuleCard from './ModuleCard'
 import FilterChips from './FilterChips'
 import ProgressIndicator from './ProgressIndicator'
+import type { Lesson } from '../features/lesson/model/Lesson'
+
+const showcaseLessons: Record<string, Lesson> = {
+  locked: {
+    id: 'lesson-1',
+    moduleId: 'module-1',
+    title: 'Locked lesson',
+    description: 'You must complete the previous lesson first.',
+    orderIndex: 1,
+    contents: '',
+    activityIds: [],
+  },
+  unlocked: {
+    id: 'lesson-2',
+    moduleId: 'module-1',
+    title: 'Unlocked lesson',
+    description: 'Ready to start learning.',
+    orderIndex: 2,
+    contents: '',
+    activityIds: [],
+  },
+  completed: {
+    id: 'lesson-3',
+    moduleId: 'module-1',
+    title: 'Completed lesson',
+    description: "You've finished this lesson.",
+    orderIndex: 3,
+    contents: '',
+    activityIds: [],
+  },
+}
 
 export default function ComponentShowcase() {
   return (
@@ -64,19 +95,10 @@ export default function ComponentShowcase() {
       <section className="space-y-4">
         <h2 className="text-heading">Lesson list items</h2>
         <div className="space-y-3">
+          <LessonListItem lesson={showcaseLessons.locked} state="locked" />
+          <LessonListItem lesson={showcaseLessons.unlocked} state="unlocked" />
           <LessonListItem
-            title="Locked lesson"
-            description="You must complete the previous lesson first."
-            state="locked"
-          />
-          <LessonListItem
-            title="Unlocked lesson"
-            description="Ready to start learning."
-            state="unlocked"
-          />
-          <LessonListItem
-            title="Completed lesson"
-            description="You've finished this lesson."
+            lesson={showcaseLessons.completed}
             state="completed"
           />
         </div>
