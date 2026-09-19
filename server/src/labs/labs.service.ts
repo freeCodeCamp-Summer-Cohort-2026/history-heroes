@@ -1,24 +1,52 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Module } from '../modules/entities/module.entity';
-import { Activity } from '../activities/entities/activity.entity';
 import { Lab } from './entities/lab.entity';
+import { LabResponseDto } from './dtos/get-lab-response.dto';
+import { LabActivityAssignment } from '../activities/entities/lab-activity-assignment.entity';
 
 @Injectable()
 export class LabsService {
   constructor(
     @InjectRepository(Lab)
     private readonly labsRepository: Repository<Lab>,
-    @InjectRepository(Module)
-    private readonly modulesRepository: Repository<Module>,
-    @InjectRepository(Activity)
-    private readonly activitiesRepository: Repository<Activity>,
+    @InjectRepository(LabActivityAssignment)
+    private readonly assignmentsRepository: Repository<LabActivityAssignment>,
   ) {}
 
-  public async findByModuleId(moduleId: string) {
+  public async findByModuleId(
+    moduleId: string,
+  ): Promise<LabResponseDto | null> {
     // find lab entity by module id
+    const lab = await this.labsRepository.findOneBy({ moduleId });
+
+    if (!lab) return null;
 
     // find all associated activities
+    const assignments = await this.assignmentsRepository.find({
+      where: {
+        labId: lab.id,
+      },
+      relations: {
+        activity: true,
+      },
+    });
+
+    const activities = assignments.map(({activity}) => ({
+      id: activity.id,
+      title: activity.title,
+      type: activity.type,
+      checkStatement: activity.checkStatement,
+      successCriteria: activity.successCriteria,
+      content: activity.content,
+    }));
+
+    return {
+      id: lab.id,
+      moduleId: lab.moduleId,
+      title: lab.title,
+      description: lab.description,
+      activities,
+    };
   }
 }
