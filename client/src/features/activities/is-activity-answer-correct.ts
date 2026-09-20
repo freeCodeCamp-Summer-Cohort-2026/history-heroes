@@ -1,35 +1,10 @@
 import type { Activity, MatchingAnswer, OrderingAnswer } from './types'
 
+// TODO (#64): Answer evaluation logic is handled in issue #64.
+// For now, this is a stub that returns true.
 export function isActivityAnswerCorrect(
-  activity: Activity,
-  answer: MatchingAnswer | OrderingAnswer | null,
+  _activity: Activity,
+  _answer: MatchingAnswer | OrderingAnswer | null,
 ): boolean {
-  if (!answer) return false
-
-  if (activity.type === 'ordering') {
-    if (!('itemOrder' in answer)) return false
-    const { correctOrder } = activity.successCriteria
-    return (
-      answer.itemOrder.length === correctOrder.length &&
-      answer.itemOrder.every((id, index) => id === correctOrder[index])
-    )
-  }
-
-  if (activity.type === 'matching') {
-    if (!('pairs' in answer)) return false
-    const { pairs } = activity.successCriteria
-    return (
-      answer.pairs.length === pairs.length &&
-      answer.pairs.every((pair) =>
-        pairs.some(
-          (correctPair) =>
-            correctPair.left === pair.left && correctPair.right === pair.right,
-        ),
-      )
-    )
-  }
-
-  return false
+  return true
 }
-
-export default isActivityAnswerCorrect

@@ -8,7 +8,6 @@ import type {
 import Button from '../../components/Button'
 import MatchingRenderer from './MatchingRenderer'
 import OrderingRenderer from './OrderingRenderer'
-import FeedbackState from '../../components/FeedbackState'
 import { getDefaultMatchingAnswer } from './get-default-matching-answer'
 import { getDefaultOrderingAnswer } from './get-default-ordering-answer'
 import { isActivityAnswerCorrect } from './is-activity-answer-correct'
@@ -50,19 +49,6 @@ export default function ActivityWorkspace({
   }
 
   const handleSubmit = useCallback(() => {
-    if (submissionState === 'correct') {
-      if (currentIndex < activities.length - 1) {
-        setCurrentIndex((prev) => prev + 1)
-        setSubmissionState('unsubmitted')
-      }
-      return
-    }
-
-    if (submissionState === 'not-yet') {
-      setSubmissionState('unsubmitted')
-      return
-    }
-
     if (!currentActivity) return
 
     const isCorrect = isActivityAnswerCorrect(
@@ -70,13 +56,12 @@ export default function ActivityWorkspace({
       currentWorkingAnswer,
     )
     setSubmissionState(isCorrect ? 'correct' : 'not-yet')
-  }, [
-    activities.length,
-    currentActivity,
-    currentIndex,
-    currentWorkingAnswer,
-    submissionState,
-  ])
+
+    if (isCorrect && currentIndex < activities.length - 1) {
+      setCurrentIndex((prev) => prev + 1)
+      setSubmissionState('unsubmitted')
+    }
+  }, [activities.length, currentActivity, currentIndex, currentWorkingAnswer])
 
   const handleAnswerChanged = useCallback(
     (newAnswer: MatchingAnswer | OrderingAnswer) => {
@@ -130,37 +115,8 @@ export default function ActivityWorkspace({
         return null
       })()}
 
-      {(() => {
-        if (submissionState === 'correct') {
-          const hasNextActivity = currentIndex < activities.length - 1
-          return (
-            <FeedbackState
-              type="correct"
-              checkStatement={currentActivity.checkStatement}
-              successMessage={
-                hasNextActivity
-                  ? 'Well done! You can move on to the next activity.'
-                  : 'Well done! You have completed all activities.'
-              }
-              actionLabel={hasNextActivity ? 'Next activity' : undefined}
-              onAction={handleSubmit}
-            />
-          )
-        }
-        if (submissionState === 'not-yet') {
-          return (
-            <FeedbackState
-              type="not-yet"
-              checkStatement={currentActivity.checkStatement}
-              expected="The expected answer is not yet met."
-              yours="Your answer does not match the expected result."
-              actionLabel="Try again"
-              onAction={handleSubmit}
-            />
-          )
-        }
-        return <Button onClick={handleSubmit}>Submit</Button>
-      })()}
+      {/* TODO (#66): Activity feedback display will be handled in issue #66 */}
+      <Button onClick={handleSubmit}>Submit</Button>
     </section>
   )
 }
