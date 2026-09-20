@@ -45,7 +45,8 @@ export type Activity =
 
 export type ActivityAnswer = OrderingAnswer | MatchingAnswer
 
-export type ActivityResult = 'unsubmitted' | 'correct' | 'not-yet'
+export type ActivityWorkspaceSubmissionState =
+  'unsubmitted' | 'correct' | 'not-yet'
 
 export type ActivityRendererProps<TContent, TAnswer> = {
   content: TContent

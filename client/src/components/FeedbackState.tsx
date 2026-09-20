@@ -1,14 +1,14 @@
 type FeedbackStateProps =
   | {
       type: 'correct'
-      checked: string
+      checkStatement: string
       successMessage: string
       actionLabel?: string
       onAction?: () => void
     }
   | {
       type: 'not-yet'
-      checked: string
+      checkStatement: string
       expected: string
       yours: string
       actionLabel?: string
@@ -16,7 +16,7 @@ type FeedbackStateProps =
     }
 
 export default function FeedbackState(props: FeedbackStateProps) {
-  const { type, checked, actionLabel, onAction } = props
+  const { type, checkStatement, actionLabel, onAction } = props
   const isCorrect = type === 'correct'
 
   const panelClasses = isCorrect
@@ -49,7 +49,7 @@ export default function FeedbackState(props: FeedbackStateProps) {
             <h3 className="text-small font-semibold opacity-70">
               What we checked
             </h3>
-            <p className="text-body mt-1">{checked}</p>
+            <p className="text-body mt-1">{checkStatement}</p>
           </div>
 
           {/* Correct or Not Yet details */}
