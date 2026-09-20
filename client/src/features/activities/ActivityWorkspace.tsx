@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { Activity, ActivityResult } from './types'
+import FeedbackState from '../../components/FeedbackState'
 
 export type ActivityWorkspaceProps = {
   activities: Activity[]
@@ -8,6 +9,8 @@ export type ActivityWorkspaceProps = {
 type SubmissionState = {
   result: ActivityResult
   checkStatement?: string | null
+  expected?: string | null
+  yours?: string | null
 }
 
 export default function ActivityWorkspace({
@@ -15,6 +18,21 @@ export default function ActivityWorkspace({
 }: ActivityWorkspaceProps) {
   const [submissionState, setSubmissionState] =
     useState<SubmissionState | null>(null)
+
+  // mock feedback state for now, replaced once #64 lands
+  const mockSubmit = () => {
+    const next = submissionState?.result === 'not-yet' ? 'correct' : 'not-yet'
+
+    setSubmissionState({
+      result: next,
+      checkStatement:
+        'We checked whether your answer matches the expected order.',
+      expected:
+        next === 'not-yet' ? 'Events should go from earliest to latest.' : null,
+      yours:
+        next === 'not-yet' ? 'The first two events are out of order.' : null,
+    })
+  }
 
   return (
     <section aria-label="Lesson activities" className="space-y-6">
@@ -27,23 +45,22 @@ export default function ActivityWorkspace({
         </div>
       ))}
 
-      {submissionState?.checkStatement && (
-        <p className="mt-3 text-base-content/70">
-          {submissionState.checkStatement}
-        </p>
+      {submissionState && (
+        <FeedbackState
+          type={submissionState.result === 'correct' ? 'correct' : 'not-yet'}
+          checked={submissionState.checkStatement ?? ''}
+          successMessage="Your answer matches the expected result."
+          expected={submissionState.expected ?? ''}
+          yours={submissionState.yours ?? ''}
+          actionLabel={
+            submissionState.result === 'not-yet' ? 'Try again' : undefined
+          }
+          onAction={() => setSubmissionState(null)}
+        />
       )}
 
       {import.meta.env.DEV && (
-        <button
-          className="btn btn-primary"
-          onClick={() =>
-            setSubmissionState({
-              result: 'not-yet',
-              checkStatement:
-                'We checked whether your answer matches the expected order.',
-            })
-          }
-        >
+        <button className="btn btn-primary" onClick={mockSubmit}>
           Test submission
         </button>
       )}
