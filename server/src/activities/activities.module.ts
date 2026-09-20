@@ -5,7 +5,13 @@ import { LessonActivityAssignment } from './entities/lesson-activity-assignment.
 import { LabActivityAssignment } from './entities/lab-activity-assignment.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Activity, LessonActivityAssignment, LabActivityAssignment])],
+  imports: [
+    TypeOrmModule.forFeature([
+      Activity,
+      LessonActivityAssignment,
+      LabActivityAssignment,
+    ]),
+  ],
   exports: [TypeOrmModule],
 })
 export class ActivitiesModule {}

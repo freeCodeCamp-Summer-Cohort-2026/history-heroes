@@ -25,7 +25,7 @@ import { LabActivityAssignmentSeeder } from './seeders/lab-activity-assignment.s
       Activity,
       LessonActivityAssignment,
       Lab,
-      LabActivityAssignment
+      LabActivityAssignment,
     ]),
   ],
   providers: [
