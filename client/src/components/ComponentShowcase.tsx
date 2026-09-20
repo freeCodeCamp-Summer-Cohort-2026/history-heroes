@@ -6,6 +6,55 @@ import LessonListItem from './LessonListItem'
 import ModuleCard from './ModuleCard'
 import FilterChips from './FilterChips'
 import ProgressIndicator from './ProgressIndicator'
+import type { Lesson } from '../features/lesson/model/Lesson'
+import type { ModuleSummary } from '../features/module/model/ModuleSummary'
+
+const showcaseModules: ModuleSummary[] = [
+  {
+    id: 'seven-wonders',
+    title: 'Seven Wonders',
+    description: 'Discover the wonders of the ancient world.',
+    period: 'Ancient',
+    theme: 'Architecture',
+  },
+  {
+    id: 'ancient-rome',
+    title: 'Ancient Rome',
+    description: 'Explore daily life, politics and culture in Rome.',
+    period: 'Classical',
+    theme: 'Civilization',
+  },
+]
+
+const showcaseLessons: Record<string, Lesson> = {
+  locked: {
+    id: 'lesson-1',
+    moduleId: 'module-1',
+    title: 'Locked lesson',
+    description: 'You must complete the previous lesson first.',
+    orderIndex: 1,
+    contents: '',
+    activityIds: [],
+  },
+  unlocked: {
+    id: 'lesson-2',
+    moduleId: 'module-1',
+    title: 'Unlocked lesson',
+    description: 'Ready to start learning.',
+    orderIndex: 2,
+    contents: '',
+    activityIds: [],
+  },
+  completed: {
+    id: 'lesson-3',
+    moduleId: 'module-1',
+    title: 'Completed lesson',
+    description: "You've finished this lesson.",
+    orderIndex: 3,
+    contents: '',
+    activityIds: [],
+  },
+}
 
 export default function ComponentShowcase() {
   return (
@@ -49,14 +98,9 @@ export default function ComponentShowcase() {
       <section className="space-y-4">
         <h2 className="text-heading">Module cards</h2>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <ModuleCard
-            title="Seven Wonders"
-            description="Discover the wonders of the ancient world."
-          />
-          <ModuleCard
-            title="Ancient Rome"
-            description="Explore daily life, politics and culture in Rome."
-          />
+          {showcaseModules.map((module) => (
+            <ModuleCard key={module.id} module={module} />
+          ))}
         </div>
       </section>
 
@@ -64,19 +108,10 @@ export default function ComponentShowcase() {
       <section className="space-y-4">
         <h2 className="text-heading">Lesson list items</h2>
         <div className="space-y-3">
+          <LessonListItem lesson={showcaseLessons.locked} state="locked" />
+          <LessonListItem lesson={showcaseLessons.unlocked} state="unlocked" />
           <LessonListItem
-            title="Locked lesson"
-            description="You must complete the previous lesson first."
-            state="locked"
-          />
-          <LessonListItem
-            title="Unlocked lesson"
-            description="Ready to start learning."
-            state="unlocked"
-          />
-          <LessonListItem
-            title="Completed lesson"
-            description="You've finished this lesson."
+            lesson={showcaseLessons.completed}
             state="completed"
           />
         </div>
