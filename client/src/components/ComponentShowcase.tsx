@@ -123,12 +123,12 @@ export default function ComponentShowcase() {
         <div className="space-y-4">
           <FeedbackState
             type="correct"
-            checked="We checked whether all three events were placed in chronological order."
+            checkStatement="We checked whether all three events were placed in chronological order."
             successMessage="Your answer matches the expected result."
           />
           <FeedbackState
             type="not-yet"
-            checked="We checked whether all three events were placed in chronological order."
+            checkStatement="We checked whether all three events were placed in chronological order."
             expected="Events should go from earliest to latest."
             yours="The first two events are out of order."
             actionLabel="Try again"

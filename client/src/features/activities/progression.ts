@@ -1,5 +1,5 @@
-import type { Activity, ActivityResult } from './types'
-type ActivityResults = Partial<Record<string, ActivityResult>>
+import type { Activity, ActivityWorkspaceSubmissionState } from './types'
+type ActivityResults = Partial<Record<string, ActivityWorkspaceSubmissionState>>
 
 export function isLessonComplete(
   activities: Activity[],

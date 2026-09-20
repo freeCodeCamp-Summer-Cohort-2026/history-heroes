@@ -1,13 +1,19 @@
 import { evaluateActivity } from './evaluation'
-import type { Activity, ActivityAnswer, ActivityResult } from './types'
+import type {
+  Activity,
+  ActivityAnswer,
+  ActivityWorkspaceSubmissionState,
+} from './types'
 
-export function clearStaleResult(result: ActivityResult): ActivityResult {
+export function clearStaleResult(
+  result: ActivityWorkspaceSubmissionState,
+): ActivityWorkspaceSubmissionState {
   return result === 'not-yet' ? 'unsubmitted' : result
 }
 
 export function submitActivity(
   activity: Activity,
   answer: ActivityAnswer,
-): ActivityResult {
+): ActivityWorkspaceSubmissionState {
   return evaluateActivity(activity, answer)
 }

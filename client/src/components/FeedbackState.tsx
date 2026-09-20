@@ -1,22 +1,25 @@
 type FeedbackStateProps =
   | {
       type: 'correct'
-      checked: string
+      checkStatement?: string
+      checked?: string
       successMessage: string
       actionLabel?: string
       onAction?: () => void
     }
   | {
       type: 'not-yet'
-      checked: string
-      expected: string
-      yours: string
+      checkStatement?: string
+      checked?: string
+      expected?: string
+      yours?: string
       actionLabel?: string
       onAction?: () => void
     }
 
 export default function FeedbackState(props: FeedbackStateProps) {
-  const { type, checked, actionLabel, onAction } = props
+  const { type, actionLabel, onAction } = props
+  const checkStatement = props.checkStatement ?? props.checked ?? ''
   const isCorrect = type === 'correct'
 
   const panelClasses = isCorrect
@@ -45,30 +48,36 @@ export default function FeedbackState(props: FeedbackStateProps) {
           <h2 className="text-subheading font-semibold">{title}</h2>
 
           {/* What we checked */}
-          <div>
-            <h3 className="text-small font-semibold opacity-70">
-              What we checked
-            </h3>
-            <p className="text-body mt-1">{checked}</p>
-          </div>
+          {checkStatement && (
+            <div>
+              <h3 className="text-small font-semibold opacity-70">
+                What we checked
+              </h3>
+              <p className="text-body mt-1">{checkStatement}</p>
+            </div>
+          )}
 
           {/* Correct or Not Yet details */}
           {isCorrect ? (
             <p className="text-body mt-2">{props.successMessage}</p>
           ) : (
             <>
-              <div>
-                <h3 className="text-small font-semibold opacity-70">
-                  Expected
-                </h3>
-                <p className="text-body mt-1">{props.expected}</p>
-              </div>
-              <div>
-                <h3 className="text-small font-semibold opacity-70">
-                  Your answer
-                </h3>
-                <p className="text-body mt-1">{props.yours}</p>
-              </div>
+              {props.expected && (
+                <div>
+                  <h3 className="text-small font-semibold opacity-70">
+                    Expected
+                  </h3>
+                  <p className="text-body mt-1">{props.expected}</p>
+                </div>
+              )}
+              {props.yours && (
+                <div>
+                  <h3 className="text-small font-semibold opacity-70">
+                    Your answer
+                  </h3>
+                  <p className="text-body mt-1">{props.yours}</p>
+                </div>
+              )}
             </>
           )}
 

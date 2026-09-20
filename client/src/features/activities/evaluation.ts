@@ -1,9 +1,13 @@
-import type { Activity, ActivityAnswer, ActivityResult } from './types'
+import type {
+  Activity,
+  ActivityAnswer,
+  ActivityWorkspaceSubmissionState,
+} from './types'
 
 export function evaluateActivity(
   activity: Activity,
   answer: ActivityAnswer,
-): ActivityResult {
+): ActivityWorkspaceSubmissionState {
   if (activity.type === 'ordering') {
     if (!('itemOrder' in answer)) {
       return 'not-yet'

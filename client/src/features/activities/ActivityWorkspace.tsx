@@ -1,69 +1,165 @@
-import { useState } from 'react'
-import type { Activity, ActivityResult } from './types'
+import { useCallback, useState } from 'react'
+import type {
+  Activity,
+  ActivityWorkspaceSubmissionState,
+  MatchingAnswer,
+  OrderingAnswer,
+} from './types'
+import Button from '../../components/Button'
+import MatchingRenderer from './MatchingRenderer'
+import OrderingRenderer from './OrderingRenderer'
 import FeedbackState from '../../components/FeedbackState'
+import { getDefaultMatchingAnswer } from './get-default-matching-answer'
+import { getDefaultOrderingAnswer } from './get-default-ordering-answer'
+import { isActivityAnswerCorrect } from './is-activity-answer-correct'
+
+function getDefaultWorkingAnswer(
+  activity: Activity | null,
+): MatchingAnswer | OrderingAnswer | null {
+  if (!activity) return null
+  if (activity.type === 'matching') {
+    return getDefaultMatchingAnswer(activity)
+  }
+  if (activity.type === 'ordering') {
+    return getDefaultOrderingAnswer(activity)
+  }
+  return null
+}
 
 export type ActivityWorkspaceProps = {
   activities: Activity[]
-}
-
-type SubmissionState = {
-  result: ActivityResult
-  checkStatement?: string | null
-  expected?: string | null
-  yours?: string | null
 }
 
 export default function ActivityWorkspace({
   activities,
 }: ActivityWorkspaceProps) {
   const [submissionState, setSubmissionState] =
-    useState<SubmissionState | null>(null)
+    useState<ActivityWorkspaceSubmissionState>('unsubmitted')
 
-  // mock feedback state for now, replaced once #64 lands
-  const mockSubmit = () => {
-    const next = submissionState?.result === 'not-yet' ? 'correct' : 'not-yet'
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const currentActivity = activities[currentIndex] ?? null
 
-    setSubmissionState({
-      result: next,
-      checkStatement:
-        'We checked whether your answer matches the expected order.',
-      expected:
-        next === 'not-yet' ? 'Events should go from earliest to latest.' : null,
-      yours:
-        next === 'not-yet' ? 'The first two events are out of order.' : null,
-    })
+  const [prevActivityId, setPrevActivityId] = useState(currentActivity?.id)
+  const [currentWorkingAnswer, setCurrentWorkingAnswer] = useState<
+    MatchingAnswer | OrderingAnswer | null
+  >(() => getDefaultWorkingAnswer(currentActivity))
+
+  if (currentActivity?.id !== prevActivityId) {
+    setPrevActivityId(currentActivity?.id)
+    setCurrentWorkingAnswer(getDefaultWorkingAnswer(currentActivity))
   }
+
+  const handleSubmit = useCallback(() => {
+    if (submissionState === 'correct') {
+      if (currentIndex < activities.length - 1) {
+        setCurrentIndex((prev) => prev + 1)
+        setSubmissionState('unsubmitted')
+      }
+      return
+    }
+
+    if (submissionState === 'not-yet') {
+      setSubmissionState('unsubmitted')
+      return
+    }
+
+    if (!currentActivity) return
+
+    const isCorrect = isActivityAnswerCorrect(
+      currentActivity,
+      currentWorkingAnswer,
+    )
+    setSubmissionState(isCorrect ? 'correct' : 'not-yet')
+  }, [
+    activities.length,
+    currentActivity,
+    currentIndex,
+    currentWorkingAnswer,
+    submissionState,
+  ])
+
+  const handleAnswerChanged = useCallback(
+    (newAnswer: MatchingAnswer | OrderingAnswer) => {
+      setCurrentWorkingAnswer(newAnswer)
+      setSubmissionState('unsubmitted')
+    },
+    [],
+  )
 
   return (
     <section aria-label="Lesson activities" className="space-y-6">
-      {activities.map((activity) => (
-        <div
-          key={activity.id}
-          className="rounded-box border border-base-300 p-4 sm:p-6"
-        >
-          <h2 className="text-heading">{activity.title}</h2>
+      {currentActivity ? (
+        <div className="rounded-box border border-base-300 p-4 sm:p-6">
+          <h2 className="text-heading">{currentActivity.title}</h2>
         </div>
-      ))}
-
-      {submissionState && (
-        <FeedbackState
-          type={submissionState.result === 'correct' ? 'correct' : 'not-yet'}
-          checked={submissionState.checkStatement ?? ''}
-          successMessage="Your answer matches the expected result."
-          expected={submissionState.expected ?? ''}
-          yours={submissionState.yours ?? ''}
-          actionLabel={
-            submissionState.result === 'not-yet' ? 'Try again' : undefined
-          }
-          onAction={() => setSubmissionState(null)}
-        />
+      ) : (
+        <div className="text-small">No current activity</div>
       )}
+      {(() => {
+        if (!currentActivity) return null
 
-      {import.meta.env.DEV && (
-        <button className="btn btn-primary" onClick={mockSubmit}>
-          Test submission
-        </button>
-      )}
+        if (currentActivity.type === 'matching') {
+          const answer =
+            currentWorkingAnswer && 'pairs' in currentWorkingAnswer
+              ? currentWorkingAnswer
+              : getDefaultMatchingAnswer(currentActivity)
+          return (
+            <MatchingRenderer
+              content={currentActivity.content}
+              answer={answer}
+              disabled={submissionState === 'correct'}
+              onAnswerChange={handleAnswerChanged}
+            />
+          )
+        }
+        if (currentActivity.type === 'ordering') {
+          const answer =
+            currentWorkingAnswer && 'itemOrder' in currentWorkingAnswer
+              ? currentWorkingAnswer
+              : getDefaultOrderingAnswer(currentActivity)
+          return (
+            <OrderingRenderer
+              content={currentActivity.content}
+              answer={answer}
+              disabled={submissionState === 'correct'}
+              onAnswerChange={handleAnswerChanged}
+            />
+          )
+        }
+        return null
+      })()}
+
+      {(() => {
+        if (submissionState === 'correct') {
+          const hasNextActivity = currentIndex < activities.length - 1
+          return (
+            <FeedbackState
+              type="correct"
+              checkStatement={currentActivity.checkStatement}
+              successMessage={
+                hasNextActivity
+                  ? 'Well done! You can move on to the next activity.'
+                  : 'Well done! You have completed all activities.'
+              }
+              actionLabel={hasNextActivity ? 'Next activity' : undefined}
+              onAction={handleSubmit}
+            />
+          )
+        }
+        if (submissionState === 'not-yet') {
+          return (
+            <FeedbackState
+              type="not-yet"
+              checkStatement={currentActivity.checkStatement}
+              expected="The expected answer is not yet met."
+              yours="Your answer does not match the expected result."
+              actionLabel="Try again"
+              onAction={handleSubmit}
+            />
+          )
+        }
+        return <Button onClick={handleSubmit}>Submit</Button>
+      })()}
     </section>
   )
 }

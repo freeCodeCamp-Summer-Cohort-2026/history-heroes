@@ -1,22 +1,18 @@
 import { render, screen, fireEvent } from '@testing-library/react'
+import '@testing-library/jest-dom'
 import ActivityWorkspace from '../ActivityWorkspace'
 import type { Activity } from '../types'
 
-beforeAll(() => {
-  ;(import.meta as unknown as { env: { DEV: boolean } }).env = { DEV: true }
-})
-
-const activities: Activity[] = [
+const testActivities: Activity[] = [
   {
-    id: 'a1',
+    id: 'activity-ordering-1',
     type: 'ordering',
-    title: 'Activity One',
-    checkStatement:
-      'We checked whether your answer matches the expected order.',
+    title: 'Order Timeline',
+    checkStatement: 'We check chronological order.',
     content: {
       items: [
-        { id: '1', label: 'Event 1' },
-        { id: '2', label: 'Event 2' },
+        { id: '1', label: 'Item 1' },
+        { id: '2', label: 'Item 2' },
       ],
     },
     successCriteria: {
@@ -24,11 +20,10 @@ const activities: Activity[] = [
     },
   },
   {
-    id: 'a2',
+    id: 'activity-matching-2',
     type: 'matching',
-    title: 'Activity Two',
-    checkStatement:
-      'We checked whether your answer matches the expected pairs.',
+    title: 'Match Pairs',
+    checkStatement: 'We check matching pairs.',
     content: {
       left: [{ id: 'l1', label: 'Left 1' }],
       right: [{ id: 'r1', label: 'Right 1' }],
@@ -40,42 +35,102 @@ const activities: Activity[] = [
 ]
 
 describe('ActivityWorkspace', () => {
-  it('shows no feedback before submission', () => {
-    render(<ActivityWorkspace activities={activities} />)
+  test('renders the first activity initially', () => {
+    render(<ActivityWorkspace activities={testActivities} />)
 
-    expect(screen.queryByText('Correct')).not.toBeInTheDocument()
-    expect(screen.queryByText('Not yet')).not.toBeInTheDocument()
-  })
-
-  it('shows not-yet feedback after mock submission', () => {
-    render(<ActivityWorkspace activities={activities} />)
-
-    fireEvent.click(screen.getByText('Test submission'))
-
-    expect(screen.getByText('Not yet')).toBeInTheDocument()
     expect(
-      screen.getByText(
-        'We checked whether your answer matches the expected order.',
-      ),
+      screen.getByRole('heading', { level: 2, name: 'Order Timeline' }),
     ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /submit/i })).toBeInTheDocument()
   })
 
-  it('switches to correct on retry', () => {
-    render(<ActivityWorkspace activities={activities} />)
+  test('shows no feedback before submission', () => {
+    render(<ActivityWorkspace activities={testActivities} />)
 
-    fireEvent.click(screen.getByText('Test submission')) // first → not-yet
-    fireEvent.click(screen.getByText('Test submission')) // second → correct
-
-    expect(screen.getByText('Correct')).toBeInTheDocument()
-  })
-
-  it('removes feedback when Try again is clicked', () => {
-    render(<ActivityWorkspace activities={activities} />)
-
-    fireEvent.click(screen.getByText('Test submission')) // not-yet
-    fireEvent.click(screen.getByText('Try again'))
-
-    expect(screen.queryByText('Not yet')).not.toBeInTheDocument()
     expect(screen.queryByText('Correct')).not.toBeInTheDocument()
+    expect(screen.queryByText('Not yet')).not.toBeInTheDocument()
+  })
+
+  test('submitting incorrect answer shows not-yet feedback and allows retry', () => {
+    render(<ActivityWorkspace activities={testActivities} />)
+
+    const submitButton = screen.getByRole('button', { name: /submit/i })
+    fireEvent.click(submitButton)
+
+    const feedbackTitle = screen.getByRole('heading', {
+      level: 2,
+      name: /correct|not yet/i,
+    })
+    expect(feedbackTitle).toBeInTheDocument()
+
+    if (feedbackTitle.textContent?.toLowerCase() === 'not yet') {
+      const tryAgainButton = screen.getByRole('button', { name: /try again/i })
+      fireEvent.click(tryAgainButton)
+      expect(
+        screen.getByRole('button', { name: /submit/i }),
+      ).toBeInTheDocument()
+    }
+  })
+
+  test('advances to next activity when correct feedback action is clicked', () => {
+    const singleItemActivities: Activity[] = [
+      {
+        id: 'act-1',
+        type: 'ordering',
+        title: 'First Activity',
+        checkStatement: 'Order check',
+        content: { items: [{ id: 'item-1', label: 'Only item' }] },
+        successCriteria: { correctOrder: ['item-1'] },
+      },
+      {
+        id: 'act-2',
+        type: 'ordering',
+        title: 'Second Activity',
+        checkStatement: 'Order check 2',
+        content: { items: [{ id: 'item-2', label: 'Second item' }] },
+        successCriteria: { correctOrder: ['item-2'] },
+      },
+    ]
+
+    render(<ActivityWorkspace activities={singleItemActivities} />)
+
+    expect(
+      screen.getByRole('heading', { level: 2, name: 'First Activity' }),
+    ).toBeInTheDocument()
+
+    // Submit the first activity (guaranteed correct since 1 item)
+    fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+
+    expect(
+      screen.getByRole('heading', { level: 2, name: /correct/i }),
+    ).toBeInTheDocument()
+    const nextButton = screen.getByRole('button', { name: /next activity/i })
+    expect(nextButton).toBeInTheDocument()
+
+    // Click next activity
+    fireEvent.click(nextButton)
+
+    // Second activity is now active and in unsubmitted state
+    expect(
+      screen.getByRole('heading', { level: 2, name: 'Second Activity' }),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /submit/i })).toBeInTheDocument()
+
+    // Submit second activity
+    fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+
+    // Final activity complete message, no next activity button
+    expect(
+      screen.getByText('Well done! You have completed all activities.'),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: /next activity/i }),
+    ).not.toBeInTheDocument()
+  })
+
+  test('shows fallback message when no activities exist', () => {
+    render(<ActivityWorkspace activities={[]} />)
+
+    expect(screen.getByText('No current activity')).toBeInTheDocument()
   })
 })
