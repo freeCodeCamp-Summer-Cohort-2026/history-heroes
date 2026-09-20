@@ -32,14 +32,7 @@ export class LabsService {
       },
     });
 
-    const activities = assignments.map(({activity}) => ({
-      id: activity.id,
-      title: activity.title,
-      type: activity.type,
-      checkStatement: activity.checkStatement,
-      successCriteria: activity.successCriteria,
-      content: activity.content,
-    }));
+    const activities = assignments.map(({ activity }) => activity);
 
     return {
       id: lab.id,
