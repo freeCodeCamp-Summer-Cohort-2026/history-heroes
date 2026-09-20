@@ -23,14 +23,17 @@ export default function ActivityWorkspace({
   const [currentIndex, setCurrentIndex] = useState(0)
   const currentActivity = activities[currentIndex] ?? null
 
+  // TODO: add an "working answer state" that represents the current answer for the current activity. This will be updated when the user changes their answer, and will be used to determine if the submission is correct or not. The initialization logic for this is dependant on the current activity type, and needs to be randomized.
+
   const handleSubmit = useCallback(() => {
-    // TODO: setSubmissionState to the result of the current submission
+    // TODO: setSubmissionState to the result of the current submission against the current activity's success criteria. If they match then update the submission state to "correct", otherwise update it to "not-yet".
     // TODO: setCurrentIndex to the next activity index if correct
   }, [])
 
   const handleAnswerChanged = useCallback(
     (newAnswer: MatchingAnswer | OrderingAnswer) => {
       // TODO: update the state for the "answer" state for the current activity.
+      // TODO: update the submission state to "unsubmitted" when the answer changes, since the user has changed their answer and it needs to be re-submitted.
     },
     [],
   )
@@ -38,19 +41,14 @@ export default function ActivityWorkspace({
   return (
     <section aria-label="Lesson activities" className="space-y-6">
       {currentActivity ? (
-        <div
-          key={currentActivity.id}
-          className="rounded-box border border-base-300 p-4 sm:p-6"
-        >
+        <div className="rounded-box border border-base-300 p-4 sm:p-6">
           <h2 className="text-heading">{currentActivity.title}</h2>
         </div>
       ) : (
-        <div title={JSON.stringify(activities, null, 2)}>
-          No current activity
-        </div>
+        <div className="text-small">No current activity</div>
       )}
       {(() => {
-        if (!currentActivity) return
+        if (!currentActivity) return null // the above logic will show "no current activity" if this is the case, so we can just return null here
 
         if (currentActivity.type === 'matching') {
           return (
@@ -78,7 +76,8 @@ export default function ActivityWorkspace({
             />
           )
         }
-        return <div> unknown activity type</div>
+        // this should be impossible if typescript is followed
+        return null
       })()}
 
       {(() => {
