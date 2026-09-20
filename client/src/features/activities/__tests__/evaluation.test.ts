@@ -214,4 +214,35 @@ describe('evaluateActivity', () => {
     }
     expect(evaluateActivity(activity, answer)).toBe('not-yet')
   })
+  test('rejects duplicate matching pairs', () => {
+    const activity: Activity = {
+      id: 'matching-1',
+      type: 'matching',
+      title: 'Match the events',
+      checkStatement: 'Match each items with its pairs',
+      content: {
+        left: [
+          { id: 'egypt', label: 'Egypt' },
+          { id: 'rome', label: 'Rome' },
+        ],
+        right: [
+          { id: 'pyramid', label: 'Pyramid' },
+          { id: 'colosseum', label: 'Colosseum' },
+        ],
+      },
+      successCriteria: {
+        pairs: [
+          { left: 'egypt', right: 'pyramid' },
+          { left: 'rome', right: 'colosseum' },
+        ],
+      },
+    }
+    const answer: MatchingAnswer = {
+      pairs: [
+        { left: 'egypt', right: 'pyramid' },
+        { left: 'egypt', right: 'pyramid' },
+      ],
+    }
+    expect(evaluateActivity(activity, answer)).toBe('not-yet')
+  })
 })
