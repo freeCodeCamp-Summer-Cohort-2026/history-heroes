@@ -10,6 +10,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ActivitiesModule } from './activities/activities.module';
 import { ProgressModule } from './progress/progress.module';
+import { LabsModule } from './labs/labs.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 
@@ -37,6 +38,7 @@ import { join } from 'path';
     UsersModule,
     ActivitiesModule,
     ProgressModule,
+    LabsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -10,6 +10,8 @@ import { ModuleSeeder } from './seeders/module.seeder.service';
 import { LessonSeeder } from './seeders/lesson.seeder.service';
 import { ActivitySeeder } from './seeders/activity.seeder.service';
 import { LessonActivityAssignmentSeeder } from './seeders/lesson-activity-assignment.seeder.service';
+import { LabSeeder } from './seeders/lab.seeder.service';
+import { LabActivityAssignmentSeeder } from './seeders/lab-activity-assignment.seeder.service';
 
 @Injectable()
 export class SeedsService implements OnApplicationBootstrap {
@@ -28,15 +30,19 @@ export class SeedsService implements OnApplicationBootstrap {
     lessonSeeder: LessonSeeder,
     activitySeeder: ActivitySeeder,
     lessonActivityAssignmentSeeder: LessonActivityAssignmentSeeder,
+    labSeeder: LabSeeder,
+    labActivityAssignmentSeeder: LabActivityAssignmentSeeder,
   ) {
     this.seeders = [
       userSeeder,
       moduleSeeder,
       lessonSeeder,
       activitySeeder,
-      // this is a relational seeder, this has to go last as it requires
-      // lesson and activities to exist first.
+      labSeeder,
+      // relational seeders go last, as they require
+      // other tables (lessons, activities, labs) to exist first.
       lessonActivityAssignmentSeeder,
+      labActivityAssignmentSeeder,
     ];
   }
 

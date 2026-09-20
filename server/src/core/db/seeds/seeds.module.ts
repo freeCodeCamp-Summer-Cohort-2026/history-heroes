@@ -11,6 +11,10 @@ import { LessonActivityAssignmentSeeder } from './seeders/lesson-activity-assign
 import { Lesson } from '../../../lessons/entities/lesson.entity';
 import { Activity } from '../../../activities/entities/activity.entity';
 import { LessonActivityAssignment } from '../../../activities/entities/lesson-activity-assignment.entity';
+import { Lab } from '../../../labs/entities/lab.entity';
+import { LabActivityAssignment } from '../../../activities/entities/lab-activity-assignment.entity';
+import { LabSeeder } from './seeders/lab.seeder.service';
+import { LabActivityAssignmentSeeder } from './seeders/lab-activity-assignment.seeder.service';
 
 @Module({
   imports: [
@@ -20,6 +24,8 @@ import { LessonActivityAssignment } from '../../../activities/entities/lesson-ac
       Lesson,
       Activity,
       LessonActivityAssignment,
+      Lab,
+      LabActivityAssignment,
     ]),
   ],
   providers: [
@@ -29,6 +35,8 @@ import { LessonActivityAssignment } from '../../../activities/entities/lesson-ac
     LessonSeeder,
     ActivitySeeder,
     LessonActivityAssignmentSeeder,
+    LabSeeder,
+    LabActivityAssignmentSeeder,
     // core service
     SeedsService,
   ],

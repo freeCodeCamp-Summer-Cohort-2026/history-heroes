@@ -135,10 +135,10 @@ describe('ProgressController (e2e)', () => {
   });
 
   it('tests session progress retrieval across app restart', async () => {
-    
     const agentA = request.agent(app.getHttpServer());
 
-    const postResponse = await agentA.post('/api/v1/progress/lessons/great-pyramid')
+    const postResponse = await agentA
+      .post('/api/v1/progress/lessons/great-pyramid')
       .expect(201);
 
     const cookie = postResponse.headers['set-cookie'];
@@ -150,9 +150,11 @@ describe('ProgressController (e2e)', () => {
 
     const agentB = request.agent(app.getHttpServer());
 
-    const getResponse = await agentB.get('/api/v1/progress').set('Cookie', cookie[0]).expect(200);
+    const getResponse = await agentB
+      .get('/api/v1/progress')
+      .set('Cookie', cookie[0])
+      .expect(200);
     expect(getResponse.body).toHaveLength(1);
     expect(getResponse.body[0].lessonId).toBe('great-pyramid');
-  }  
-  )
+  });
 });
