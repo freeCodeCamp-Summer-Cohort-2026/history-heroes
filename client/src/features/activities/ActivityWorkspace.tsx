@@ -9,6 +9,8 @@ import Button from '../../components/Button'
 import MatchingRenderer from './MatchingRenderer'
 import OrderingRenderer from './OrderingRenderer'
 import FeedbackState from '../../components/FeedbackState'
+import { getDefaultMatchingAnswer } from './get-default-matching-answer'
+import { getDefaultOrderingAnswer } from './get-default-ordering-answer'
 
 export type ActivityWorkspaceProps = {
   activities: Activity[]
@@ -54,10 +56,7 @@ export default function ActivityWorkspace({
           return (
             <MatchingRenderer
               content={currentActivity.content}
-              answer={{
-                // TODO: what is this supposed to come from?
-                pairs: [],
-              }}
+              answer={getDefaultMatchingAnswer(currentActivity)}
               disabled={submissionState === 'correct'}
               onAnswerChange={handleAnswerChanged}
             />
@@ -67,10 +66,7 @@ export default function ActivityWorkspace({
           return (
             <OrderingRenderer
               content={currentActivity.content}
-              answer={{
-                // TODO: what is this supposed to come from?
-                itemOrder: [],
-              }}
+              answer={getDefaultOrderingAnswer(currentActivity)}
               disabled={submissionState === 'correct'}
               onAnswerChange={handleAnswerChanged}
             />

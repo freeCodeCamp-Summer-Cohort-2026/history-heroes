@@ -18,30 +18,31 @@ export type MatchingAnswer = {
   }[]
 }
 
-export type Activity =
-  | {
-      id: string
-      type: 'ordering'
-      title: string
-      checkStatement: string
-      content: OrderingContent
-      successCriteria: {
-        correctOrder: string[]
-      }
-    }
-  | {
-      id: string
-      type: 'matching'
-      title: string
-      checkStatement: string
-      content: MatchingContent
-      successCriteria: {
-        pairs: {
-          left: string
-          right: string
-        }[]
-      }
-    }
+export type OrderingActivity = {
+  id: string
+  type: 'ordering'
+  title: string
+  checkStatement: string
+  content: OrderingContent
+  successCriteria: {
+    correctOrder: string[]
+  }
+}
+export type MatchingActivity = {
+  id: string
+  type: 'matching'
+  title: string
+  checkStatement: string
+  content: MatchingContent
+  successCriteria: {
+    pairs: {
+      left: string
+      right: string
+    }[]
+  }
+}
+
+export type Activity = OrderingActivity | MatchingActivity
 
 export type ActivityAnswer = OrderingAnswer | MatchingAnswer
 
