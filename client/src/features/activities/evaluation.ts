@@ -25,10 +25,10 @@ export function evaluateActivity(
 
   const isCorrect =
     answer.pairs.length === correctPairs.length &&
-    answer.pairs.every((pair) =>
-      correctPairs.some(
-        (correctPair) =>
-          correctPair.left === pair.left && correctPair.right === pair.right,
+    correctPairs.every((correctPair) =>
+      answer.pairs.some(
+        (pair) =>
+          pair.left === correctPair.left && pair.right === correctPair.right,
       ),
     )
   return isCorrect ? 'correct' : 'not-yet'
