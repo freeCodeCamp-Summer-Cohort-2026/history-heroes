@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { classNames } from '../utils/class-names'
 
 /**
  * Button that redirects using react-router-dom, for internal application navigation.
@@ -24,14 +25,14 @@ export default function ButtonLink(
 ) {
   const { variant, native, children, className } = params
   const variantClass =
-    variant === 'primary'
+    variant === 'primary' || !variant
       ? 'btn-primary hover:bg-[var(--color-primary-focus)]'
       : 'btn-outline btn-secondary'
 
   if (native) {
     const { href } = params
     return (
-      <a href={href} className={`btn ${variantClass} ${className}`}>
+      <a href={href} className={classNames('btn', variantClass, className)}>
         {children}
       </a>
     )
@@ -45,7 +46,7 @@ export default function ButtonLink(
   }
 
   return (
-    <Link to={to} className={`btn ${variantClass} ${className}`}>
+    <Link to={to} className={classNames('btn', variantClass, className)}>
       {children}
     </Link>
   )
