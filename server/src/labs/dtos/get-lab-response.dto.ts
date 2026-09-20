@@ -4,7 +4,7 @@ import {
   ActivityType,
 } from '../../activities/types/activity.types';
 
-export class LabActivityDto {
+export interface LabActivityDto {
   id: string;
   title: string;
   type: ActivityType;
@@ -15,7 +15,7 @@ export class LabActivityDto {
   updatedAt?: Date;
 }
 
-export class LabResponseDto {
+export interface LabResponseDto {
   id: string;
   moduleId: string;
   title: string;
