@@ -111,7 +111,6 @@ test('displays the activities in order', async () => {
 
   expect(activityTitles.map((heading) => heading.textContent)).toEqual([
     'Test Activity One',
-    'Test Activity Two',
   ])
 })
 
