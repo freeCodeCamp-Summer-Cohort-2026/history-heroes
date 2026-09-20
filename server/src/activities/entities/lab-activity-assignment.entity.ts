@@ -6,7 +6,6 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
-  Unique,
 } from 'typeorm';
 import { Lab } from '../../labs/entities/lab.entity';
 import { Activity } from './activity.entity';
