@@ -11,6 +11,20 @@ import OrderingRenderer from './OrderingRenderer'
 import FeedbackState from '../../components/FeedbackState'
 import { getDefaultMatchingAnswer } from './get-default-matching-answer'
 import { getDefaultOrderingAnswer } from './get-default-ordering-answer'
+import { isActivityAnswerCorrect } from './is-activity-answer-correct'
+
+function getDefaultWorkingAnswer(
+  activity: Activity | null,
+): MatchingAnswer | OrderingAnswer | null {
+  if (!activity) return null
+  if (activity.type === 'matching') {
+    return getDefaultMatchingAnswer(activity)
+  }
+  if (activity.type === 'ordering') {
+    return getDefaultOrderingAnswer(activity)
+  }
+  return null
+}
 
 export type ActivityWorkspaceProps = {
   activities: Activity[]
@@ -25,17 +39,49 @@ export default function ActivityWorkspace({
   const [currentIndex, setCurrentIndex] = useState(0)
   const currentActivity = activities[currentIndex] ?? null
 
-  // TODO: add an "working answer state" that represents the current answer for the current activity. This will be updated when the user changes their answer, and will be used to determine if the submission is correct or not. The initialization logic for this is dependant on the current activity type, and needs to be randomized.
+  const [prevActivityId, setPrevActivityId] = useState(currentActivity?.id)
+  const [currentWorkingAnswer, setCurrentWorkingAnswer] = useState<
+    MatchingAnswer | OrderingAnswer | null
+  >(() => getDefaultWorkingAnswer(currentActivity))
+
+  if (currentActivity?.id !== prevActivityId) {
+    setPrevActivityId(currentActivity?.id)
+    setCurrentWorkingAnswer(getDefaultWorkingAnswer(currentActivity))
+  }
 
   const handleSubmit = useCallback(() => {
-    // TODO: setSubmissionState to the result of the current submission against the current activity's success criteria. If they match then update the submission state to "correct", otherwise update it to "not-yet".
-    // TODO: setCurrentIndex to the next activity index if correct
-  }, [])
+    if (submissionState === 'correct') {
+      if (currentIndex < activities.length - 1) {
+        setCurrentIndex((prev) => prev + 1)
+        setSubmissionState('unsubmitted')
+      }
+      return
+    }
+
+    if (submissionState === 'not-yet') {
+      setSubmissionState('unsubmitted')
+      return
+    }
+
+    if (!currentActivity) return
+
+    const isCorrect = isActivityAnswerCorrect(
+      currentActivity,
+      currentWorkingAnswer,
+    )
+    setSubmissionState(isCorrect ? 'correct' : 'not-yet')
+  }, [
+    activities.length,
+    currentActivity,
+    currentIndex,
+    currentWorkingAnswer,
+    submissionState,
+  ])
 
   const handleAnswerChanged = useCallback(
     (newAnswer: MatchingAnswer | OrderingAnswer) => {
-      // TODO: update the state for the "answer" state for the current activity.
-      // TODO: update the submission state to "unsubmitted" when the answer changes, since the user has changed their answer and it needs to be re-submitted.
+      setCurrentWorkingAnswer(newAnswer)
+      setSubmissionState('unsubmitted')
     },
     [],
   )
@@ -53,20 +99,28 @@ export default function ActivityWorkspace({
         if (!currentActivity) return null // the above logic will show "no current activity" if this is the case, so we can just return null here
 
         if (currentActivity.type === 'matching') {
+          const answer =
+            currentWorkingAnswer && 'pairs' in currentWorkingAnswer
+              ? currentWorkingAnswer
+              : getDefaultMatchingAnswer(currentActivity)
           return (
             <MatchingRenderer
               content={currentActivity.content}
-              answer={getDefaultMatchingAnswer(currentActivity)}
+              answer={answer}
               disabled={submissionState === 'correct'}
               onAnswerChange={handleAnswerChanged}
             />
           )
         }
         if (currentActivity.type === 'ordering') {
+          const answer =
+            currentWorkingAnswer && 'itemOrder' in currentWorkingAnswer
+              ? currentWorkingAnswer
+              : getDefaultOrderingAnswer(currentActivity)
           return (
             <OrderingRenderer
               content={currentActivity.content}
-              answer={getDefaultOrderingAnswer(currentActivity)}
+              answer={answer}
               disabled={submissionState === 'correct'}
               onAnswerChange={handleAnswerChanged}
             />
@@ -78,11 +132,17 @@ export default function ActivityWorkspace({
 
       {(() => {
         if (submissionState === 'correct') {
+          const hasNextActivity = currentIndex < activities.length - 1
           return (
             <FeedbackState
               type="correct"
               checkStatement={currentActivity.checkStatement}
-              successMessage="Well done! You can move on to the next activity."
+              successMessage={
+                hasNextActivity
+                  ? 'Well done! You can move on to the next activity.'
+                  : 'Well done! You have completed all activities.'
+              }
+              actionLabel={hasNextActivity ? 'Next activity' : undefined}
               onAction={handleSubmit}
             />
           )
