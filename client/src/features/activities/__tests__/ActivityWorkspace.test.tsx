@@ -35,6 +35,10 @@ const testActivities: Activity[] = [
 ]
 
 describe('ActivityWorkspace', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
   test('renders the first activity initially', () => {
     render(<ActivityWorkspace activities={testActivities} />)
 
@@ -132,5 +136,38 @@ describe('ActivityWorkspace', () => {
     render(<ActivityWorkspace activities={[]} />)
 
     expect(screen.getByText('No current activity')).toBeInTheDocument()
+  })
+
+  test('calls onComplete after the final activity is answered correctly', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.99)
+    const onComplete = vi.fn()
+
+    render(
+      <ActivityWorkspace activities={testActivities} onComplete={onComplete} />,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+    expect(onComplete).not.toHaveBeenCalled()
+
+    fireEvent.click(screen.getByRole('button', { name: /next activity/i }))
+    fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+
+    expect(onComplete).toHaveBeenCalledTimes(1)
+  })
+
+  test('does not call onComplete for an incorrect final answer', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0)
+    const onComplete = vi.fn()
+
+    render(
+      <ActivityWorkspace
+        activities={[testActivities[0]]}
+        onComplete={onComplete}
+      />,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+
+    expect(onComplete).not.toHaveBeenCalled()
   })
 })

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import {
   fetchLessons,
@@ -8,6 +8,7 @@ import { fetchModules } from '../features/module/model/api'
 import type { Activity } from '../features/activities/types'
 import ActivityWorkspace from '../features/activities/ActivityWorkspace'
 import type { Lesson } from '../features/lesson/model/Lesson'
+import { recordLessonCompletion } from '../features/progress/model/api'
 
 export default function LessonPage() {
   const { moduleId, lessonId } = useParams()
@@ -38,6 +39,8 @@ function LessonPageContent({
   const [activities, setActivities] = useState<Activity[]>([])
   const [activityError, setActivityError] = useState<string | null>(null)
   const [moduleTitle, setModuleTitle] = useState<string | null>(null)
+  const completionRequestStarted = useRef(false)
+  const [isCompletionSaved, setIsCompletionSaved] = useState(false)
 
   useEffect(() => {
     fetchLessons(moduleId)
@@ -62,6 +65,19 @@ function LessonPageContent({
       )
       .catch(() => setModuleTitle(null))
   }, [moduleId, lessonId])
+
+  async function handleLessonComplete() {
+    if (completionRequestStarted.current) return
+
+    completionRequestStarted.current = true
+
+    try {
+      await recordLessonCompletion(lessonId)
+      setIsCompletionSaved(true)
+    } catch {
+      completionRequestStarted.current = false
+    }
+  }
 
   const orderedLessons = [...lessons].sort(
     (first, second) => first.orderIndex - second.orderIndex,
@@ -99,7 +115,17 @@ function LessonPageContent({
         {activityError ? (
           <p className="text-body">{activityError}</p>
         ) : (
-          <ActivityWorkspace activities={activities} />
+          <>
+            <ActivityWorkspace
+              activities={activities}
+              onComplete={handleLessonComplete}
+            />
+            {isCompletionSaved && (
+              <p role="status" className="mt-4 text-success">
+                Lesson completion saved.
+              </p>
+            )}
+          </>
         )}
       </div>
     </div>

@@ -28,10 +28,12 @@ function getDefaultWorkingAnswer(
 
 export type ActivityWorkspaceProps = {
   activities: Activity[]
+  onComplete?: () => void
 }
 
 export default function ActivityWorkspace({
   activities,
+  onComplete,
 }: ActivityWorkspaceProps) {
   const [submissionState, setSubmissionState] =
     useState<ActivityWorkspaceSubmissionState>('unsubmitted')
@@ -70,11 +72,16 @@ export default function ActivityWorkspace({
       currentWorkingAnswer,
     )
     setSubmissionState(isCorrect ? 'correct' : 'not-yet')
+
+    if (isCorrect && currentIndex === activities.length - 1) {
+      onComplete?.()
+    }
   }, [
     activities.length,
     currentActivity,
     currentIndex,
     currentWorkingAnswer,
+    onComplete,
     submissionState,
   ])
 
