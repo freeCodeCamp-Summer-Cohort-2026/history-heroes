@@ -1,25 +1,16 @@
+import ModuleCard from '../../components/ModuleCard'
 import type { ModuleSummary } from './model/ModuleSummary'
 
 type ModuleCatalogProps = {
   modules: ModuleSummary[]
-  onModuleSelect: (id: string) => void
 }
 
-export default function ModuleCatalog({
-  modules,
-  onModuleSelect,
-}: ModuleCatalogProps) {
+export default function ModuleCatalog({ modules }: ModuleCatalogProps) {
   return (
-    <ul>
-      {modules.map((oneModule) => (
-        <li key={oneModule.id}>
-          <h2 className="text-subheading">{oneModule.title}</h2>
-          <p className="text-body">{oneModule.description}</p>
-          {oneModule.period && <p className="text-small">{oneModule.period}</p>}
-          {oneModule.theme && <p className="text-small">{oneModule.theme}</p>}
-          <button type="button" onClick={() => onModuleSelect(oneModule.id)}>
-            Start Learning!
-          </button>
+    <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {modules.map((module) => (
+        <li key={module.id}>
+          <ModuleCard module={module} />
         </li>
       ))}
     </ul>

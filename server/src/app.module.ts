@@ -10,6 +10,9 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ActivitiesModule } from './activities/activities.module';
 import { ProgressModule } from './progress/progress.module';
+import { LabsModule } from './labs/labs.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -17,6 +20,9 @@ import { ProgressModule } from './progress/progress.module';
       isGlobal: true,
       // docs to extend:
       // https://docs.nestjs.com/techniques/configuration#configuration-validation
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, 'public'),
     }),
 
     // core database and seeding modules
@@ -31,7 +37,8 @@ import { ProgressModule } from './progress/progress.module';
     LessonsModule,
     UsersModule,
     ActivitiesModule,
-    ProgressModule
+    ProgressModule,
+    LabsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

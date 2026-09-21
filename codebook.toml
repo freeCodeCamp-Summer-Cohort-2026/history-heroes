@@ -6,5 +6,6 @@ words = [
     "nvm",
     "supertest",
     "typeorm",
+    "unsubmitted",
     "zod",
 ]
