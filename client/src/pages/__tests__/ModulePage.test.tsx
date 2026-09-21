@@ -94,3 +94,20 @@ test('shows an empty state when the module has no lessons', async () => {
     await screen.findByText('This module has no lessons yet.'),
   ).toBeInTheDocument()
 })
+
+test('offers the module lab after the lessons', async () => {
+  mockServer(testLessons)
+  renderModulePage()
+
+  const labLink = await screen.findByRole('link', { name: /module lab/i })
+  const lastLesson = screen.getByRole('heading', {
+    level: 3,
+    name: 'Test Lesson Two',
+  })
+
+  expect(labLink).toHaveAttribute('href', '/modules/first-module/lab')
+  expect(
+    lastLesson.compareDocumentPosition(labLink) &
+      Node.DOCUMENT_POSITION_FOLLOWING,
+  ).toBeTruthy()
+})
