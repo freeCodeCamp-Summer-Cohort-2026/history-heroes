@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { ProgressService } from './progress.service';
 import { UserLessonProgress } from './entities/user-lesson-progress.entity';
+import { UserLabProgress } from './entities/user-lab-progress.entity';
 
 describe('ProgressService', () => {
   let service: ProgressService;
@@ -20,9 +21,22 @@ describe('ProgressService', () => {
     remove: vi.fn(),
   };
 
+  const mockLabProgressRepository = {
+    findOne: vi.fn(),
+    find: vi.fn(),
+    create: vi.fn(),
+    save: vi.fn(),
+    remove: vi.fn(),
+  };
+
   const mockTransaction = vi.fn();
   const mockEntityManager = {
-    getRepository: vi.fn().mockReturnValue(mockLessonProgressRepository),
+    getRepository: vi.fn((entity: any) => {
+      if (entity === UserLabProgress) {
+        return mockLabProgressRepository;
+      }
+      return mockLessonProgressRepository;
+    }),
   };
   const mockDataSource = {
     transaction: mockTransaction,
@@ -41,6 +55,10 @@ describe('ProgressService', () => {
         {
           provide: getRepositoryToken(UserLessonProgress),
           useValue: mockLessonProgressRepository,
+        },
+        {
+          provide: getRepositoryToken(UserLabProgress),
+          useValue: mockLabProgressRepository,
         },
         {
           provide: DataSource,
@@ -377,6 +395,225 @@ describe('ProgressService', () => {
       });
 
       expect(result).toEqual(record);
+    });
+  });
+
+  describe('recordLabProgress', () => {
+    it('should throw BadRequestException if labId is empty or whitespace', async () => {
+      await expect(
+        service.recordLabProgress({ labId: '', userId: 1 }),
+      ).rejects.toThrow(BadRequestException);
+
+      await expect(
+        service.recordLabProgress({ labId: '   ', userId: 1 }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should throw UnauthorizedException if neither userId nor sessionId is provided', async () => {
+      await expect(
+        service.recordLabProgress({ labId: 'great-pyramid-lab' }),
+      ).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('should create and return a new progress record for an authenticated user within transaction', async () => {
+      mockLabProgressRepository.findOne.mockResolvedValue(null);
+      const createdEntity = {
+        id: 1,
+        labId: 'any-lab-id',
+        userId: 42,
+        sessionId: 'sess-123',
+        completedAt: new Date(),
+      };
+      mockLabProgressRepository.create.mockReturnValue(createdEntity);
+      mockLabProgressRepository.save.mockResolvedValue(createdEntity);
+
+      const result = await service.recordLabProgress({
+        labId: 'any-lab-id',
+        userId: 42,
+        sessionId: 'sess-123',
+      });
+
+      expect(result).toEqual(createdEntity);
+      expect(mockTransaction).toHaveBeenCalled();
+      expect(mockLabProgressRepository.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          labId: 'any-lab-id',
+          userId: 42,
+          sessionId: 'sess-123',
+        }),
+      );
+      expect(mockLabProgressRepository.save).toHaveBeenCalledWith(
+        createdEntity,
+      );
+    });
+
+    it('should create and return a new progress record for an anonymous session', async () => {
+      mockLabProgressRepository.findOne.mockResolvedValue(null);
+      const createdEntity = {
+        id: 2,
+        labId: 'custom-lab',
+        userId: null,
+        sessionId: 'sess-anon',
+        completedAt: new Date(),
+      };
+      mockLabProgressRepository.create.mockReturnValue(createdEntity);
+      mockLabProgressRepository.save.mockResolvedValue(createdEntity);
+
+      const result = await service.recordLabProgress({
+        labId: 'custom-lab',
+        sessionId: 'sess-anon',
+      });
+
+      expect(result).toEqual(createdEntity);
+      expect(mockLabProgressRepository.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          labId: 'custom-lab',
+          userId: null,
+          sessionId: 'sess-anon',
+        }),
+      );
+    });
+
+    it('should return existing record idempotently without creating a duplicate', async () => {
+      const existing = {
+        id: 1,
+        labId: 'custom-lab',
+        userId: 42,
+        sessionId: 'sess-123',
+        completedAt: new Date(),
+      };
+      mockLabProgressRepository.findOne.mockResolvedValue(existing);
+
+      const result = await service.recordLabProgress({
+        labId: 'custom-lab',
+        userId: 42,
+      });
+
+      expect(result).toBe(existing);
+      expect(mockLabProgressRepository.create).not.toHaveBeenCalled();
+    });
+
+    it('should link existing session record to user when user is newly authenticated', async () => {
+      const existing = {
+        id: 1,
+        labId: 'custom-lab',
+        userId: null,
+        sessionId: 'sess-123',
+        completedAt: new Date(),
+      };
+      mockLabProgressRepository.findOne
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(existing);
+      mockLabProgressRepository.save.mockImplementation((item: any) =>
+        Promise.resolve(item),
+      );
+
+      const result = await service.recordLabProgress({
+        labId: 'custom-lab',
+        userId: 42,
+        sessionId: 'sess-123',
+      });
+
+      expect(result.userId).toBe(42);
+      expect(mockLabProgressRepository.save).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 1, userId: 42 }),
+      );
+    });
+
+    it('should handle TOCTOU race conditions gracefully if concurrent insert occurs', async () => {
+      mockLabProgressRepository.findOne
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce({
+          id: 99,
+          labId: 'custom-lab',
+          userId: 42,
+        });
+      mockLabProgressRepository.create.mockReturnValue({
+        labId: 'custom-lab',
+        userId: 42,
+      });
+      mockLabProgressRepository.save.mockRejectedValueOnce(
+        new Error('UNIQUE constraint failed'),
+      );
+
+      const result = await service.recordLabProgress({
+        labId: 'custom-lab',
+        userId: 42,
+      });
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          id: 99,
+          labId: 'custom-lab',
+          userId: 42,
+        }),
+      );
+    });
+  });
+
+  describe('getLabProgress', () => {
+    it('should throw BadRequestException if labId is empty or whitespace', async () => {
+      await expect(
+        service.getLabProgress({ labId: '', userId: 42 }),
+      ).rejects.toThrow(BadRequestException);
+
+      await expect(
+        service.getLabProgress({ labId: '   ', userId: 42 }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should return null if neither userId nor sessionId is provided', async () => {
+      const result = await service.getLabProgress({ labId: 'custom-lab' });
+      expect(result).toBeNull();
+    });
+
+    it('should return null if no progress is found for a lab', async () => {
+      mockLabProgressRepository.findOne.mockResolvedValue(null);
+
+      const result = await service.getLabProgress({
+        labId: 'custom-lab',
+        userId: 42,
+      });
+
+      expect(result).toBeNull();
+    });
+
+    it('should return record if found by userId', async () => {
+      const record = { id: 1, labId: 'custom-lab', userId: 42 };
+      mockLabProgressRepository.findOne.mockResolvedValue(record);
+
+      const result = await service.getLabProgress({
+        labId: 'custom-lab',
+        userId: 42,
+      });
+
+      expect(result).toEqual(record);
+    });
+
+    it('should return record if found by sessionId and link to authenticated user', async () => {
+      const record = {
+        id: 1,
+        labId: 'custom-lab',
+        userId: null,
+        sessionId: 'sess-123',
+      };
+      mockLabProgressRepository.findOne
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(record);
+      mockLabProgressRepository.save.mockImplementation((item: any) =>
+        Promise.resolve(item),
+      );
+
+      const result = await service.getLabProgress({
+        labId: 'custom-lab',
+        userId: 42,
+        sessionId: 'sess-123',
+      });
+
+      expect(result?.userId).toBe(42);
+      expect(mockLabProgressRepository.save).toHaveBeenCalledWith(
+        expect.objectContaining({ userId: 42 }),
+      );
     });
   });
 });

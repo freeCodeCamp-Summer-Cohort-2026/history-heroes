@@ -11,6 +11,7 @@ import { DataSource, FindOptionsWhere, Repository } from 'typeorm';
 import * as fs from 'fs';
 import * as path from 'path';
 import { UserLessonProgress } from './entities/user-lesson-progress.entity';
+import { UserLabProgress } from './entities/user-lab-progress.entity';
 
 @Injectable()
 export class ProgressService implements OnModuleInit {
@@ -20,6 +21,8 @@ export class ProgressService implements OnModuleInit {
   constructor(
     @InjectRepository(UserLessonProgress)
     private readonly lessonProgressRepository: Repository<UserLessonProgress>,
+    @InjectRepository(UserLabProgress)
+    private readonly labProgressRepository: Repository<UserLabProgress>,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -302,6 +305,157 @@ export class ProgressService implements OnModuleInit {
       return await this.lessonProgressRepository.findOne({
         where: { lessonId, sessionId },
       });
+    }
+
+    return null;
+  }
+
+  /**
+   * Helper function used within recordLabProgress to get the existing lab
+   * progress for the current user/session relative to the given lab.
+   *
+   * This is to be used within a transaction to prevent a TOCTOU race.
+   */
+  private async getExistingLabProgress(params: {
+    repo: Repository<UserLabProgress>;
+    labId: string;
+    userId?: number | null;
+    sessionId?: string | null;
+  }): Promise<UserLabProgress | null> {
+    const { repo, labId, userId, sessionId } = params;
+
+    let existing: UserLabProgress | null = null;
+
+    if (userId) {
+      existing = await repo.findOne({
+        where: { labId, userId },
+      });
+    }
+
+    if (!existing && sessionId) {
+      existing = await repo.findOne({
+        where: { labId, sessionId },
+      });
+    }
+
+    if (!existing) {
+      return null;
+    }
+
+    if (userId && !existing.userId) {
+      // update the existing record to link it to the authenticated user
+      existing.userId = userId;
+      return await repo.save(existing);
+    }
+
+    return existing;
+  }
+
+  /**
+   * Records completion of a lab for the authenticated user and/or active session.
+   * This operation is idempotent: repeating the request will not create duplicate progress records.
+   */
+  async recordLabProgress(options: {
+    labId: string;
+    userId?: number | null;
+    sessionId?: string | null;
+  }): Promise<UserLabProgress> {
+    const { labId, userId, sessionId } = options;
+
+    if (!labId || typeof labId !== 'string' || !labId.trim()) {
+      throw new BadRequestException('A valid labId must be provided');
+    }
+
+    if (!userId && !sessionId) {
+      throw new UnauthorizedException('No active user or session found');
+    }
+
+    const trimmedLabId = labId.trim();
+
+    return await this.dataSource.transaction(async (manager) => {
+      const repo = manager.getRepository(UserLabProgress);
+
+      const existing: UserLabProgress | null =
+        await this.getExistingLabProgress({
+          repo,
+          labId: trimmedLabId,
+          userId,
+          sessionId,
+        });
+
+      if (existing) {
+        return existing;
+      }
+
+      const newRecord = repo.create({
+        labId: trimmedLabId,
+        userId: userId ?? null,
+        sessionId: sessionId ?? null,
+        completedAt: new Date(),
+      });
+
+      try {
+        return await repo.save(newRecord);
+      } catch (error) {
+        this.logger.error(error);
+        // Handle TOCTOU race: concurrent request may have inserted in parallel
+        if (userId) {
+          const raceRecord = await repo.findOne({
+            where: { labId: trimmedLabId, userId },
+          });
+          if (raceRecord) return raceRecord;
+        }
+        if (sessionId) {
+          const raceRecord = await repo.findOne({
+            where: { labId: trimmedLabId, sessionId },
+          });
+          if (raceRecord) return raceRecord;
+        }
+        throw new BadRequestException(
+          'Failed to record lab progress due to conflict',
+        );
+      }
+    });
+  }
+
+  /**
+   * Returns completion status for a specific lab for the given user/session, if any.
+   */
+  async getLabProgress(options: {
+    labId: string;
+    userId?: number | null;
+    sessionId?: string | null;
+  }): Promise<UserLabProgress | null> {
+    const { labId, userId, sessionId } = options;
+
+    if (!labId || typeof labId !== 'string' || !labId.trim()) {
+      throw new BadRequestException('A valid labId must be provided');
+    }
+
+    if (!userId && !sessionId) {
+      return null;
+    }
+
+    const trimmedLabId = labId.trim();
+
+    if (userId) {
+      const record = await this.labProgressRepository.findOne({
+        where: { labId: trimmedLabId, userId },
+      });
+      if (record) return record;
+    }
+
+    if (sessionId) {
+      const record = await this.labProgressRepository.findOne({
+        where: { labId: trimmedLabId, sessionId },
+      });
+      if (record) {
+        if (userId && !record.userId) {
+          record.userId = userId;
+          return await this.labProgressRepository.save(record);
+        }
+        return record;
+      }
     }
 
     return null;
