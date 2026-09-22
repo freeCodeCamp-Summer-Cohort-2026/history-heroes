@@ -238,6 +238,7 @@ describe('ActivityWorkspace', () => {
   })
   test('submit a corrected matching answer as correct', () => {
     vi.spyOn(Math, 'random').mockReturnValue(0)
+    const onComplete = vi.fn()
 
     const matchingActivity: Activity = {
       id: 'matching-retry',
@@ -264,7 +265,12 @@ describe('ActivityWorkspace', () => {
 
     const dataTransfer = createFakeDataTransfer()
 
-    render(<ActivityWorkspace activities={[matchingActivity]} />)
+    render(
+      <ActivityWorkspace
+        activities={[matchingActivity]}
+        onComplete={onComplete}
+      />,
+    )
 
     fireEvent.click(screen.getByRole('button', { name: /submit/i }))
 
@@ -289,11 +295,22 @@ describe('ActivityWorkspace', () => {
     fireEvent.dragStart(right2, { dataTransfer })
     fireEvent.drop(left2, { dataTransfer })
 
+    expect(
+      screen.queryByRole('heading', {
+        level: 2,
+        name: /correct|not yet/i,
+      }),
+    ).not.toBeInTheDocument()
+
+    expect(onComplete).not.toHaveBeenCalled()
+
     fireEvent.click(screen.getByRole('button', { name: /submit/i }))
 
     expect(
       screen.getByRole('heading', { level: 2, name: /correct/i }),
     ).toBeInTheDocument()
+
+    expect(onComplete).toHaveBeenCalledTimes(1)
   })
   test('keeps previous activity result while retrying the current activity', () => {
     vi.spyOn(Math, 'random').mockReturnValue(0)
@@ -345,7 +362,9 @@ describe('ActivityWorkspace', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /submit/i }))
 
-    expect(screen.getByRole('heading', { level: 2, name: /correct/i }))
+    expect(
+      screen.getByRole('heading', { level: 2, name: /correct/i }),
+    ).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: /next activity/i }))
 
@@ -379,8 +398,25 @@ describe('ActivityWorkspace', () => {
     fireEvent.dragStart(right2, { dataTransfer })
     fireEvent.drop(left2, { dataTransfer })
 
+    expect(
+      screen.queryByRole('heading', {
+        level: 2,
+        name: /correct|not yet/i,
+      }),
+    ).not.toBeInTheDocument()
+
+    expect(screen.getByRole('button', { name: /submit/i })).toBeInTheDocument()
+
     fireEvent.click(screen.getByRole('button', { name: /submit/i }))
 
     expect(onComplete).toHaveBeenCalledTimes(1)
+  })
+  test('does not complete a lesson without activities', () => {
+    const onComplete = vi.fn()
+
+    render(<ActivityWorkspace activities={[]} onComplete={onComplete} />)
+
+    expect(screen.getByText('No current activity')).toBeInTheDocument()
+    expect(onComplete).not.toHaveBeenCalled()
   })
 })
