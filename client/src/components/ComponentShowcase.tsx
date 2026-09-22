@@ -8,6 +8,7 @@ import FilterChips from './FilterChips'
 import ProgressIndicator from './ProgressIndicator'
 import type { Lesson } from '../features/lesson/model/Lesson'
 import type { ModuleSummary } from '../features/module/model/ModuleSummary'
+import LoadingIndicator from './LoadingIndicator'
 
 const showcaseModules: ModuleSummary[] = [
   {
@@ -135,6 +136,12 @@ export default function ComponentShowcase() {
             onAction={() => console.log('Try again clicked')}
           />
         </div>
+      </section>
+
+      <section>
+        <h2 className="text-heading">Loading Indicators</h2>
+        <LoadingIndicator />
+        <LoadingIndicator thing="modules" />
       </section>
     </main>
   )
