@@ -3,13 +3,23 @@ import '@testing-library/jest-dom'
 import { vi } from 'vitest'
 import ActivityWorkspace from '../ActivityWorkspace'
 import type { Activity } from '../types'
-import { isActivityAnswerCorrect } from '../is-activity-answer-correct'
+import { submitActivity } from '../submission'
+import { evaluateActivity } from '../evaluation'
 
-vi.mock('../is-activity-answer-correct', () => ({
-  isActivityAnswerCorrect: vi.fn(),
-}))
+vi.mock('../submission', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../submission')>()
+  return {
+    ...actual,
+    submitActivity: vi.fn(actual.submitActivity),
+  }
+})
 
-const mockEval = vi.mocked(isActivityAnswerCorrect)
+const mockSubmitActivity = vi.mocked(submitActivity)
+const mockEval = {
+  mockReturnValue: (isCorrect: boolean) => {
+    mockSubmitActivity.mockReturnValue(isCorrect ? 'correct' : 'not-yet')
+  },
+}
 
 function createFakeDataTransfer() {
   const stored: Record<string, string> = {}
@@ -56,6 +66,10 @@ const testActivities: Activity[] = [
 ]
 
 describe('ActivityWorkspace', () => {
+  beforeEach(() => {
+    mockSubmitActivity.mockImplementation(evaluateActivity)
+  })
+
   afterEach(() => {
     vi.restoreAllMocks()
   })
