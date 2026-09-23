@@ -368,6 +368,31 @@ describe('ActivityWorkspace', () => {
       ).toBeInTheDocument()
       expect(screen.queryByText('What we checked')).not.toBeInTheDocument()
     })
+
+    test('displaying the check statement does not independently determine or alter the evaluation result', () => {
+      mockEval.mockReturnValue(true)
+      const { unmount } = render(
+        <ActivityWorkspace activities={[testActivities[0]]} />,
+      )
+      fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+      expect(
+        screen.getByRole('heading', { level: 2, name: /correct/i }),
+      ).toBeInTheDocument()
+      expect(
+        screen.getByText('We check chronological order.'),
+      ).toBeInTheDocument()
+      unmount()
+
+      mockEval.mockReturnValue(false)
+      render(<ActivityWorkspace activities={[testActivities[0]]} />)
+      fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+      expect(
+        screen.getByRole('heading', { level: 2, name: /not yet/i }),
+      ).toBeInTheDocument()
+      expect(
+        screen.getByText('We check chronological order.'),
+      ).toBeInTheDocument()
+    })
   })
 
   describe('Progression and completion', () => {
@@ -485,13 +510,8 @@ describe('ActivityWorkspace', () => {
       screen.getByRole('heading', { level: 2, name: /not yet/i }),
     ).toBeInTheDocument()
 
-    const source = screen.getByRole('button', {
-      name: /right 1 - left 2/i,
-    })
-
-    const target = screen.getByRole('button', {
-      name: /left 1 - right 2/i,
-    })
+    const source = screen.getByText(/right 1 - left 2/i)
+    const target = screen.getByText(/left 1 - right 2/i)
 
     fireEvent.dragStart(source, { dataTransfer })
     fireEvent.drop(target, { dataTransfer })
@@ -544,13 +564,8 @@ describe('ActivityWorkspace', () => {
       screen.getByRole('heading', { level: 2, name: /not yet/i }),
     ).toBeInTheDocument()
 
-    const right1 = screen.getByRole('button', {
-      name: /right 1 - left 2/i,
-    })
-
-    const left1 = screen.getByRole('button', {
-      name: /left 1 - right 2/i,
-    })
+    const right1 = screen.getByText(/right 1 - left 2/i)
+    const left1 = screen.getByText(/left 1 - right 2/i)
 
     fireEvent.dragStart(right1, { dataTransfer })
     fireEvent.drop(left1, { dataTransfer })
@@ -647,13 +662,8 @@ describe('ActivityWorkspace', () => {
       screen.getByRole('heading', { level: 2, name: /not yet/i }),
     ).toBeInTheDocument()
 
-    const right1 = screen.getByRole('button', {
-      name: /right 1 - left 2/i,
-    })
-
-    const left1 = screen.getByRole('button', {
-      name: /left 1 - right 2/i,
-    })
+    const right1 = screen.getByText(/right 1 - left 2/i)
+    const left1 = screen.getByText(/left 1 - right 2/i)
 
     fireEvent.dragStart(right1, { dataTransfer })
     fireEvent.drop(left1, { dataTransfer })
