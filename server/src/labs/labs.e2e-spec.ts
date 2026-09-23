@@ -40,8 +40,6 @@ describe('Labs controller', () => {
     expect(resLab.description).toBeDefined();
     expect(resLab.title).toBeDefined();
 
-    // console.log(resLab.activities);
-
     expect(resLab.activities.length).toBeGreaterThan(0);
   });
 });
