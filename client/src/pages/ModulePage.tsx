@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import LessonListItem from '../components/LessonListItem'
 import ProgressIndicator from '../components/ProgressIndicator'
 import { fetchModules } from '../features/module/model/api'
@@ -81,6 +81,28 @@ export default function ModulePage() {
             ))}
           </ol>
         )}
+      </section>
+
+      <section aria-labelledby="module-lab-heading" className="space-y-4">
+        <h2 id="module-lab-heading" className="text-heading">
+          Lab
+        </h2>
+        <Link
+          to={`/modules/${moduleId}/lab`}
+          className="flex w-full items-center justify-between gap-4 border border-base-300 bg-base-100 p-4 transition hover:bg-base-200"
+        >
+          <span>
+            <span className="block text-subheading font-semibold">
+              Module lab
+            </span>
+            <span className="mt-2 block text-caption uppercase tracking-wide">
+              Always open
+            </span>
+          </span>
+          <span className="text-lg font-bold" aria-hidden="true">
+            →
+          </span>
+        </Link>
       </section>
     </div>
   )
