@@ -5,13 +5,15 @@ import type {
   MatchingAnswer,
   OrderingAnswer,
 } from './types'
+type ActivityResults = Partial<Record<string, ActivityWorkspaceSubmissionState>>
 import Button from '../../components/Button'
 import MatchingRenderer from './MatchingRenderer'
 import OrderingRenderer from './OrderingRenderer'
 import FeedbackState from '../../components/FeedbackState'
 import { getDefaultMatchingAnswer } from './get-default-matching-answer'
 import { getDefaultOrderingAnswer } from './get-default-ordering-answer'
-import { isActivityAnswerCorrect } from './is-activity-answer-correct'
+import { clearStaleResult, submitActivity } from './submission'
+import { isActivityUnlocked, isLessonComplete } from './progression'
 
 function getDefaultWorkingAnswer(
   activity: Activity | null,
@@ -35,11 +37,13 @@ export default function ActivityWorkspace({
   activities,
   onComplete,
 }: ActivityWorkspaceProps) {
-  const [submissionState, setSubmissionState] =
-    useState<ActivityWorkspaceSubmissionState>('unsubmitted')
-
   const [currentIndex, setCurrentIndex] = useState(0)
   const currentActivity = activities[currentIndex] ?? null
+  const [activityResults, setActivityResults] = useState<ActivityResults>({})
+
+  const submissionState = currentActivity
+    ? (activityResults[currentActivity.id] ?? 'unsubmitted')
+    : 'unsubmitted'
 
   const [prevActivityId, setPrevActivityId] = useState(currentActivity?.id)
   const [currentWorkingAnswer, setCurrentWorkingAnswer] = useState<
@@ -53,31 +57,41 @@ export default function ActivityWorkspace({
 
   const handleSubmit = useCallback(() => {
     if (submissionState === 'correct') {
-      if (currentIndex < activities.length - 1) {
+      const nextActivity = activities[currentIndex + 1]
+
+      if (
+        nextActivity &&
+        isActivityUnlocked(activities, activityResults, nextActivity.id)
+      ) {
         setCurrentIndex((prev) => prev + 1)
-        setSubmissionState('unsubmitted')
       }
       return
     }
 
-    if (submissionState === 'not-yet') {
-      setSubmissionState('unsubmitted')
+    if (submissionState === 'not-yet' && currentActivity) {
+      setActivityResults((results) => ({
+        ...results,
+        [currentActivity.id]: clearStaleResult(submissionState),
+      }))
       return
     }
 
-    if (!currentActivity) return
+    if (!currentActivity || !currentWorkingAnswer) return
 
-    const isCorrect = isActivityAnswerCorrect(
-      currentActivity,
-      currentWorkingAnswer,
-    )
-    setSubmissionState(isCorrect ? 'correct' : 'not-yet')
+    const result = submitActivity(currentActivity, currentWorkingAnswer)
+    const nextResults = {
+      ...activityResults,
+      [currentActivity.id]: result,
+    }
 
-    if (isCorrect && currentIndex === activities.length - 1) {
+    setActivityResults(nextResults)
+
+    if (isLessonComplete(activities, nextResults)) {
       onComplete?.()
     }
   }, [
-    activities.length,
+    activities,
+    activityResults,
     currentActivity,
     currentIndex,
     currentWorkingAnswer,
@@ -88,9 +102,19 @@ export default function ActivityWorkspace({
   const handleAnswerChanged = useCallback(
     (newAnswer: MatchingAnswer | OrderingAnswer) => {
       setCurrentWorkingAnswer(newAnswer)
-      setSubmissionState('unsubmitted')
+
+      if (!currentActivity) return
+
+      setActivityResults((results) => {
+        const currentResult = results[currentActivity.id] ?? 'unsubmitted'
+
+        return {
+          ...results,
+          [currentActivity.id]: clearStaleResult(currentResult),
+        }
+      })
     },
-    [],
+    [currentActivity],
   )
 
   return (

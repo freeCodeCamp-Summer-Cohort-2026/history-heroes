@@ -3,6 +3,19 @@ import '@testing-library/jest-dom'
 import ActivityWorkspace from '../ActivityWorkspace'
 import type { Activity } from '../types'
 
+function createFakeDataTransfer() {
+  const stored: Record<string, string> = {}
+
+  return {
+    setData: (key: string, value: string) => {
+      stored[key] = value
+    },
+    getData: (key: string) => {
+      return stored[key]
+    },
+  }
+}
+
 const testActivities: Activity[] = [
   {
     id: 'activity-ordering-1',
@@ -168,6 +181,242 @@ describe('ActivityWorkspace', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /submit/i }))
 
+    expect(onComplete).not.toHaveBeenCalled()
+  })
+  test('clears not-yet feedback when learner changes the answer', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0)
+
+    const matchingActivity: Activity = {
+      id: 'matching-stale-result',
+      type: 'matching',
+      title: 'Match Events',
+      checkStatement: 'We check matching pairs.',
+      content: {
+        left: [
+          { id: 'l1', label: 'Left 1' },
+          { id: 'l2', label: 'Left 2' },
+        ],
+        right: [
+          { id: 'r1', label: 'Right 1' },
+          { id: 'r2', label: 'Right 2' },
+        ],
+      },
+      successCriteria: {
+        pairs: [
+          { left: 'l1', right: 'r1' },
+          { left: 'l2', right: 'r2' },
+        ],
+      },
+    }
+
+    const dataTransfer = createFakeDataTransfer()
+
+    render(<ActivityWorkspace activities={[matchingActivity]} />)
+
+    fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+
+    expect(
+      screen.getByRole('heading', { level: 2, name: /not yet/i }),
+    ).toBeInTheDocument()
+
+    const source = screen.getByRole('button', {
+      name: /right 1 - left 2/i,
+    })
+
+    const target = screen.getByRole('button', {
+      name: /left 1 - right 2/i,
+    })
+
+    fireEvent.dragStart(source, { dataTransfer })
+    fireEvent.drop(target, { dataTransfer })
+
+    expect(
+      screen.queryByRole('heading', { level: 2, name: /not yet/i }),
+    ).not.toBeInTheDocument()
+
+    expect(screen.getByRole('button', { name: /submit/i })).toBeInTheDocument()
+  })
+  test('submit a corrected matching answer as correct', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0)
+    const onComplete = vi.fn()
+
+    const matchingActivity: Activity = {
+      id: 'matching-retry',
+      type: 'matching',
+      title: 'Match Events',
+      checkStatement: 'We check matching pairs.',
+      content: {
+        left: [
+          { id: 'l1', label: 'Left 1' },
+          { id: 'l2', label: 'Left 2' },
+        ],
+        right: [
+          { id: 'r1', label: 'Right 1' },
+          { id: 'r2', label: 'Right 2' },
+        ],
+      },
+      successCriteria: {
+        pairs: [
+          { left: 'l1', right: 'r1' },
+          { left: 'l2', right: 'r2' },
+        ],
+      },
+    }
+
+    const dataTransfer = createFakeDataTransfer()
+
+    render(
+      <ActivityWorkspace
+        activities={[matchingActivity]}
+        onComplete={onComplete}
+      />,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+
+    expect(
+      screen.getByRole('heading', { level: 2, name: /not yet/i }),
+    ).toBeInTheDocument()
+
+    const right1 = screen.getByRole('button', {
+      name: /right 1 - left 2/i,
+    })
+
+    const left1 = screen.getByRole('button', {
+      name: /left 1 - right 2/i,
+    })
+
+    fireEvent.dragStart(right1, { dataTransfer })
+    fireEvent.drop(left1, { dataTransfer })
+
+    const right2 = screen.getByText(/^Right 2$/i)
+    const left2 = screen.getByText(/^Left 2$/i)
+
+    fireEvent.dragStart(right2, { dataTransfer })
+    fireEvent.drop(left2, { dataTransfer })
+
+    expect(
+      screen.queryByRole('heading', {
+        level: 2,
+        name: /correct|not yet/i,
+      }),
+    ).not.toBeInTheDocument()
+
+    expect(onComplete).not.toHaveBeenCalled()
+
+    fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+
+    expect(
+      screen.getByRole('heading', { level: 2, name: /correct/i }),
+    ).toBeInTheDocument()
+
+    expect(onComplete).toHaveBeenCalledTimes(1)
+  })
+  test('keeps previous activity result while retrying the current activity', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0)
+
+    const onComplete = vi.fn()
+
+    const activities: Activity[] = [
+      {
+        id: 'first-activity',
+        type: 'ordering',
+        title: 'First Activity',
+        checkStatement: 'First check',
+        content: {
+          items: [{ id: 'item-1', label: 'Only item' }],
+        },
+        successCriteria: {
+          correctOrder: ['item-1'],
+        },
+      },
+      {
+        id: 'second-activity',
+        type: 'matching',
+        title: 'Second Activity',
+        checkStatement: 'Second check',
+        content: {
+          left: [
+            { id: 'l1', label: 'Left 1' },
+            { id: 'l2', label: 'Left 2' },
+          ],
+          right: [
+            { id: 'r1', label: 'Right 1' },
+            { id: 'r2', label: 'Right 2' },
+          ],
+        },
+        successCriteria: {
+          pairs: [
+            { left: 'l1', right: 'r1' },
+            { left: 'l2', right: 'r2' },
+          ],
+        },
+      },
+    ]
+
+    const dataTransfer = createFakeDataTransfer()
+
+    render(
+      <ActivityWorkspace activities={activities} onComplete={onComplete} />,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+
+    expect(
+      screen.getByRole('heading', { level: 2, name: /correct/i }),
+    ).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /next activity/i }))
+
+    expect(
+      screen.getByRole('heading', {
+        level: 2,
+        name: 'Second Activity',
+      }),
+    ).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+
+    expect(
+      screen.getByRole('heading', { level: 2, name: /not yet/i }),
+    ).toBeInTheDocument()
+
+    const right1 = screen.getByRole('button', {
+      name: /right 1 - left 2/i,
+    })
+
+    const left1 = screen.getByRole('button', {
+      name: /left 1 - right 2/i,
+    })
+
+    fireEvent.dragStart(right1, { dataTransfer })
+    fireEvent.drop(left1, { dataTransfer })
+
+    const right2 = screen.getByText(/^Right 2$/i)
+    const left2 = screen.getByText(/^Left 2$/i)
+
+    fireEvent.dragStart(right2, { dataTransfer })
+    fireEvent.drop(left2, { dataTransfer })
+
+    expect(
+      screen.queryByRole('heading', {
+        level: 2,
+        name: /correct|not yet/i,
+      }),
+    ).not.toBeInTheDocument()
+
+    expect(screen.getByRole('button', { name: /submit/i })).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+
+    expect(onComplete).toHaveBeenCalledTimes(1)
+  })
+  test('does not complete a lesson without activities', () => {
+    const onComplete = vi.fn()
+
+    render(<ActivityWorkspace activities={[]} onComplete={onComplete} />)
+
+    expect(screen.getByText('No current activity')).toBeInTheDocument()
     expect(onComplete).not.toHaveBeenCalled()
   })
 })
