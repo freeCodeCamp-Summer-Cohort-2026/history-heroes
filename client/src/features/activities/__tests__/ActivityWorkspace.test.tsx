@@ -1,7 +1,15 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom'
+import { vi } from 'vitest'
 import ActivityWorkspace from '../ActivityWorkspace'
 import type { Activity } from '../types'
+import { isActivityAnswerCorrect } from '../is-activity-answer-correct'
+
+vi.mock('../is-activity-answer-correct', () => ({
+  isActivityAnswerCorrect: vi.fn(),
+}))
+
+const mockEval = vi.mocked(isActivityAnswerCorrect)
 
 function createFakeDataTransfer() {
   const stored: Record<string, string> = {}
@@ -52,136 +60,380 @@ describe('ActivityWorkspace', () => {
     vi.restoreAllMocks()
   })
 
-  test('renders the first activity initially', () => {
-    render(<ActivityWorkspace activities={testActivities} />)
+  describe('Initial render & neutral state', () => {
+    test('renders the first activity initially without feedback or check statement', () => {
+      render(<ActivityWorkspace activities={testActivities} />)
 
-    expect(
-      screen.getByRole('heading', { level: 2, name: 'Order Timeline' }),
-    ).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /submit/i })).toBeInTheDocument()
-  })
-
-  test('shows no feedback before submission', () => {
-    render(<ActivityWorkspace activities={testActivities} />)
-
-    expect(screen.queryByText('Correct')).not.toBeInTheDocument()
-    expect(screen.queryByText('Not yet')).not.toBeInTheDocument()
-  })
-
-  test('submitting incorrect answer shows not-yet feedback and allows retry', () => {
-    render(<ActivityWorkspace activities={testActivities} />)
-
-    const submitButton = screen.getByRole('button', { name: /submit/i })
-    fireEvent.click(submitButton)
-
-    const feedbackTitle = screen.getByRole('heading', {
-      level: 2,
-      name: /correct|not yet/i,
-    })
-    expect(feedbackTitle).toBeInTheDocument()
-
-    if (feedbackTitle.textContent?.toLowerCase() === 'not yet') {
-      const tryAgainButton = screen.getByRole('button', { name: /try again/i })
-      fireEvent.click(tryAgainButton)
+      expect(
+        screen.getByRole('heading', { level: 2, name: 'Order Timeline' }),
+      ).toBeInTheDocument()
       expect(
         screen.getByRole('button', { name: /submit/i }),
       ).toBeInTheDocument()
-    }
+      expect(screen.queryByText('Correct')).not.toBeInTheDocument()
+      expect(screen.queryByText('Not yet')).not.toBeInTheDocument()
+      expect(
+        screen.queryByText('We check chronological order.'),
+      ).not.toBeInTheDocument()
+    })
+
+    test('shows fallback message when no activities exist', () => {
+      render(<ActivityWorkspace activities={[]} />)
+
+      expect(screen.getByText('No current activity')).toBeInTheDocument()
+    })
   })
 
-  test('advances to next activity when correct feedback action is clicked', () => {
-    const singleItemActivities: Activity[] = [
-      {
-        id: 'act-1',
+  describe('Check statements for correct and not-yet submissions', () => {
+    test('displays the authored check statement after a correct submission', () => {
+      mockEval.mockReturnValue(true)
+
+      render(<ActivityWorkspace activities={testActivities} />)
+
+      fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+
+      expect(
+        screen.getByRole('heading', { level: 2, name: /correct/i }),
+      ).toBeInTheDocument()
+      expect(
+        screen.getByText('We check chronological order.'),
+      ).toBeInTheDocument()
+    })
+
+    test('displays the authored check statement after a not-yet submission', () => {
+      mockEval.mockReturnValue(false)
+
+      render(<ActivityWorkspace activities={testActivities} />)
+
+      fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+
+      expect(
+        screen.getByRole('heading', { level: 2, name: /not yet/i }),
+      ).toBeInTheDocument()
+      expect(
+        screen.getByText('We check chronological order.'),
+      ).toBeInTheDocument()
+    })
+
+    test('displays check statement for incomplete matching submission', () => {
+      mockEval.mockReturnValue(false)
+
+      const incompleteMatching: Activity[] = [
+        {
+          id: 'match-incomplete',
+          type: 'matching',
+          title: 'Match Test',
+          checkStatement: 'Match check statement.',
+          content: {
+            left: [{ id: 'l1', label: 'Left 1' }],
+            right: [{ id: 'r1', label: 'Right 1' }],
+          },
+          successCriteria: {
+            pairs: [{ left: 'l1', right: 'r1' }],
+          },
+        },
+      ]
+
+      render(<ActivityWorkspace activities={incompleteMatching} />)
+
+      fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+
+      expect(
+        screen.getByRole('heading', { level: 2, name: /not yet/i }),
+      ).toBeInTheDocument()
+      expect(screen.getByText('Match check statement.')).toBeInTheDocument()
+    })
+
+    test('check statement appears with both correct and not-yet results on retry', () => {
+      render(<ActivityWorkspace activities={testActivities} />)
+
+      // First attempt: not-yet
+      mockEval.mockReturnValue(false)
+      fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+      expect(
+        screen.getByText('We check chronological order.'),
+      ).toBeInTheDocument()
+
+      // Retry: correct
+      mockEval.mockReturnValue(true)
+      fireEvent.click(screen.getByRole('button', { name: /try again/i }))
+      fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+      expect(
+        screen.getByText('We check chronological order.'),
+      ).toBeInTheDocument()
+    })
+  })
+
+  describe('Repeated submissions', () => {
+    test('repeated submissions continue to display the applicable check statement', () => {
+      mockEval.mockReturnValue(false)
+
+      render(<ActivityWorkspace activities={testActivities} />)
+
+      fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+      expect(
+        screen.getByRole('heading', { level: 2, name: /not yet/i }),
+      ).toBeInTheDocument()
+      expect(
+        screen.getByText('We check chronological order.'),
+      ).toBeInTheDocument()
+
+      fireEvent.click(screen.getByRole('button', { name: /try again/i }))
+      expect(
+        screen.queryByText('We check chronological order.'),
+      ).not.toBeInTheDocument()
+
+      fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+      expect(
+        screen.getByRole('heading', { level: 2, name: /not yet/i }),
+      ).toBeInTheDocument()
+      expect(
+        screen.getByText('We check chronological order.'),
+      ).toBeInTheDocument()
+
+      fireEvent.click(screen.getByRole('button', { name: /try again/i }))
+
+      mockEval.mockReturnValue(true)
+      fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+      expect(
+        screen.getByRole('heading', { level: 2, name: /correct/i }),
+      ).toBeInTheDocument()
+      expect(
+        screen.getByText('We check chronological order.'),
+      ).toBeInTheDocument()
+    })
+
+    test('repeated not-yet submissions stay not-yet and continue displaying the check statement', () => {
+      mockEval.mockReturnValue(false)
+
+      render(<ActivityWorkspace activities={testActivities} />)
+
+      fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+      expect(
+        screen.getByRole('heading', { level: 2, name: /not yet/i }),
+      ).toBeInTheDocument()
+      expect(
+        screen.getByText('We check chronological order.'),
+      ).toBeInTheDocument()
+
+      fireEvent.click(screen.getByRole('button', { name: /try again/i }))
+      fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+
+      expect(
+        screen.getByRole('heading', { level: 2, name: /not yet/i }),
+      ).toBeInTheDocument()
+      expect(
+        screen.getByText('We check chronological order.'),
+      ).toBeInTheDocument()
+    })
+
+    test('changing the answer after a not-yet result removes outdated feedback (successful retry path)', () => {
+      mockEval.mockReturnValue(false)
+
+      render(<ActivityWorkspace activities={testActivities} />)
+
+      fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+      expect(
+        screen.getByRole('heading', { level: 2, name: /not yet/i }),
+      ).toBeInTheDocument()
+
+      fireEvent.click(screen.getByRole('button', { name: /try again/i }))
+      expect(
+        screen.queryByRole('heading', { level: 2, name: /not yet/i }),
+      ).not.toBeInTheDocument()
+      expect(
+        screen.getByRole('button', { name: /submit/i }),
+      ).toBeInTheDocument()
+
+      mockEval.mockReturnValue(true)
+      fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+      expect(
+        screen.getByRole('heading', { level: 2, name: /correct/i }),
+      ).toBeInTheDocument()
+    })
+  })
+
+  describe('Activity isolation', () => {
+    test('submitting one activity does not display another activity check statement', () => {
+      mockEval.mockReturnValue(true)
+
+      render(<ActivityWorkspace activities={testActivities} />)
+
+      expect(
+        screen.queryByText('We check chronological order.'),
+      ).not.toBeInTheDocument()
+      expect(
+        screen.queryByText('We check matching pairs.'),
+      ).not.toBeInTheDocument()
+
+      fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+
+      expect(
+        screen.getByText('We check chronological order.'),
+      ).toBeInTheDocument()
+      expect(
+        screen.queryByText('We check matching pairs.'),
+      ).not.toBeInTheDocument()
+
+      fireEvent.click(screen.getByRole('button', { name: /next activity/i }))
+
+      expect(
+        screen.getByRole('heading', { level: 2, name: 'Match Pairs' }),
+      ).toBeInTheDocument()
+      expect(
+        screen.queryByText('We check chronological order.'),
+      ).not.toBeInTheDocument()
+      expect(
+        screen.queryByText('We check matching pairs.'),
+      ).not.toBeInTheDocument()
+
+      mockEval.mockReturnValue(false)
+      fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+
+      expect(screen.getByText('We check matching pairs.')).toBeInTheDocument()
+      expect(
+        screen.queryByText('We check chronological order.'),
+      ).not.toBeInTheDocument()
+    })
+  })
+
+  describe('Exact-text display and criteria isolation', () => {
+    test('displays exact authored check statement and never raw or serialized success criteria', () => {
+      mockEval.mockReturnValue(true)
+
+      const exactStatement = 'Put ancient civilisations in order of appearance.'
+      const activityWithCriteria: Activity = {
+        id: 'civilisations-order',
         type: 'ordering',
-        title: 'First Activity',
-        checkStatement: 'Order check',
-        content: { items: [{ id: 'item-1', label: 'Only item' }] },
-        successCriteria: { correctOrder: ['item-1'] },
-      },
-      {
-        id: 'act-2',
+        title: 'Ancient Civilisations',
+        checkStatement: exactStatement,
+        content: {
+          items: [
+            { id: 'item-sumer', label: 'Sumer' },
+            { id: 'item-rome', label: 'Rome' },
+          ],
+        },
+        successCriteria: {
+          correctOrder: ['item-sumer', 'item-rome'],
+        },
+      }
+
+      render(<ActivityWorkspace activities={[activityWithCriteria]} />)
+
+      fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+
+      expect(screen.getByText(exactStatement)).toBeInTheDocument()
+
+      expect(
+        screen.queryByText(
+          JSON.stringify(activityWithCriteria.successCriteria),
+        ),
+      ).not.toBeInTheDocument()
+      expect(screen.queryByText(/correctOrder/i)).not.toBeInTheDocument()
+      expect(screen.queryByText(/item-sumer/i)).not.toBeInTheDocument()
+    })
+
+    test('gracefully handles missing or empty check statement without crashing', () => {
+      mockEval.mockReturnValue(true)
+
+      const activityWithoutStatement: Activity = {
+        id: 'no-statement-activity',
         type: 'ordering',
-        title: 'Second Activity',
-        checkStatement: 'Order check 2',
-        content: { items: [{ id: 'item-2', label: 'Second item' }] },
-        successCriteria: { correctOrder: ['item-2'] },
-      },
-    ]
+        title: 'No Statement Activity',
+        checkStatement: '',
+        content: { items: [{ id: '1', label: 'Item 1' }] },
+        successCriteria: { correctOrder: ['1'] },
+      }
 
-    render(<ActivityWorkspace activities={singleItemActivities} />)
+      render(<ActivityWorkspace activities={[activityWithoutStatement]} />)
 
-    expect(
-      screen.getByRole('heading', { level: 2, name: 'First Activity' }),
-    ).toBeInTheDocument()
+      fireEvent.click(screen.getByRole('button', { name: /submit/i }))
 
-    // Submit the first activity (guaranteed correct since 1 item)
-    fireEvent.click(screen.getByRole('button', { name: /submit/i }))
-
-    expect(
-      screen.getByRole('heading', { level: 2, name: /correct/i }),
-    ).toBeInTheDocument()
-    const nextButton = screen.getByRole('button', { name: /next activity/i })
-    expect(nextButton).toBeInTheDocument()
-
-    // Click next activity
-    fireEvent.click(nextButton)
-
-    // Second activity is now active and in unsubmitted state
-    expect(
-      screen.getByRole('heading', { level: 2, name: 'Second Activity' }),
-    ).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /submit/i })).toBeInTheDocument()
-
-    // Submit second activity
-    fireEvent.click(screen.getByRole('button', { name: /submit/i }))
-
-    // Final activity complete message, no next activity button
-    expect(
-      screen.getByText('Well done! You have completed all activities.'),
-    ).toBeInTheDocument()
-    expect(
-      screen.queryByRole('button', { name: /next activity/i }),
-    ).not.toBeInTheDocument()
+      expect(
+        screen.getByRole('heading', { level: 2, name: /correct/i }),
+      ).toBeInTheDocument()
+      expect(screen.queryByText('What we checked')).not.toBeInTheDocument()
+    })
   })
 
-  test('shows fallback message when no activities exist', () => {
-    render(<ActivityWorkspace activities={[]} />)
+  describe('Progression and completion', () => {
+    test('advances to next activity when correct feedback action is clicked', () => {
+      mockEval.mockReturnValue(true)
 
-    expect(screen.getByText('No current activity')).toBeInTheDocument()
-  })
+      const singleItemActivities: Activity[] = [
+        {
+          id: 'act-1',
+          type: 'ordering',
+          title: 'First Activity',
+          checkStatement: 'Order check',
+          content: { items: [{ id: 'item-1', label: 'Only item' }] },
+          successCriteria: { correctOrder: ['item-1'] },
+        },
+        {
+          id: 'act-2',
+          type: 'ordering',
+          title: 'Second Activity',
+          checkStatement: 'Order check 2',
+          content: { items: [{ id: 'item-2', label: 'Second item' }] },
+          successCriteria: { correctOrder: ['item-2'] },
+        },
+      ]
 
-  test('calls onComplete after the final activity is answered correctly', () => {
-    vi.spyOn(Math, 'random').mockReturnValue(0.99)
-    const onComplete = vi.fn()
+      render(<ActivityWorkspace activities={singleItemActivities} />)
 
-    render(
-      <ActivityWorkspace activities={testActivities} onComplete={onComplete} />,
-    )
+      fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+      expect(
+        screen.getByRole('heading', { level: 2, name: /correct/i }),
+      ).toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole('button', { name: /submit/i }))
-    expect(onComplete).not.toHaveBeenCalled()
+      fireEvent.click(screen.getByRole('button', { name: /next activity/i }))
+      expect(
+        screen.getByRole('heading', { level: 2, name: 'Second Activity' }),
+      ).toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole('button', { name: /next activity/i }))
-    fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+      fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+      expect(
+        screen.getByText('Well done! You have completed all activities.'),
+      ).toBeInTheDocument()
+      expect(
+        screen.queryByRole('button', { name: /next activity/i }),
+      ).not.toBeInTheDocument()
+    })
 
-    expect(onComplete).toHaveBeenCalledTimes(1)
-  })
+    test('calls onComplete after the final activity is answered correctly', () => {
+      mockEval.mockReturnValue(true)
 
-  test('does not call onComplete for an incorrect final answer', () => {
-    vi.spyOn(Math, 'random').mockReturnValue(0)
-    const onComplete = vi.fn()
+      const onComplete = vi.fn()
 
-    render(
-      <ActivityWorkspace
-        activities={[testActivities[0]]}
-        onComplete={onComplete}
-      />,
-    )
+      render(
+        <ActivityWorkspace
+          activities={testActivities}
+          onComplete={onComplete}
+        />,
+      )
 
-    fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+      fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+      fireEvent.click(screen.getByRole('button', { name: /next activity/i }))
 
-    expect(onComplete).not.toHaveBeenCalled()
+      fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+      expect(onComplete).toHaveBeenCalledTimes(1)
+    })
+
+    test('does not call onComplete for an incorrect final answer', () => {
+      mockEval.mockReturnValue(false)
+
+      const onComplete = vi.fn()
+
+      render(
+        <ActivityWorkspace
+          activities={[testActivities[0]]}
+          onComplete={onComplete}
+        />,
+      )
+
+      fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+      expect(onComplete).not.toHaveBeenCalled()
+    })
   })
   test('clears not-yet feedback when learner changes the answer', () => {
     vi.spyOn(Math, 'random').mockReturnValue(0)
