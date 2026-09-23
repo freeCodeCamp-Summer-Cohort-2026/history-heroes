@@ -51,7 +51,7 @@ export default function MatchingRenderer({
               draggedItem.side === 'left'
 
             return (
-              <button
+              <div
                 className={isBeingDragged ? 'opacity-50' : ''}
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={(e: React.DragEvent) => {
@@ -72,7 +72,7 @@ export default function MatchingRenderer({
               >
                 {item.label}
                 {findOppositeLabel ? ` - ${findOppositeLabel.label}` : ''}
-              </button>
+              </div>
             )
           })
         ) : (
@@ -94,7 +94,7 @@ export default function MatchingRenderer({
               draggedItem.side === 'right'
 
             return (
-              <button
+              <div
                 className={isBeingDragged ? 'opacity-50' : ''}
                 key={item.id}
                 draggable={!disabled}
@@ -115,7 +115,7 @@ export default function MatchingRenderer({
               >
                 {item.label}
                 {findOppositeLabel ? ` - ${findOppositeLabel.label}` : ''}
-              </button>
+              </div>
             )
           })
         ) : (
