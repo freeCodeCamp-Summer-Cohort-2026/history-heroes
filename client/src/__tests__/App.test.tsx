@@ -54,7 +54,7 @@ test('shows page not found when unknown route is provided', () => {
   ).toBeInTheDocument()
 })
 
-test('shows the site heading', () => {
+test('shows the site heading', async () => {
   render(
     <RouterProvider
       router={createMemoryRouter(routes, {
@@ -65,6 +65,9 @@ test('shows the site heading', () => {
 
   expect(
     screen.getByRole('link', { name: /history heroes/i }),
+  ).toBeInTheDocument()
+  expect(
+    await screen.findByText('That lesson could not be found.'),
   ).toBeInTheDocument()
 })
 

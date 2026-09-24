@@ -3,6 +3,7 @@ import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { routes } from '../../App'
 import type { ModuleSummary } from '../../features/module/model/ModuleSummary'
 import type { Lesson } from '../../features/lesson/model/Lesson'
+import type { LessonCompletion } from '../../features/progress/model/api'
 
 const testModules: ModuleSummary[] = [
   {
@@ -35,13 +36,17 @@ const testLessons: Lesson[] = [
   },
 ]
 
-function mockServer(lessons: Lesson[]) {
+function mockServer(lessons: Lesson[], completions: LessonCompletion[] = []) {
   vi.stubGlobal(
     'fetch',
     vi.fn().mockImplementation((url: string) =>
       Promise.resolve({
         ok: true,
-        json: async () => (url.includes('/lessons') ? lessons : testModules),
+        json: async () => {
+          if (url === '/api/v1/progress') return completions
+          if (url.includes('/lessons')) return lessons
+          return testModules
+        },
       }),
     ),
   )
@@ -84,6 +89,36 @@ test('lists the lessons in order', async () => {
     'Test Lesson One',
     'Test Lesson Two',
   ])
+})
+
+test('only makes the first lesson available to a new learner', async () => {
+  mockServer(testLessons)
+  renderModulePage()
+
+  expect(
+    await screen.findByRole('link', { name: /test lesson one/i }),
+  ).toHaveTextContent('Available')
+  expect(
+    screen.getByRole('button', { name: /test lesson two/i }),
+  ).toHaveTextContent('Locked')
+})
+
+test('keeps a completed lesson available and unlocks the next lesson', async () => {
+  mockServer(testLessons, [
+    {
+      lessonId: 'first-lesson',
+      completedAt: '2026-09-20T12:00:00.000Z',
+    },
+  ])
+  renderModulePage()
+
+  expect(
+    await screen.findByRole('link', { name: /test lesson one/i }),
+  ).toHaveTextContent('Completed')
+  expect(
+    screen.getByRole('link', { name: /test lesson two/i }),
+  ).toHaveTextContent('Available')
+  expect(screen.getByText('Lessons completed 1/2')).toBeInTheDocument()
 })
 
 test('shows an empty state when the module has no lessons', async () => {
