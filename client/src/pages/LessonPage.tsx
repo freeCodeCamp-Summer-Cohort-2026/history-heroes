@@ -9,6 +9,7 @@ import type { Activity } from '../features/activities/types'
 import ActivityWorkspace from '../features/activities/ActivityWorkspace'
 import type { Lesson } from '../features/lesson/model/Lesson'
 import { recordLessonCompletion } from '../features/progress/model/api'
+import ErrorBoundary from '../components/ErrorBoundary'
 
 export default function LessonPage() {
   const { moduleId, lessonId } = useParams()
@@ -116,10 +117,12 @@ function LessonPageContent({
           <p className="text-body">{activityError}</p>
         ) : (
           <>
-            <ActivityWorkspace
-              activities={activities}
-              onComplete={handleLessonComplete}
-            />
+            <ErrorBoundary>
+              <ActivityWorkspace
+                activities={activities}
+                onComplete={handleLessonComplete}
+              />
+            </ErrorBoundary>
             {isCompletionSaved && (
               <p role="status" className="mt-4 text-success">
                 Lesson completion saved.
