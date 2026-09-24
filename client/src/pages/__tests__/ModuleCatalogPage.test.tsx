@@ -115,3 +115,27 @@ test('shows the period and theme on a module card', async () => {
   expect(await screen.findByText('Ancient World')).toBeInTheDocument()
   expect(screen.getByText('Architecture and Engineering')).toBeInTheDocument()
 })
+
+test('shows a friendly error message when modules fail to load', async () => {
+  vi.stubGlobal(
+    'fetch',
+    vi
+      .fn()
+      .mockRejectedValue(
+        new Error('Request failed with status 500: database connection failed'),
+      ),
+  )
+  render(
+    <RouterProvider
+      router={createMemoryRouter(routes, { initialEntries: ['/'] })}
+    />,
+  )
+  const alert = await screen.findByRole('alert')
+
+  expect(alert).toHaveTextContent("We couldn't load modules right now.")
+
+  expect(
+    screen.queryByText(/database connection failed/i),
+  ).not.toBeInTheDocument()
+  expect(screen.queryByText(/status 500/i)).not.toBeInTheDocument()
+})

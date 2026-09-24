@@ -6,6 +6,7 @@ import { fetchModules } from '../features/module/model/api'
 import type { ModuleSummary } from '../features/module/model/ModuleSummary'
 import { fetchLessons } from '../features/lesson/model/api'
 import type { Lesson } from '../features/lesson/model/Lesson'
+import ErrorState from '../components/ErrorState'
 
 export default function ModulePage() {
   const { moduleId } = useParams()
@@ -13,7 +14,7 @@ export default function ModulePage() {
   const [currentModule, setCurrentModule] = useState<ModuleSummary | null>(null)
   const [lessons, setLessons] = useState<Lesson[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [hasError, setHasError] = useState(false)
 
   useEffect(() => {
     if (!moduleId) return
@@ -25,14 +26,14 @@ export default function ModulePage() {
         )
         setLessons(lessonData)
       })
-      .catch((err) =>
-        setError(err instanceof Error ? err.message : 'Unable to load module.'),
-      )
+      .catch(() => setHasError(true))
       .finally(() => setIsLoading(false))
   }, [moduleId])
 
   if (isLoading) return <p className="text-body">Loading module...</p>
-  if (error) return <p className="text-body">{error}</p>
+  if (hasError) {
+    return <ErrorState message="We couldn't load this module right now." />
+  }
   if (!currentModule) {
     return <p className="text-body">That module could not be found.</p>
   }

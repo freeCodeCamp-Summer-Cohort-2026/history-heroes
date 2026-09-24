@@ -9,6 +9,7 @@ import type { Activity } from '../features/activities/types'
 import ActivityWorkspace from '../features/activities/ActivityWorkspace'
 import type { Lesson } from '../features/lesson/model/Lesson'
 import { recordLessonCompletion } from '../features/progress/model/api'
+import ErrorState from '../components/ErrorState'
 
 export default function LessonPage() {
   const { moduleId, lessonId } = useParams()
@@ -35,26 +36,22 @@ function LessonPageContent({
 }) {
   const [lessons, setLessons] = useState<Lesson[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [activities, setActivities] = useState<Activity[]>([])
-  const [activityError, setActivityError] = useState<string | null>(null)
+  const [hasError, setHasError] = useState(false)
+  const [hasActivityError, setHasActivityError] = useState(false)
   const [moduleTitle, setModuleTitle] = useState<string | null>(null)
   const completionRequestStarted = useRef(false)
   const [isCompletionSaved, setIsCompletionSaved] = useState(false)
+  const [activities, setActivities] = useState<Activity[]>([])
 
   useEffect(() => {
     fetchLessons(moduleId)
       .then((lessonData) => setLessons(lessonData))
-      .catch((err) =>
-        setError(err instanceof Error ? err.message : 'Unable to load lesson.'),
-      )
+      .catch(() => setHasError(true))
       .finally(() => setIsLoading(false))
 
     fetchLessonActivities(lessonId)
       .then((activityData) => setActivities(activityData))
-      .catch(() =>
-        setActivityError('The activities for this lesson could not be loaded.'),
-      )
+      .catch(() => setHasActivityError(true))
 
     fetchModules()
       .then((moduleData) =>
@@ -88,7 +85,9 @@ function LessonPageContent({
   const lesson = orderedLessons[lessonIndex]
 
   if (isLoading) return <p>Loading lesson...</p>
-  if (error) return <p>{error}</p>
+  if (hasError) {
+    return <ErrorState message="We couldn't load this lesson right now." />
+  }
   if (!lesson) return <p>That lesson could not be found.</p>
 
   return (
@@ -112,8 +111,8 @@ function LessonPageContent({
       </section>
 
       <div className="border-t border-base-300 pt-8">
-        {activityError ? (
-          <p className="text-body">{activityError}</p>
+        {hasActivityError ? (
+          <ErrorState message="We couldn't load the activities for this lesson." />
         ) : (
           <>
             <ActivityWorkspace

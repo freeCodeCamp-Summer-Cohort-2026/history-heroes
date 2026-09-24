@@ -176,11 +176,14 @@ test('still shows the lesson text when the activities fail to load', async () =>
   renderAt('/modules/first-module/lessons/first-lesson')
 
   expect(await screen.findByText('The first paragraph.')).toBeInTheDocument()
-  expect(
-    await screen.findByText(
-      'The activities for this lesson could not be loaded.',
-    ),
-  ).toBeInTheDocument()
+
+  const alert = await screen.findByRole('alert')
+
+  expect(alert).toHaveTextContent(
+    "We couldn't load the activities for this lesson.",
+  )
+
+  expect(alert).not.toHaveTextContent(/500/i)
 })
 
 test('does not save completion just for viewing a lesson', async () => {
@@ -238,4 +241,31 @@ test('does not save completion for an incorrect answer', async () => {
 
   expect(await screen.findByText('Not yet')).toBeInTheDocument()
   expect(lessonCompletionRequests(fetchMock)).toHaveLength(0)
+})
+
+test('shows a friendly error message when the lesson fails to load', async () => {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockImplementation((url: string) => {
+      if (url.includes('/lessons')) {
+        return Promise.reject(
+          new Error(
+            'Request failed with status 500: database connection failed',
+          ),
+        )
+      }
+      return Promise.resolve({
+        ok: true,
+        json: async () => (url.includes('/activities') ? [] : testModules),
+      })
+    }),
+  )
+  renderAt('/modules/first-module/lessons/first-lesson')
+
+  const alert = await screen.findByRole('alert')
+
+  expect(alert).toHaveTextContent("We couldn't load this lesson right now.")
+
+  expect(alert).not.toHaveTextContent(/status 500/i)
+  expect(alert).not.toHaveTextContent(/database connection failed/i)
 })

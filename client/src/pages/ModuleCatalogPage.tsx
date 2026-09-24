@@ -2,20 +2,17 @@ import { useEffect, useState } from 'react'
 import ModuleCatalog from '../features/module/ModuleCatalog'
 import { fetchModules } from '../features/module/model/api'
 import type { ModuleSummary } from '../features/module/model/ModuleSummary'
+import ErrorState from '../components/ErrorState'
 
 export default function ModuleCatalogPage() {
   const [modules, setModules] = useState<ModuleSummary[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [hasError, setHasError] = useState(false)
 
   useEffect(() => {
     fetchModules()
       .then((data) => setModules(data))
-      .catch((err) =>
-        setError(
-          err instanceof Error ? err.message : 'Unable to load modules.',
-        ),
-      )
+      .catch(() => setHasError(true))
       .finally(() => setIsLoading(false))
   }, [])
 
@@ -29,7 +26,9 @@ export default function ModuleCatalogPage() {
       </div>
       {(() => {
         if (isLoading) return <p className="text-body">Loading modules...</p>
-        if (error) return <p className="text-body">{error}</p>
+        if (hasError) {
+          return <ErrorState message="We couldn't load modules right now." />
+        }
         if (modules.length === 0)
           return (
             <p className="text-body">
