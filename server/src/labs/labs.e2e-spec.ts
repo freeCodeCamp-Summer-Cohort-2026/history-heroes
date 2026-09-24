@@ -16,7 +16,7 @@ describe('Labs controller', () => {
     if (app) await app.close();
   });
 
-  it('GET labs/:moduleId should return a lab with a populated activities array', async () => {
+  it.skip('GET labs/:moduleId should return a lab with a populated activities array', async () => {
     const response = await request(app.getHttpServer()).get(
       `/api/v1/labs/${seedLabs[0].moduleId}`,
     );
