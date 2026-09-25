@@ -3,6 +3,32 @@ import '@testing-library/jest-dom'
 import OrderingRenderer from '../OrderingRenderer'
 import { vi } from 'vitest'
 
+test('renders a card for every item in the current order', () => {
+  render(
+    <OrderingRenderer
+      content={{
+        items: [
+          { id: 'ev-wright', label: 'Wright brothers first flight' },
+          { id: 'ev-moon', label: 'Moon landing' },
+          { id: 'ev-www', label: 'World Wide Web invented' },
+        ],
+      }}
+      answer={{ itemOrder: ['ev-moon', 'ev-wright', 'ev-www'] }}
+      onAnswerChange={vi.fn()}
+      disabled={false}
+    />,
+  )
+
+  const items = screen.getAllByRole('listitem')
+
+  expect(items).toHaveLength(3)
+  expect(items.map((item) => item.textContent)).toEqual([
+    'Moon landing',
+    'Wright brothers first flight',
+    'World Wide Web invented',
+  ])
+})
+
 test('accepts drop from one position to the other', () => {
   const mockAnswerChange = vi.fn()
   const stored: Record<string, string> = {}
