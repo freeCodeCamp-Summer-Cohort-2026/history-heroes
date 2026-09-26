@@ -11,6 +11,7 @@ import {
   orderLessons,
 } from '../features/lesson/progression'
 import { fetchLessonCompletions } from '../features/progress/model/api'
+import ButtonLink from '../components/ButtonLink'
 
 export default function ModulePage() {
   const { moduleId } = useParams()
@@ -49,7 +50,13 @@ export default function ModulePage() {
   if (isLoading) return <p className="text-body">Loading module...</p>
   if (error) return <p className="text-body">{error}</p>
   if (!currentModule) {
-    return <p className="text-body">That module could not be found.</p>
+    return (
+      <div>
+        <h1 className="text-display">Module not found</h1>
+        <p className="text-body">This module doesn't exist</p>
+        <ButtonLink to={'/'}>Back to Catalog</ButtonLink>
+      </div>
+    )
   }
 
   const orderedLessons = orderLessons(lessons)
