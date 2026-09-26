@@ -362,15 +362,9 @@ export class ProgressService implements OnModuleInit {
   }): Promise<UserLabProgress> {
     const { labId, userId, sessionId } = options;
 
-    if (!labId || typeof labId !== 'string' || !labId.trim()) {
-      throw new BadRequestException('A valid labId must be provided');
-    }
-
     if (!userId && !sessionId) {
       throw new UnauthorizedException('No active user or session found');
     }
-
-    const trimmedLabId = labId.trim();
 
     return await this.dataSource.transaction(async (manager) => {
       const repo = manager.getRepository(UserLabProgress);
@@ -378,7 +372,7 @@ export class ProgressService implements OnModuleInit {
       const existing: UserLabProgress | null =
         await this.getExistingLabProgress({
           repo,
-          labId: trimmedLabId,
+          labId,
           userId,
           sessionId,
         });
@@ -388,7 +382,7 @@ export class ProgressService implements OnModuleInit {
       }
 
       const newRecord = repo.create({
-        labId: trimmedLabId,
+        labId,
         userId: userId ?? null,
         sessionId: sessionId ?? null,
         completedAt: new Date(),
@@ -401,13 +395,13 @@ export class ProgressService implements OnModuleInit {
         // Handle TOCTOU race: concurrent request may have inserted in parallel
         if (userId) {
           const raceRecord = await repo.findOne({
-            where: { labId: trimmedLabId, userId },
+            where: { labId, userId },
           });
           if (raceRecord) return raceRecord;
         }
         if (sessionId) {
           const raceRecord = await repo.findOne({
-            where: { labId: trimmedLabId, sessionId },
+            where: { labId, sessionId },
           });
           if (raceRecord) return raceRecord;
         }
@@ -428,26 +422,20 @@ export class ProgressService implements OnModuleInit {
   }): Promise<UserLabProgress | null> {
     const { labId, userId, sessionId } = options;
 
-    if (!labId || typeof labId !== 'string' || !labId.trim()) {
-      throw new BadRequestException('A valid labId must be provided');
-    }
-
     if (!userId && !sessionId) {
       return null;
     }
 
-    const trimmedLabId = labId.trim();
-
     if (userId) {
       const record = await this.labProgressRepository.findOne({
-        where: { labId: trimmedLabId, userId },
+        where: { labId, userId },
       });
       if (record) return record;
     }
 
     if (sessionId) {
       const record = await this.labProgressRepository.findOne({
-        where: { labId: trimmedLabId, sessionId },
+        where: { labId, sessionId },
       });
       if (record) {
         if (userId && !record.userId) {
