@@ -11,6 +11,7 @@ import {
   orderLessons,
 } from '../features/lesson/progression'
 import { fetchLessonCompletions } from '../features/progress/model/api'
+import { useDocumentTitle } from '../utils/useDocumentTitle'
 
 export default function ModulePage() {
   const { moduleId } = useParams()
@@ -45,6 +46,8 @@ export default function ModulePage() {
       )
       .finally(() => setIsLoading(false))
   }, [moduleId])
+
+  useDocumentTitle(currentModule ? currentModule.title : 'Loading...')
 
   if (isLoading) return <p className="text-body">Loading module...</p>
   if (error) return <p className="text-body">{error}</p>

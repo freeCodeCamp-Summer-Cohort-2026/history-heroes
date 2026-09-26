@@ -115,3 +115,13 @@ test('shows the period and theme on a module card', async () => {
   expect(await screen.findByText('Ancient World')).toBeInTheDocument()
   expect(screen.getByText('Architecture and Engineering')).toBeInTheDocument()
 })
+
+test('displays the page title with site-name', () => {
+  render(
+    <RouterProvider
+      router={createMemoryRouter(routes, { initialEntries: ['/'] })}
+    />,
+  )
+
+  expect(document.title).toBe('Modules - History Heroes')
+})

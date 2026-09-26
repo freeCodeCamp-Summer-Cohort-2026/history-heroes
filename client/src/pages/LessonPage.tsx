@@ -19,6 +19,7 @@ import {
 } from '../features/progress/model/api'
 import ButtonLink from '../components/ButtonLink'
 import ErrorBoundary from '../components/ErrorBoundary'
+import { useDocumentTitle } from '../utils/useDocumentTitle'
 
 export default function LessonPage() {
   const { moduleId, lessonId } = useParams()
@@ -137,6 +138,8 @@ function LessonPageContent({
     nextLesson !== null &&
     getLessonAvailability(orderedLessons, completedLessonIds, nextLesson.id) !==
       'locked'
+
+  useDocumentTitle(lesson ? lesson.title : 'Loading...')
 
   if (isLoading) return <p>Loading lesson...</p>
   if (error) return <p>{error}</p>
