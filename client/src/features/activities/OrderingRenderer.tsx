@@ -4,6 +4,7 @@ import type {
   OrderingAnswer,
   ActivityRendererProps,
 } from './types'
+import DraggableCard from '../../components/DraggableCard'
 
 type DraggedItem = { id: string } | null
 export default function OrderingRenderer({
@@ -40,41 +41,41 @@ export default function OrderingRenderer({
 
   return (
     <>
-      <div>
-        {content.items.length !== 0 ? (
-          answer.itemOrder.map((id) => {
+      {content.items.length !== 0 ? (
+        <ol aria-label="Items to put in order" className="space-y-2">
+          {answer.itemOrder.map((id) => {
             const activityItem = content.items.find((item) => item.id === id)
             const itemIsDefined = activityItem !== undefined
             const isBeingDragged =
               draggedItem !== null && draggedItem.id === activityItem?.id
+
             return (
-              <div
+              <DraggableCard
                 key={id}
-                className={isBeingDragged ? 'opacity-50' : ''}
-                draggable={!disabled}
-                onDragOver={(e) => e.preventDefault()}
-                onDragStart={(e: React.DragEvent) => {
+                disabled={disabled}
+                isDragging={isBeingDragged}
+                onDragStart={(event) => {
                   if (itemIsDefined) {
-                    e.dataTransfer.setData('draggedId', activityItem?.id)
+                    event.dataTransfer.setData('draggedId', activityItem.id)
                     setDraggedItem({ id: activityItem.id })
                   }
                 }}
-                onDrop={(e: React.DragEvent) => {
+                onDrop={(event) => {
                   if (itemIsDefined) {
-                    const draggedId = e.dataTransfer.getData('draggedId')
+                    const draggedId = event.dataTransfer.getData('draggedId')
                     handleOrdering(draggedId, activityItem.id)
                   }
                 }}
                 onDragEnd={() => setDraggedItem(null)}
               >
                 {activityItem?.label}
-              </div>
+              </DraggableCard>
             )
-          })
-        ) : (
-          <p>No items available</p>
-        )}
-      </div>
+          })}
+        </ol>
+      ) : (
+        <p className="text-body">No items available</p>
+      )}
     </>
   )
 }

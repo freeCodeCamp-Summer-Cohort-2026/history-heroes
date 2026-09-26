@@ -4,6 +4,7 @@ import { routes } from '../../App'
 import type { Activity } from '../../features/activities/types'
 import type { Lesson } from '../../features/lesson/model/Lesson'
 import type { ModuleSummary } from '../../features/module/model/ModuleSummary'
+import type { LessonCompletion } from '../../features/progress/model/api'
 
 const testModules: ModuleSummary[] = [
   {
@@ -30,7 +31,7 @@ const testLessons: Lesson[] = [
     description: 'Another test lesson',
     orderIndex: 2,
     contents: 'The last paragraph.',
-    activityIds: [],
+    activityIds: ['first-activity'],
   },
 ]
 
@@ -63,16 +64,29 @@ const testActivities: Activity[] = [
   },
 ]
 
-function mockServer(activities: Activity[]) {
+function mockServer(
+  activities: Activity[],
+  completions: LessonCompletion[] = [],
+) {
+  const savedCompletions = [...completions]
   const fetchMock = vi.fn().mockImplementation((url: string) =>
     Promise.resolve({
       ok: true,
       json: async () => {
+        if (url === '/api/v1/progress') return savedCompletions
         if (url.includes('/progress/lessons/')) {
-          return {
-            lessonId: 'first-lesson',
+          const completedLessonId = url.split('/').pop() ?? ''
+          const existingCompletion = savedCompletions.find(
+            (completion) => completion.lessonId === completedLessonId,
+          )
+          if (existingCompletion) return existingCompletion
+
+          const completion = {
+            lessonId: completedLessonId,
             completedAt: '2026-09-20T12:00:00.000Z',
           }
+          savedCompletions.push(completion)
+          return completion
         }
         if (url.includes('/activities')) return activities
         if (url.includes('/lessons')) return testLessons
@@ -85,10 +99,13 @@ function mockServer(activities: Activity[]) {
   return fetchMock
 }
 
-function lessonCompletionRequests(fetchMock: ReturnType<typeof vi.fn>) {
+function lessonCompletionRequests(
+  fetchMock: ReturnType<typeof vi.fn>,
+  lessonId = 'first-lesson',
+) {
   return fetchMock.mock.calls.filter(
     (call) =>
-      call[0] === '/api/v1/progress/lessons/first-lesson' &&
+      call[0] === `/api/v1/progress/lessons/${lessonId}` &&
       (call[1] as RequestInit | undefined)?.method === 'POST',
   )
 }
@@ -168,8 +185,11 @@ test('still shows the lesson text when the activities fail to load', async () =>
       Promise.resolve({
         ok: !url.includes('/activities'),
         status: 500,
-        json: async () =>
-          url.includes('/lessons') ? testLessons : testModules,
+        json: async () => {
+          if (url === '/api/v1/progress') return []
+          if (url.includes('/lessons')) return testLessons
+          return testModules
+        },
       }),
     ),
   )
@@ -210,7 +230,7 @@ test('does not save completion when an answer changes without submission', async
   expect(lessonCompletionRequests(fetchMock)).toHaveLength(0)
 })
 
-test('saves completion once after the final correct activity', async () => {
+test('saves completion and makes the next lesson available without a reload', async () => {
   vi.spyOn(Math, 'random').mockReturnValue(0.99)
   const fetchMock = mockServer(testActivities)
 
@@ -224,7 +244,154 @@ test('saves completion once after the final correct activity', async () => {
   expect(await screen.findByRole('status')).toHaveTextContent(
     'Lesson completion saved.',
   )
+  const nextLessonLink = screen.getByRole('link', {
+    name: /next lesson: test lesson two/i,
+  })
+  expect(nextLessonLink).toHaveAttribute(
+    'href',
+    '/modules/first-module/lessons/second-lesson',
+  )
   expect(lessonCompletionRequests(fetchMock)).toHaveLength(1)
+
+  fireEvent.click(nextLessonLink)
+
+  expect(
+    await screen.findByRole('heading', { level: 1, name: 'Test Lesson Two' }),
+  ).toBeInTheDocument()
+})
+
+test('restores progression after leaving and reopening a completed lesson', async () => {
+  vi.spyOn(Math, 'random').mockReturnValue(0.99)
+  const fetchMock = mockServer(testActivities)
+
+  renderAt('/modules/first-module/lessons/first-lesson')
+
+  await screen.findByText('Test Lesson One')
+  fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+  fireEvent.click(screen.getByRole('button', { name: /next activity/i }))
+  fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+  await screen.findByRole('status')
+
+  fireEvent.click(screen.getByRole('link', { name: 'Back to module' }))
+
+  expect(
+    await screen.findByRole('heading', { level: 1, name: 'Test Module One' }),
+  ).toBeInTheDocument()
+  expect(
+    screen.getByRole('link', { name: /test lesson one/i }),
+  ).toHaveTextContent('Completed')
+  expect(
+    screen.getByRole('link', { name: /test lesson two/i }),
+  ).toHaveTextContent('Available')
+  expect(screen.getByText('Lessons completed 1/2')).toBeInTheDocument()
+  expect(lessonCompletionRequests(fetchMock)).toHaveLength(1)
+
+  fireEvent.click(screen.getByRole('link', { name: /test lesson one/i }))
+
+  expect(await screen.findByRole('status')).toHaveTextContent(
+    'Lesson completion saved.',
+  )
+  expect(
+    screen.getByRole('link', { name: /next lesson: test lesson two/i }),
+  ).toBeInTheDocument()
+  expect(lessonCompletionRequests(fetchMock)).toHaveLength(1)
+})
+
+test('restores a completed lesson without changing its saved state', async () => {
+  const fetchMock = mockServer(testActivities, [
+    {
+      lessonId: 'first-lesson',
+      completedAt: '2026-09-20T12:00:00.000Z',
+    },
+  ])
+
+  renderAt('/modules/first-module/lessons/first-lesson')
+
+  expect(await screen.findByRole('status')).toHaveTextContent(
+    'Lesson completion saved.',
+  )
+  expect(
+    screen.getByRole('link', { name: /next lesson: test lesson two/i }),
+  ).toBeInTheDocument()
+  expect(lessonCompletionRequests(fetchMock)).toHaveLength(0)
+})
+
+test('redirects direct access to a locked lesson to the locked page', async () => {
+  mockServer(testActivities)
+
+  renderAt('/modules/first-module/lessons/second-lesson')
+
+  expect(
+    await screen.findByRole('heading', {
+      level: 1,
+      name: /this lesson is locked/i,
+    }),
+  ).toBeInTheDocument()
+  expect(screen.queryByText('The last paragraph.')).not.toBeInTheDocument()
+})
+
+test('allows direct access when the preceding lesson is complete', async () => {
+  mockServer(
+    [testActivities[0]],
+    [
+      {
+        lessonId: 'first-lesson',
+        completedAt: '2026-09-20T12:00:00.000Z',
+      },
+    ],
+  )
+
+  renderAt('/modules/first-module/lessons/second-lesson')
+
+  expect(
+    await screen.findByRole('heading', { level: 1, name: 'Test Lesson Two' }),
+  ).toBeInTheDocument()
+  expect(screen.getByText('The last paragraph.')).toBeInTheDocument()
+  expect(
+    screen.queryByRole('heading', { name: /this lesson is locked/i }),
+  ).toBeNull()
+})
+
+test('does not render a next lesson after completing the final lesson', async () => {
+  vi.spyOn(Math, 'random').mockReturnValue(0.99)
+  const fetchMock = mockServer(
+    [testActivities[0]],
+    [
+      {
+        lessonId: 'first-lesson',
+        completedAt: '2026-09-20T12:00:00.000Z',
+      },
+    ],
+  )
+
+  renderAt('/modules/first-module/lessons/second-lesson')
+
+  await screen.findByText('The last paragraph.')
+  fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+
+  expect(await screen.findByRole('status')).toHaveTextContent(
+    'Lesson completion saved.',
+  )
+  expect(lessonCompletionRequests(fetchMock, 'second-lesson')).toHaveLength(1)
+  expect(screen.queryByRole('link', { name: /next lesson/i })).toBeNull()
+  expect(screen.getByRole('link', { name: 'Back to module' })).toHaveAttribute(
+    'href',
+    '/modules/first-module',
+  )
+})
+
+test('does not unlock the next lesson after only part of a lesson is correct', async () => {
+  vi.spyOn(Math, 'random').mockReturnValue(0.99)
+  const fetchMock = mockServer(testActivities)
+
+  renderAt('/modules/first-module/lessons/first-lesson')
+
+  await screen.findByText('Test Lesson One')
+  fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+
+  expect(await screen.findByText('Correct')).toBeInTheDocument()
+  expect(screen.queryByRole('link', { name: /next lesson/i })).toBeNull()
+  expect(lessonCompletionRequests(fetchMock)).toHaveLength(0)
 })
 
 test('does not save completion for an incorrect answer', async () => {

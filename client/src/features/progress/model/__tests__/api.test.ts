@@ -1,4 +1,5 @@
 import {
+  fetchLessonCompletions,
   getLabCompletion,
   recordLabCompletion,
   recordLessonCompletion,
@@ -6,6 +7,37 @@ import {
 
 afterEach(() => {
   vi.unstubAllGlobals()
+})
+
+test('fetches the learner lesson completions', async () => {
+  const completions = [
+    {
+      lessonId: 'great-pyramid',
+      completedAt: '2026-09-20T12:00:00.000Z',
+    },
+  ]
+  const fetchMock = vi.fn().mockResolvedValue({
+    ok: true,
+    json: async () => completions,
+  })
+  vi.stubGlobal('fetch', fetchMock)
+
+  await expect(fetchLessonCompletions()).resolves.toEqual(completions)
+  expect(fetchMock).toHaveBeenCalledWith('/api/v1/progress')
+})
+
+test('throws when lesson progress cannot be fetched', async () => {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockResolvedValue({
+      ok: false,
+      status: 500,
+    }),
+  )
+
+  await expect(fetchLessonCompletions()).rejects.toThrow(
+    'Failed to fetch lesson progress: 500',
+  )
 })
 
 test('posts the completed lesson and returns the saved completion', async () => {
