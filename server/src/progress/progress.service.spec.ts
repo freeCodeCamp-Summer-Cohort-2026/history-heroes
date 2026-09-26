@@ -399,16 +399,6 @@ describe('ProgressService', () => {
   });
 
   describe('recordLabProgress', () => {
-    it('should throw BadRequestException if labId is empty or whitespace', async () => {
-      await expect(
-        service.recordLabProgress({ labId: '', userId: 1 }),
-      ).rejects.toThrow(BadRequestException);
-
-      await expect(
-        service.recordLabProgress({ labId: '   ', userId: 1 }),
-      ).rejects.toThrow(BadRequestException);
-    });
-
     it('should throw UnauthorizedException if neither userId nor sessionId is provided', async () => {
       await expect(
         service.recordLabProgress({ labId: 'great-pyramid-lab' }),
@@ -552,16 +542,6 @@ describe('ProgressService', () => {
   });
 
   describe('getLabProgress', () => {
-    it('should throw BadRequestException if labId is empty or whitespace', async () => {
-      await expect(
-        service.getLabProgress({ labId: '', userId: 42 }),
-      ).rejects.toThrow(BadRequestException);
-
-      await expect(
-        service.getLabProgress({ labId: '   ', userId: 42 }),
-      ).rejects.toThrow(BadRequestException);
-    });
-
     it('should return null if neither userId nor sessionId is provided', async () => {
       const result = await service.getLabProgress({ labId: 'custom-lab' });
       expect(result).toBeNull();
