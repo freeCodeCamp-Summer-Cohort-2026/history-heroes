@@ -1,6 +1,8 @@
 import { Outlet, Link, ScrollRestoration } from 'react-router-dom'
+import { useAuth } from '../state/auth/use-auth'
 
 export default function Layout() {
+  const { showLogin } = useAuth()
   return (
     <div className="page-shell bg-base-100 min-h-screen flex flex-col">
       <ScrollRestoration />
@@ -12,7 +14,15 @@ export default function Layout() {
         </div>
 
         <div className="flex-none mt-2 sm:mt-0">
-          <ul className="menu menu-horizontal px-1 flex-wrap sm:flex-nowrap">
+          <ul className="menu menu-horizontal px-1 flex-wrap sm:flex-nowrap gap-2">
+            {showLogin ? (
+              <li>
+                <Link to="/login" className="text-sm sm:text-base">
+                  Login
+                </Link>
+              </li>
+            ) : null}
+
             <li>
               <Link to="/" className="text-sm sm:text-base">
                 Modules
