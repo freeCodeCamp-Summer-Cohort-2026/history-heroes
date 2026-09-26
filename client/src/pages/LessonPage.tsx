@@ -24,7 +24,13 @@ export default function LessonPage() {
   const { moduleId, lessonId } = useParams()
 
   if (!moduleId || !lessonId) {
-    return <p>That lesson could not be found.</p>
+    return (
+      <div>
+        <h1 className="text-display">Lesson not found</h1>
+        <p className="text-body">This lesson doesn't exist</p>
+        <ButtonLink to={'/modules/:moduleId'}>Back to Module</ButtonLink>
+      </div>
+    )
   }
 
   return (
