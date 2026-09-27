@@ -139,7 +139,14 @@ function LessonPageContent({
     getLessonAvailability(orderedLessons, completedLessonIds, nextLesson.id) !==
       'locked'
 
-  useDocumentTitle(lesson ? lesson.title : 'History Heroes')
+  let resolvedLesson = lesson?.title
+
+  if (isLoading) {
+    resolvedLesson = 'Loading'
+  } else if (!isLoading && !resolvedLesson) {
+    resolvedLesson = 'Lesson not found'
+  }
+  useDocumentTitle(resolvedLesson)
 
   if (isLoading) return <p>Loading lesson...</p>
   if (error) return <p>{error}</p>
