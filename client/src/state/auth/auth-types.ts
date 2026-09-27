@@ -11,9 +11,17 @@ export interface AuthState {
    * The user who is logged in or undefined if the user is not logged in at all.
    */
   user?: Record<string, unknown>
+  /**
+   * Error data related to logging
+   */
+  loginError?: Error | unknown
 }
 
 export interface AuthActions {
-  handleLogin: () => void
-  handleRegister: () => void
+  handleLogin: (params: { email: string; password: string }) => void
+  handleRegister: (params: {
+    email: string
+    password: string
+    isContentAuthor: boolean
+  }) => void
 }

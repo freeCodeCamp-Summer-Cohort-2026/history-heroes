@@ -10,9 +10,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const { loading, user } = state
 
-  const handleLogin = useCallback(() => {
-    // TODO: implement login logic
-  }, [])
+  const handleLogin = useCallback(
+    ({ email, password }: { email: string; password: string }) => {
+      setState({ ...state, loading: true })
+      fetch('api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error('Login failed')
+          }
+          return response.json()
+        })
+        .then((data) => {
+          setState({ user: data.user, loading: false })
+        })
+        .catch((error) => {
+          // TODO: set an error state
+          console.error(error)
+          setState({ user: null, loading: false })
+        })
+    },
+    [],
+  )
   const handleRegister = useCallback(() => {
     // TODO: implement login logic
   }, [])
