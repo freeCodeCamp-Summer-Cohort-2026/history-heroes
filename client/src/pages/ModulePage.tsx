@@ -47,7 +47,7 @@ export default function ModulePage() {
       .finally(() => setIsLoading(false))
   }, [moduleId])
 
-  useDocumentTitle(currentModule ? currentModule.title : 'Loading...')
+  useDocumentTitle(currentModule ? currentModule.title : 'History Heroes')
 
   if (isLoading) return <p className="text-body">Loading module...</p>
   if (error) return <p className="text-body">{error}</p>

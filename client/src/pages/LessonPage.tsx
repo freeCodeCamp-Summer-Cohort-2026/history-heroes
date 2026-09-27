@@ -139,7 +139,7 @@ function LessonPageContent({
     getLessonAvailability(orderedLessons, completedLessonIds, nextLesson.id) !==
       'locked'
 
-  useDocumentTitle(lesson ? lesson.title : 'Loading...')
+  useDocumentTitle(lesson ? lesson.title : 'History Heroes')
 
   if (isLoading) return <p>Loading lesson...</p>
   if (error) return <p>{error}</p>
