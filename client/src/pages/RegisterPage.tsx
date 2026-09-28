@@ -1,8 +1,9 @@
 import { Navigate } from 'react-router-dom'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import Button from '../components/Button'
 import ButtonLink from '../components/ButtonLink'
 import Card from '../components/Card'
+import { EMAIL_REGEX } from '../utils/regex'
 
 interface RegisterFormData {
   email: string
@@ -15,9 +16,9 @@ export default function RegisterPage() {
   const isAuthenticated = false // TODO: replace with hook logic
 
   const {
+    control,
     register,
     handleSubmit,
-    watch,
     formState: { errors, isSubmitting },
   } = useForm<RegisterFormData>({
     defaultValues: {
@@ -28,7 +29,10 @@ export default function RegisterPage() {
     },
   })
 
-  const password = watch('password')
+  const password = useWatch({
+    control,
+    name: 'password',
+  })
 
   const onSubmit = (data: RegisterFormData) => {
     console.log(data)
@@ -56,7 +60,7 @@ export default function RegisterPage() {
               {...register('email', {
                 required: 'Email is required',
                 pattern: {
-                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                  value: EMAIL_REGEX,
                   message: 'Invalid email address',
                 },
               })}
