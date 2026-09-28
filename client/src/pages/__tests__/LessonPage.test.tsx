@@ -406,3 +406,10 @@ test('does not save completion for an incorrect answer', async () => {
   expect(await screen.findByText('Not yet')).toBeInTheDocument()
   expect(lessonCompletionRequests(fetchMock)).toHaveLength(0)
 })
+
+test('displays the page title with site-name', async () => {
+  renderAt('/modules/first-module/lessons/first-lesson')
+
+  expect(await screen.findByText('Test Lesson One')).toBeInTheDocument()
+  expect(document.title).toBe('Test Lesson One - History Heroes')
+})
