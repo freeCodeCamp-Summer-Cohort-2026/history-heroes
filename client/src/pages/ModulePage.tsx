@@ -47,14 +47,7 @@ export default function ModulePage() {
       .finally(() => setIsLoading(false))
   }, [moduleId])
 
-  let resolvedModule = currentModule?.title
-
-  if (isLoading) {
-    resolvedModule = 'Loading...'
-  } else if (!isLoading && !resolvedModule) {
-    resolvedModule = 'Module not found'
-  }
-  useDocumentTitle(resolvedModule ?? 'Untitled')
+  useDocumentTitle(currentModule?.title)
 
   if (isLoading) return <p className="text-body">Loading module...</p>
   if (error) return <p className="text-body">{error}</p>
