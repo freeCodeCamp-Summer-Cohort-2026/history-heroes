@@ -1,9 +1,15 @@
 import { useEffect } from 'react'
 export function useDocumentTitle(pageTitle: string | undefined) {
+  const siteName = 'History Heroes'
   useEffect(() => {
     if (!pageTitle) {
-      document.title = 'History Heroes'
+      document.title = siteName
+    } else {
+      document.title = `${pageTitle} - ${siteName}`
     }
-    document.title = `${pageTitle} - History Heroes`
+
+    return () => {
+      document.title = siteName
+    }
   }, [pageTitle])
 }
