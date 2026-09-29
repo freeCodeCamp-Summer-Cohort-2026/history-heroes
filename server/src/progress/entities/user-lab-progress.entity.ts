@@ -10,6 +10,7 @@ import {
 
 @Entity('user_lab_progress')
 @Unique(['userId', 'labId'])
+@Unique(['sessionId', 'labId'])
 @Index(['userId', 'labId'])
 @Index(['sessionId', 'labId'])
 export class UserLabProgress {
