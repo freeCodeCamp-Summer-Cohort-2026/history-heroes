@@ -1,6 +1,9 @@
 import ButtonLink from '../components/ButtonLink'
 
+import { useDocumentTitle } from '../utils/useDocumentTitle'
+
 export default function NotFoundPage() {
+  useDocumentTitle('Page not found')
   return (
     <div className="space-y-2">
       <h1 className="text-display">Page not found</h1>

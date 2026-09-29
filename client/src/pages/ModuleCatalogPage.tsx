@@ -3,6 +3,7 @@ import ModuleCatalog from '../features/module/ModuleCatalog'
 import { fetchModules } from '../features/module/model/api'
 import type { ModuleSummary } from '../features/module/model/ModuleSummary'
 import FilterChips from '../components/FilterChips'
+import { useDocumentTitle } from '../utils/useDocumentTitle'
 
 export default function ModuleCatalogPage() {
   const [modules, setModules] = useState<ModuleSummary[]>([])
@@ -49,6 +50,7 @@ export default function ModuleCatalogPage() {
   const allFilterOptions = ['All', ...periods, ...themes]
   const uniqueFilterOptions = new Set(allFilterOptions)
   const filterOptions = [...uniqueFilterOptions]
+  useDocumentTitle('Modules')
 
   return (
     <div className="space-y-6">
