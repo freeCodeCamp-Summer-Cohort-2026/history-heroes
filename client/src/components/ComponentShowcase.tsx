@@ -1,5 +1,8 @@
 /* This is just a page to test all the components, it is not needed for the project, just handy for now */
 
+import { useState } from 'react'
+
+import InputField from './InputField'
 import Button from './Button'
 import FeedbackState from './FeedbackState'
 import LessonListItem from './LessonListItem'
@@ -58,6 +61,7 @@ const showcaseLessons: Record<string, Lesson> = {
 }
 
 export default function ComponentShowcase() {
+  const [email, setEmail] = useState('learner@example.com')
   return (
     <main className="space-y-10 p-6">
       <section>
@@ -137,7 +141,40 @@ export default function ComponentShowcase() {
           />
         </div>
       </section>
+      {/* Input fields */}
+      <section className="space-y-4">
+        <h2 className="text-heading">Input fields</h2>
 
+        <div className="max-w-md space-y-4">
+          <InputField
+            label="Email"
+            type="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+          />
+
+          <InputField
+            label="Disabled input"
+            value="Cannot edit this value"
+            disabled
+            readOnly
+          />
+
+          <InputField
+            label="Required field"
+            required
+            requiredError="This field is required."
+          />
+
+          <InputField
+            label="Password with validation error"
+            type="password"
+            validationError="Password must meet the required complexity."
+          />
+
+          <InputField label="Password" type="password" />
+        </div>
+      </section>
       <section>
         <h2 className="text-heading">Loading Indicators</h2>
         <LoadingIndicator />
