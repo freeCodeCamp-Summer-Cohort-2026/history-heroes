@@ -47,11 +47,13 @@ export default function ModulePage() {
       .finally(() => setIsLoading(false))
   }, [moduleId])
 
+  // NotFoundModule page not working
+
   if (isLoading) return <p className="text-body">Loading module...</p>
   if (error) return <p className="text-body">{error}</p>
   if (!currentModule) {
     return (
-      <div>
+      <div className="space-y-2">
         <h1 className="text-display">Module not found</h1>
         <p className="text-body">This module doesn't exist</p>
         <ButtonLink to={'/'}>Back to Catalog</ButtonLink>
