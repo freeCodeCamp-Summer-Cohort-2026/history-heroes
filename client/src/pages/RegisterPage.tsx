@@ -14,7 +14,7 @@ interface RegisterFormData {
 }
 
 export default function RegisterPage() {
-  const { user, handleRegister } = useAuth()
+  const { user, handleRegister } = useAuth() ?? {}
   const isAuthenticated = Boolean(user)
 
   const {
@@ -37,7 +37,7 @@ export default function RegisterPage() {
   })
 
   const onSubmit = (data: RegisterFormData) => {
-    handleRegister({
+    handleRegister?.({
       email: data.email,
       password: data.password,
       isContentAuthor: data.isContentAuthor,

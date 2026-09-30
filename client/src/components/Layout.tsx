@@ -2,7 +2,7 @@ import { Outlet, Link, ScrollRestoration } from 'react-router-dom'
 import { useAuth } from '../state/auth/use-auth'
 
 export default function Layout() {
-  const { showLogin } = useAuth()
+  const { showLogin } = useAuth() ?? {}
   return (
     <div className="page-shell bg-base-100 min-h-screen flex flex-col">
       <ScrollRestoration />

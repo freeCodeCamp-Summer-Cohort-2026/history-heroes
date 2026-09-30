@@ -1,3 +1,11 @@
+export interface User {
+  id: number | string
+  email?: string
+  username?: string
+  createdAt?: string | Date
+  updatedAt?: string | Date
+}
+
 export interface AuthState {
   /**
    * If the auth state is being loaded, if so we don't know if the user is already logged in or not.
@@ -10,7 +18,7 @@ export interface AuthState {
   /**
    * The user who is logged in or undefined if the user is not logged in at all.
    */
-  user?: Record<string, unknown>
+  user?: User | null
   /**
    * Error data related to logging
    */
@@ -24,4 +32,6 @@ export interface AuthActions {
     password: string
     isContentAuthor: boolean
   }) => void
+  handleLogout?: () => void
+  getUserSession?: () => Promise<User | null>
 }
