@@ -9,13 +9,13 @@ import type { Activity } from '../features/activities/types'
 import ActivityWorkspace from '../features/activities/ActivityWorkspace'
 import type { Lesson } from '../features/lesson/model/Lesson'
 import {
-getLessonAvailability,
-getNextLesson,
-orderLessons,
+  getLessonAvailability,
+  getNextLesson,
+  orderLessons,
 } from '../features/lesson/progression'
 import {
-fetchLessonCompletions,
-recordLessonCompletion,
+  fetchLessonCompletions,
+  recordLessonCompletion,
 } from '../features/progress/model/api'
 import ButtonLink from '../components/ButtonLink'
 import ErrorBoundary from '../components/ErrorBoundary'
@@ -57,16 +57,6 @@ function LessonPageContent({
   const [activities, setActivities] = useState<Activity[]>([])
 
   useEffect(() => {
-    fetchLessons(moduleId)
-      .then((lessonData) => setLessons(lessonData))
-      .catch(() => setHasError(true))
-      .finally(() => setIsLoading(false))
-
-    fetchLessonActivities(lessonId)
-      .then((activityData) => setActivities(activityData))
-      .catch(() => setHasActivityError(true))
-
-  useEffect(() => {
     let isActive = true
 
     Promise.all([fetchLessons(moduleId), fetchLessonCompletions()])
@@ -79,7 +69,7 @@ function LessonPageContent({
         )
       })
       .catch(() => {
-        if (!isActive) setHasError(true)
+        if (isActive) setHasError(true)
       })
       .finally(() => {
         if (isActive) setIsLoading(false)
@@ -93,25 +83,10 @@ function LessonPageContent({
         if (isActive) setHasActivityError(true)
       })
 
-      fetchModules()
-      .then((moduleData) => {
-      if (isActive) return
-
-      setModuleTitle(
-      moduleData.find((ineModule) => oneModule.id === moduleId)?.title ?? null,
-      )
-      })
-      .catch(() => {
-      if (isActive) setModuleTitle(null)
-      })
-      return () => {
-      isActive = false
-      }
-      }, [moduleId, lessonId]
-
     fetchModules()
       .then((moduleData) => {
         if (!isActive) return
+
         setModuleTitle(
           moduleData.find((oneModule) => oneModule.id === moduleId)?.title ??
             null,

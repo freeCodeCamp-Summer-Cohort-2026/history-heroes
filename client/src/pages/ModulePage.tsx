@@ -8,8 +8,8 @@ import { fetchLessons } from '../features/lesson/model/api'
 import type { Lesson } from '../features/lesson/model/Lesson'
 import ErrorState from '../components/ErrorState'
 import {
-getLessonAvailability,
-orderLessons,
+  getLessonAvailability,
+  orderLessons,
 } from '../features/lesson/progression'
 import { fetchLessonCompletions } from '../features/progress/model/api'
 import { useDocumentTitle } from '../utils/useDocumentTitle'
