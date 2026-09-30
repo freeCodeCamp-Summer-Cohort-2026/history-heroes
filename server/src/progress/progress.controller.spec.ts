@@ -12,6 +12,8 @@ describe('ProgressController', () => {
     getProgress: vi.fn(),
     recordLessonProgress: vi.fn(),
     getLessonProgress: vi.fn(),
+    recordLabProgress: vi.fn(),
+    getLabProgress: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -156,6 +158,102 @@ describe('ProgressController', () => {
 
       await expect(
         controller.getLessonProgress('unknown-lesson', mockReq),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('recordLabProgress', () => {
+    it('should record lab progress via POST', async () => {
+      const mockResult = {
+        id: 1,
+        labId: 'great-pyramid-lab',
+        userId: 10,
+        sessionId: 'sess-123',
+        completedAt: new Date(),
+      };
+      mockProgressService.recordLabProgress.mockResolvedValue(mockResult);
+
+      const mockReq = {
+        session: { userId: 10 },
+        sessionID: 'sess-123',
+      } as unknown as Request;
+
+      const result = await controller.recordLabProgress(
+        'great-pyramid-lab',
+        mockReq,
+      );
+
+      expect(result).toEqual(mockResult);
+      expect(mockProgressService.recordLabProgress).toHaveBeenCalledWith({
+        labId: 'great-pyramid-lab',
+        userId: 10,
+        sessionId: 'sess-123',
+      });
+    });
+
+    it('should record lab progress via PUT idempotently', async () => {
+      const mockResult = {
+        id: 1,
+        labId: 'great-pyramid-lab',
+        userId: 10,
+        sessionId: 'sess-123',
+        completedAt: new Date(),
+      };
+      mockProgressService.recordLabProgress.mockResolvedValue(mockResult);
+
+      const mockReq = {
+        session: { userId: 10 },
+        sessionID: 'sess-123',
+      } as unknown as Request;
+
+      const result = await controller.recordLabProgressPut(
+        'great-pyramid-lab',
+        mockReq,
+      );
+
+      expect(result).toEqual(mockResult);
+      expect(mockProgressService.recordLabProgress).toHaveBeenCalledWith({
+        labId: 'great-pyramid-lab',
+        userId: 10,
+        sessionId: 'sess-123',
+      });
+    });
+  });
+
+  describe('getLabProgress', () => {
+    it('should return lab progress if found', async () => {
+      const mockResult = {
+        id: 1,
+        labId: 'great-pyramid-lab',
+        userId: 10,
+        sessionId: 'sess-123',
+        completedAt: new Date(),
+      };
+      mockProgressService.getLabProgress.mockResolvedValue(mockResult);
+
+      const mockReq = {
+        session: { userId: 10 },
+        sessionID: 'sess-123',
+      } as unknown as Request;
+
+      const result = await controller.getLabProgress(
+        'great-pyramid-lab',
+        mockReq,
+      );
+
+      expect(result).toEqual(mockResult);
+    });
+
+    it('should throw NotFoundException if lab progress not found', async () => {
+      mockProgressService.getLabProgress.mockResolvedValue(null);
+
+      const mockReq = {
+        session: { userId: 10 },
+        sessionID: 'sess-123',
+      } as unknown as Request;
+
+      await expect(
+        controller.getLabProgress('unknown-lab', mockReq),
       ).rejects.toThrow(NotFoundException);
     });
   });
