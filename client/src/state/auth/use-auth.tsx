@@ -8,5 +8,5 @@ import type { AuthActions, AuthState } from './auth-types'
  * Use this instead of the direct AuthContext
  */
 export function useAuth(): AuthState & AuthActions {
-  return useContext(AuthContext)
+  return useContext(AuthContext)!
 }
