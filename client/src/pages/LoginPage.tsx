@@ -12,7 +12,7 @@ interface LoginFormData {
 }
 
 export default function LoginPage() {
-  const { user, handleLogin } = useAuth() ?? {}
+  const { user, handleLogin } = useAuth()
   const isAuthenticated = Boolean(user)
 
   const {
@@ -74,6 +74,10 @@ export default function LoginPage() {
               className={`input input-bordered ${errors.password ? 'input-error' : ''}`}
               {...register('password', {
                 required: 'Password is required',
+                minLength: {
+                  value: 8,
+                  message: 'Password must be at least 8 characters',
+                },
               })}
             />
             {errors.password && (

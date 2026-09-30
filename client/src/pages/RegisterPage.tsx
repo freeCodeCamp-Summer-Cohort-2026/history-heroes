@@ -14,7 +14,7 @@ interface RegisterFormData {
 }
 
 export default function RegisterPage() {
-  const { user, handleRegister } = useAuth() ?? {}
+  const { user, handleRegister } = useAuth()
   const isAuthenticated = Boolean(user)
 
   const {

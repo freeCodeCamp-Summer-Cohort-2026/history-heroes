@@ -6,7 +6,7 @@ import { useAuth } from '../state/auth/use-auth'
 import type { User } from '../state/auth/auth-types'
 
 export default function ProfilePage() {
-  const { user, getUserSession, handleLogout, loading } = useAuth() ?? {}
+  const { user, getUserSession, handleLogout, loading } = useAuth()
   const [fetchedUser, setFetchedUser] = useState<User | null>(null)
   const [isFetching, setIsFetching] = useState(!user && Boolean(getUserSession))
   const [error, setError] = useState<string | null>(null)

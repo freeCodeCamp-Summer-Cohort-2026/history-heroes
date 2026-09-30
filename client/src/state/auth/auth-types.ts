@@ -8,9 +8,25 @@ export interface User {
 
 export interface AuthState {
   /**
-   * If the auth state is being loaded, if so we don't know if the user is already logged in or not.
+   * If any auth action is currently loading (calculated from individual loading states).
    */
   loading?: boolean
+  /**
+   * If session retrieval is loading.
+   */
+  getUserSessionLoading?: boolean
+  /**
+   * If login is loading.
+   */
+  loginLoading?: boolean
+  /**
+   * If registration is loading.
+   */
+  registerLoading?: boolean
+  /**
+   * If logout is loading.
+   */
+  logoutLoading?: boolean
   /**
    * Calculated from loading + user.
    */
@@ -20,9 +36,21 @@ export interface AuthState {
    */
   user?: User | null
   /**
-   * Error data related to logging
+   * Error data related to logging in
    */
   loginError?: Error | unknown
+  /**
+   * Error data related to user session retrieval
+   */
+  getUserSessionError?: Error | unknown
+  /**
+   * Error data related to registration
+   */
+  registerError?: Error | unknown
+  /**
+   * Error data related to logging out
+   */
+  logoutError?: Error | unknown
 }
 
 export interface AuthActions {

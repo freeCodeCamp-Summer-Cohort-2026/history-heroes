@@ -6,11 +6,12 @@ import type { AuthState, User } from './auth-types'
  * Top level authentication provider, this will be used to provide the auth state to the entire application.
  */
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<AuthState>({ loading: true })
-
-  const { loading, user } = state
+  const [state, setState] = useState<AuthState>({
+    getUserSessionLoading: true,
+  })
 
   const getUserSession = useCallback(async (): Promise<User | null> => {
+    setState((prev) => ({ ...prev, getUserSessionLoading: true }))
     try {
       const response = await fetch('/api/v1/auth/session')
       if (!response.ok) {
@@ -30,14 +31,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setState((prev) => ({
         ...prev,
         user: prev.user ?? userInfo,
-        loading: false,
+        getUserSessionLoading: false,
+        getUserSessionError: undefined,
       }))
       return userInfo
-    } catch {
+    } catch (error) {
       setState((prev) => ({
         ...prev,
         user: null,
-        loading: false,
+        getUserSessionLoading: false,
+        getUserSessionError: error,
       }))
       return null
     }
@@ -65,21 +68,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setState((prev) => ({
           ...prev,
           user: prev.user ?? userInfo,
-          loading: false,
+          getUserSessionLoading: false,
+          getUserSessionError: undefined,
         }))
       })
-      .catch(() => {
+      .catch((error) => {
         setState((prev) => ({
           ...prev,
           user: null,
-          loading: false,
+          getUserSessionLoading: false,
+          getUserSessionError: error,
         }))
       })
   }, [])
 
   const handleLogin = useCallback(
     ({ email, password }: { email: string; password: string }) => {
-      setState((prev) => ({ ...prev, loading: true }))
+      setState((prev) => ({ ...prev, loginLoading: true }))
       fetch('/api/v1/auth/login', {
         method: 'POST',
         headers: {
@@ -98,13 +103,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setState((prev) => ({
             ...prev,
             user: userResult,
-            loading: false,
+            loginLoading: false,
+            loginError: undefined,
           }))
         })
         .catch((error) => {
-          // TODO: set an error state
           console.error(error)
-          setState((prev) => ({ ...prev, user: null, loading: false }))
+          setState((prev) => ({
+            ...prev,
+            user: null,
+            loginLoading: false,
+            loginError: error,
+          }))
         })
     },
     [],
@@ -120,7 +130,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       password: string
       isContentAuthor: boolean
     }) => {
-      setState((prev) => ({ ...prev, loading: true }))
+      setState((prev) => ({ ...prev, registerLoading: true }))
       fetch('/api/v1/auth/register', {
         method: 'POST',
         headers: {
@@ -139,20 +149,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setState((prev) => ({
             ...prev,
             user: userResult,
-            loading: false,
+            registerLoading: false,
+            registerError: undefined,
           }))
         })
         .catch((error) => {
-          // TODO: set an error state
           console.error(error)
-          setState((prev) => ({ ...prev, user: null, loading: false }))
+          setState((prev) => ({
+            ...prev,
+            user: null,
+            registerLoading: false,
+            registerError: error,
+          }))
         })
     },
     [],
   )
 
   const handleLogout = useCallback(() => {
-    setState((prev) => ({ ...prev, loading: true }))
+    setState((prev) => ({ ...prev, logoutLoading: true }))
     return fetch('/api/v1/auth/logout', {
       method: 'POST',
       headers: {
@@ -166,13 +181,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return response.json()
       })
       .then(() => {
-        setState({ user: null, loading: false })
+        setState((prev) => ({
+          ...prev,
+          user: null,
+          logoutLoading: false,
+          logoutError: undefined,
+        }))
       })
       .catch((error) => {
         console.error(error)
-        setState((prev) => ({ ...prev, loading: false }))
+        setState((prev) => ({
+          ...prev,
+          logoutLoading: false,
+          logoutError: error,
+        }))
       })
   }, [])
+
+  const loading = Boolean(
+    state.loading ||
+    state.getUserSessionLoading ||
+    state.loginLoading ||
+    state.registerLoading ||
+    state.logoutLoading,
+  )
 
   return (
     <AuthContext.Provider
@@ -180,7 +212,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         ...state,
 
         // calculated state
-        showLogin: !loading && !user,
+        loading,
+        showLogin: !loading && !state.user,
 
         // callbacks
         handleLogin,
