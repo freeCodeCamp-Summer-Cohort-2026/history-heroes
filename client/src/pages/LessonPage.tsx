@@ -147,6 +147,7 @@ function LessonPageContent({
 
   useDocumentTitle(lesson?.title)
 
+  // When `lessonId` is correct but `moduleId` isn't it throws `Failed to fetch lessons: 404` instead of redirecting to the `NotFoundPage`.
   if (isLoading) return <p>Loading lesson...</p>
   if (error) return <p>{error}</p>
   if (!lesson)
