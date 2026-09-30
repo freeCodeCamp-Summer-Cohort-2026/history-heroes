@@ -3,6 +3,7 @@ import ModuleCatalog from '../features/module/ModuleCatalog'
 import { fetchModules } from '../features/module/model/api'
 import type { ModuleSummary } from '../features/module/model/ModuleSummary'
 import FilterChips from '../components/FilterChips'
+import { useDocumentTitle } from '../utils/useDocumentTitle'
 import useModuleFilters from '../features/module/useModuleFilters'
 
 export default function ModuleCatalogPage() {
@@ -29,6 +30,7 @@ export default function ModuleCatalogPage() {
       )
       .finally(() => setIsLoading(false))
   }, [])
+  useDocumentTitle('Modules')
 
   return (
     <div className="space-y-6">
