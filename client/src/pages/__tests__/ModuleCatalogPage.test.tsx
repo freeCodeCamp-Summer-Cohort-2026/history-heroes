@@ -125,17 +125,28 @@ test('shows a friendly error message when modules fail to load', async () => {
         new Error('Request failed with status 500: database connection failed'),
       ),
   )
+
   render(
     <RouterProvider
       router={createMemoryRouter(routes, { initialEntries: ['/'] })}
     />,
   )
+
   const alert = await screen.findByRole('alert')
 
   expect(alert).toHaveTextContent("We couldn't load modules right now.")
-
   expect(
     screen.queryByText(/database connection failed/i),
   ).not.toBeInTheDocument()
   expect(screen.queryByText(/status 500/i)).not.toBeInTheDocument()
+})
+
+test('displays the page title with site-name', () => {
+  render(
+    <RouterProvider
+      router={createMemoryRouter(routes, { initialEntries: ['/'] })}
+    />,
+  )
+
+  expect(document.title).toBe('Modules - History Heroes')
 })

@@ -3,6 +3,7 @@ import ModuleCatalog from '../features/module/ModuleCatalog'
 import { fetchModules } from '../features/module/model/api'
 import type { ModuleSummary } from '../features/module/model/ModuleSummary'
 import ErrorState from '../components/ErrorState'
+import { useDocumentTitle } from '../utils/useDocumentTitle'
 
 export default function ModuleCatalogPage() {
   const [modules, setModules] = useState<ModuleSummary[]>([])
@@ -15,6 +16,8 @@ export default function ModuleCatalogPage() {
       .catch(() => setHasError(true))
       .finally(() => setIsLoading(false))
   }, [])
+
+  useDocumentTitle('Modules')
 
   return (
     <div className="space-y-6">

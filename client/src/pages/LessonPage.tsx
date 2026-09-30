@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, Navigate, useParams } from 'react-router-dom'
 import {
   fetchLessons,
   fetchLessonActivities,
@@ -8,8 +8,19 @@ import { fetchModules } from '../features/module/model/api'
 import type { Activity } from '../features/activities/types'
 import ActivityWorkspace from '../features/activities/ActivityWorkspace'
 import type { Lesson } from '../features/lesson/model/Lesson'
-import { recordLessonCompletion } from '../features/progress/model/api'
+import {
+getLessonAvailability,
+getNextLesson,
+orderLessons,
+} from '../features/lesson/progression'
+import {
+fetchLessonCompletions,
+recordLessonCompletion,
+} from '../features/progress/model/api'
+import ButtonLink from '../components/ButtonLink'
+import ErrorBoundary from '../components/ErrorBoundary'
 import ErrorState from '../components/ErrorState'
+import { useDocumentTitle } from '../utils/useDocumentTitle'
 
 export default function LessonPage() {
   const { moduleId, lessonId } = useParams()
@@ -39,8 +50,10 @@ function LessonPageContent({
   const [hasError, setHasError] = useState(false)
   const [hasActivityError, setHasActivityError] = useState(false)
   const [moduleTitle, setModuleTitle] = useState<string | null>(null)
+  const [completedLessonIds, setCompletedLessonIds] = useState<Set<string>>(
+    new Set(),
+  )
   const completionRequestStarted = useRef(false)
-  const [isCompletionSaved, setIsCompletionSaved] = useState(false)
   const [activities, setActivities] = useState<Activity[]>([])
 
   useEffect(() => {
@@ -53,42 +66,112 @@ function LessonPageContent({
       .then((activityData) => setActivities(activityData))
       .catch(() => setHasActivityError(true))
 
+  useEffect(() => {
+    let isActive = true
+
+    Promise.all([fetchLessons(moduleId), fetchLessonCompletions()])
+      .then(([lessonData, completionData]) => {
+        if (!isActive) return
+
+        setLessons(lessonData)
+        setCompletedLessonIds(
+          new Set(completionData.map((completion) => completion.lessonId)),
+        )
+      })
+      .catch(() => {
+        if (!isActive) setHasError(true)
+      })
+      .finally(() => {
+        if (isActive) setIsLoading(false)
+      })
+
+    fetchLessonActivities(lessonId)
+      .then((activityData) => {
+        if (isActive) setActivities(activityData)
+      })
+      .catch(() => {
+        if (isActive) setHasActivityError(true)
+      })
+
+      fetchModules()
+      .then((moduleData) => {
+      if (isActive) return
+
+      setModuleTitle(
+      moduleData.find((ineModule) => oneModule.id === moduleId)?.title ?? null,
+      )
+      })
+      .catch(() => {
+      if (isActive) setModuleTitle(null)
+      })
+      return () => {
+      isActive = false
+      }
+      }, [moduleId, lessonId]
+
     fetchModules()
-      .then((moduleData) =>
+      .then((moduleData) => {
+        if (!isActive) return
         setModuleTitle(
           moduleData.find((oneModule) => oneModule.id === moduleId)?.title ??
             null,
-        ),
-      )
-      .catch(() => setModuleTitle(null))
+        )
+      })
+      .catch(() => {
+        if (isActive) setModuleTitle(null)
+      })
+
+    return () => {
+      isActive = false
+    }
   }, [moduleId, lessonId])
 
   async function handleLessonComplete() {
-    if (completionRequestStarted.current) return
+    if (completionRequestStarted.current || completedLessonIds.has(lessonId)) {
+      return
+    }
 
     completionRequestStarted.current = true
 
     try {
-      await recordLessonCompletion(lessonId)
-      setIsCompletionSaved(true)
+      const completion = await recordLessonCompletion(lessonId)
+      setCompletedLessonIds((currentIds) => {
+        const updatedIds = new Set(currentIds)
+        updatedIds.add(completion.lessonId)
+        return updatedIds
+      })
     } catch {
       completionRequestStarted.current = false
     }
   }
 
-  const orderedLessons = [...lessons].sort(
-    (first, second) => first.orderIndex - second.orderIndex,
-  )
+  const orderedLessons = orderLessons(lessons)
   const lessonIndex = orderedLessons.findIndex(
     (oneLesson) => oneLesson.id === lessonId,
   )
   const lesson = orderedLessons[lessonIndex]
+  const lessonAvailability = getLessonAvailability(
+    orderedLessons,
+    completedLessonIds,
+    lessonId,
+  )
+  const isLessonCompleted = lessonAvailability === 'completed'
+  const nextLesson = getNextLesson(orderedLessons, lessonId)
+  const isNextLessonUnlocked =
+    nextLesson !== null &&
+    getLessonAvailability(orderedLessons, completedLessonIds, nextLesson.id) !==
+      'locked'
+
+  useDocumentTitle(lesson?.title)
 
   if (isLoading) return <p>Loading lesson...</p>
   if (hasError) {
     return <ErrorState message="We couldn't load this lesson right now." />
   }
   if (!lesson) return <p>That lesson could not be found.</p>
+  if (lessonAvailability === 'locked') {
+    return <Navigate to={`/modules/${moduleId}/locked`} replace />
+  }
 
   return (
     <div className="space-y-8">
@@ -114,19 +197,40 @@ function LessonPageContent({
         {hasActivityError ? (
           <ErrorState message="We couldn't load the activities for this lesson." />
         ) : (
-          <>
+          <ErrorBoundary>
             <ActivityWorkspace
               activities={activities}
               onComplete={handleLessonComplete}
             />
-            {isCompletionSaved && (
-              <p role="status" className="mt-4 text-success">
-                Lesson completion saved.
-              </p>
-            )}
-          </>
+          </ErrorBoundary>
         )}
       </div>
+
+      {isLessonCompleted && (
+        <section
+          aria-label="Lesson completion"
+          className="space-y-4 border-t border-base-300 pt-8"
+        >
+          <p role="status" className="text-success">
+            Lesson completion saved.
+          </p>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            {nextLesson && isNextLessonUnlocked && (
+              <ButtonLink to={`/modules/${moduleId}/lessons/${nextLesson.id}`}>
+                Next lesson: {nextLesson.title}
+              </ButtonLink>
+            )}
+            <ButtonLink
+              variant={
+                nextLesson && isNextLessonUnlocked ? 'secondary' : 'primary'
+              }
+              to={`/modules/${moduleId}`}
+            >
+              Back to module
+            </ButtonLink>
+          </div>
+        </section>
+      )}
     </div>
   )
 }
