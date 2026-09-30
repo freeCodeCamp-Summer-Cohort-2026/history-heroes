@@ -3,6 +3,7 @@ import { useForm, useWatch } from 'react-hook-form'
 import Button from '../components/Button'
 import ButtonLink from '../components/ButtonLink'
 import Card from '../components/Card'
+import { useAuth } from '../state/auth/use-auth'
 import { EMAIL_REGEX } from '../utils/regex'
 
 interface RegisterFormData {
@@ -13,7 +14,8 @@ interface RegisterFormData {
 }
 
 export default function RegisterPage() {
-  const isAuthenticated = false // TODO: replace with hook logic
+  const { user, handleRegister } = useAuth()
+  const isAuthenticated = Boolean(user)
 
   const {
     control,
@@ -35,7 +37,11 @@ export default function RegisterPage() {
   })
 
   const onSubmit = (data: RegisterFormData) => {
-    console.log(data)
+    handleRegister({
+      email: data.email,
+      password: data.password,
+      isContentAuthor: data.isContentAuthor,
+    })
   }
 
   if (isAuthenticated) {

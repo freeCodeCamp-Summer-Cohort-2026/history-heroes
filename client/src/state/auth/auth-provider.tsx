@@ -12,8 +12,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const handleLogin = useCallback(
     ({ email, password }: { email: string; password: string }) => {
-      setState({ ...state, loading: true })
-      fetch('api/auth/login', {
+      setState((prev) => ({ ...prev, loading: true }))
+      fetch('/api/v1/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -27,7 +27,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return response.json()
         })
         .then((data) => {
-          setState({ user: data.user, loading: false })
+          setState({ user: data.user ?? data, loading: false })
         })
         .catch((error) => {
           // TODO: set an error state
@@ -37,9 +37,41 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     },
     [],
   )
-  const handleRegister = useCallback(() => {
-    // TODO: implement login logic
-  }, [])
+  const handleRegister = useCallback(
+    ({
+      email,
+      password,
+      isContentAuthor,
+    }: {
+      email: string
+      password: string
+      isContentAuthor: boolean
+    }) => {
+      setState((prev) => ({ ...prev, loading: true }))
+      fetch('/api/v1/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password, isContentAuthor }),
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error('Registration failed')
+          }
+          return response.json()
+        })
+        .then((data) => {
+          setState({ user: data.user ?? data, loading: false })
+        })
+        .catch((error) => {
+          // TODO: set an error state
+          console.error(error)
+          setState({ user: null, loading: false })
+        })
+    },
+    [],
+  )
 
   return (
     <AuthContext.Provider

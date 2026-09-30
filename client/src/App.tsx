@@ -9,6 +9,7 @@ import Layout from './components/Layout'
 import ComponentShowcase from './components/ComponentShowcase'
 import RegisterPage from './pages/RegisterPage'
 import LoginPage from './pages/LoginPage'
+import ProfilePage from './pages/ProfilePage'
 
 export const routes: RouteObject[] = [
   {
@@ -17,6 +18,7 @@ export const routes: RouteObject[] = [
       { path: '/', element: <ModuleCatalogPage /> },
       { path: '/login', element: <LoginPage /> },
       { path: '/register', element: <RegisterPage /> },
+      { path: '/profile', element: <ProfilePage /> },
       { path: '/modules/:moduleId', element: <ModulePage /> },
       { path: '/modules/:moduleId/lessons/:lessonId', element: <LessonPage /> },
       { path: '/modules/:moduleId/locked', element: <LockedLessonPage /> },

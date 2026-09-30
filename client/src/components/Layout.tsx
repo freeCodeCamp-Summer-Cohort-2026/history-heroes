@@ -21,7 +21,13 @@ export default function Layout() {
                   Login
                 </Link>
               </li>
-            ) : null}
+            ) : (
+              <li>
+                <Link to="/profile" className="text-sm sm:text-base">
+                  Profile
+                </Link>
+              </li>
+            )}
 
             <li>
               <Link to="/" className="text-sm sm:text-base">

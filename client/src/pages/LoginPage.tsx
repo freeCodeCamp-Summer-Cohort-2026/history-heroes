@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import Button from '../components/Button'
 import ButtonLink from '../components/ButtonLink'
 import Card from '../components/Card'
+import { useAuth } from '../state/auth/use-auth'
 import { EMAIL_REGEX } from '../utils/regex'
 
 interface LoginFormData {
@@ -11,7 +12,8 @@ interface LoginFormData {
 }
 
 export default function LoginPage() {
-  const isAuthenticated = false // TODO: replace with hook logic
+  const { user, handleLogin } = useAuth() ?? {}
+  const isAuthenticated = Boolean(user)
 
   const {
     register,
@@ -25,7 +27,10 @@ export default function LoginPage() {
   })
 
   const onSubmit = (data: LoginFormData) => {
-    console.log(data)
+    handleLogin?.({
+      email: data.email,
+      password: data.password,
+    })
   }
 
   if (isAuthenticated) {
