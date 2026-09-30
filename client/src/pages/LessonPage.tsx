@@ -26,10 +26,10 @@ export default function LessonPage() {
 
   if (!moduleId || !lessonId) {
     return (
-      <div>
+      <div className="space-y-2">
         <h1 className="text-display">Lesson not found</h1>
         <p className="text-body">This lesson doesn't exist</p>
-        <ButtonLink to={'/modules/:moduleId'}>Back to Module</ButtonLink>
+        <ButtonLink to={`/modules/${moduleId}`}>Back to Module</ButtonLink>
       </div>
     )
   }
@@ -149,7 +149,14 @@ function LessonPageContent({
 
   if (isLoading) return <p>Loading lesson...</p>
   if (error) return <p>{error}</p>
-  if (!lesson) return <p>That lesson could not be found.</p>
+  if (!lesson)
+    return (
+      <div className="space-y-2">
+        <h1 className="text-display">Lesson not found</h1>
+        <p className="text-body">This lesson doesn't exist</p>
+        <ButtonLink to={`/modules/${moduleId}`}>Back to Module</ButtonLink>
+      </div>
+    )
   if (lessonAvailability === 'locked') {
     return <Navigate to={`/modules/${moduleId}/locked`} replace />
   }
