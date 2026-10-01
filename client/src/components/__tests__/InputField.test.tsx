@@ -49,4 +49,16 @@ describe('InputField', () => {
       screen.getByText('Password must contain at least 8 characters.'),
     ).toBeInTheDocument()
   })
+  it('shows only the required error when both errors are provided', () => {
+    render(
+      <InputField
+        label="Email"
+        requiredError="Email is required."
+        validationError="Email is invalid."
+      />,
+    )
+
+    expect(screen.getByText('Email is required.')).toBeInTheDocument()
+    expect(screen.queryByText('Email is invalid.')).not.toBeInTheDocument()
+  })
 })

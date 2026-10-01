@@ -17,6 +17,7 @@ export default function InputField({
 }: InputFieldProps) {
   const generateId = useId()
   const inputId = id ?? generateId
+  const errorMessage = requiredError ?? validationError
 
   return (
     <fieldset className="fieldset">
@@ -24,10 +25,7 @@ export default function InputField({
         <label htmlFor={inputId}>{label}</label>
       </legend>
       <input id={inputId} className={`input ${className}`} {...inputProps} />
-      {requiredError && <p className="text-error text-sm">{requiredError}</p>}
-      {validationError && (
-        <p className="text-error text-sm">{validationError}</p>
-      )}
+      {errorMessage && <p className="text-error text-sm">{errorMessage}</p>}
     </fieldset>
   )
 }
