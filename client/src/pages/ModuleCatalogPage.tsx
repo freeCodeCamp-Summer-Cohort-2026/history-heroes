@@ -2,12 +2,23 @@ import { useEffect, useState } from 'react'
 import ModuleCatalog from '../features/module/ModuleCatalog'
 import { fetchModules } from '../features/module/model/api'
 import type { ModuleSummary } from '../features/module/model/ModuleSummary'
+import FilterChips from '../components/FilterChips'
 import ErrorState from '../components/ErrorState'
 import { useDocumentTitle } from '../utils/useDocumentTitle'
+import useModuleFilters from '../features/module/useModuleFilters'
 
 export default function ModuleCatalogPage() {
   const [modules, setModules] = useState<ModuleSummary[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const {
+    periodsList,
+    themesList,
+    selectedPeriod,
+    setSelectedPeriod,
+    selectedTheme,
+    setSelectedTheme,
+    filteredModules,
+  } = useModuleFilters(modules)
   const [hasError, setHasError] = useState(false)
 
   useEffect(() => {
@@ -16,12 +27,25 @@ export default function ModuleCatalogPage() {
       .catch(() => setHasError(true))
       .finally(() => setIsLoading(false))
   }, [])
-
   useDocumentTitle('Modules')
 
   return (
     <div className="space-y-6">
       <div>
+        <div>
+          <p>Filter by periods</p>
+          <FilterChips
+            options={periodsList}
+            selected={selectedPeriod}
+            onSelect={setSelectedPeriod}
+          />
+          <p>Filter by themes</p>
+          <FilterChips
+            options={themesList}
+            selected={selectedTheme}
+            onSelect={setSelectedTheme}
+          />
+        </div>
         <h1 className="text-display">Modules</h1>
         <p className="mt-2 text-body text-base-content/70">
           Pick a module to start exploring history.
@@ -38,7 +62,9 @@ export default function ModuleCatalogPage() {
               No modules are available yet. Check back soon!
             </p>
           )
-        return <ModuleCatalog modules={modules} />
+        if (filteredModules.length === 0)
+          return <p className="text-body">No modules match this filter</p>
+        return <ModuleCatalog modules={filteredModules} />
       })()}
     </div>
   )

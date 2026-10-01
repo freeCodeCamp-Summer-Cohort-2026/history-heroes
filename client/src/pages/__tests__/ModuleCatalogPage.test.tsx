@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, within } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { routes } from '../../App'
 
@@ -112,8 +112,13 @@ test('shows the period and theme on a module card', async () => {
     />,
   )
 
-  expect(await screen.findByText('Ancient World')).toBeInTheDocument()
-  expect(screen.getByText('Architecture and Engineering')).toBeInTheDocument()
+  const [firstCard] = await screen.findAllByRole('article')
+
+  expect(within(firstCard).getByText('Ancient World')).toBeInTheDocument()
+
+  expect(
+    within(firstCard).getByText('Architecture and Engineering'),
+  ).toBeInTheDocument()
 })
 
 test('shows a friendly error message when modules fail to load', async () => {
