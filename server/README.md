@@ -37,7 +37,7 @@ If there's already users in the database none of the seeding logic should be exe
 
 Seeding only runs against a database that has no users in it, so an existing database will not pick up changes to the seed JSON files. After editing any seed data, delete and re-create the database using the steps below.
 
-**note**: Passwords in `data/seeds/initial-users.json` are stored as plaintext and are placeholders, not real credentials. Password hashing is tracked in #46 and is not required for Core, since Core does not implement a login flow.
+**note**: Passwords in `data/seeds/initial-users.json` are placeholders for local dev/testing. During database seeding, passwords are automatically hashed with bcrypt before being saved to the database.
 
 ### Delete and re-create the database
 

@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import * as bcrypt from 'bcrypt';
 import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
 
@@ -107,30 +108,53 @@ describe('UsersService', () => {
     });
   });
 
+  describe('comparePassword', () => {
+    it('should return true when plaintext password matches hash', async () => {
+      const hash = await bcrypt.hash('secret123', 10);
+      const isMatch = await service.comparePassword('secret123', hash);
+      expect(isMatch).toBe(true);
+    });
+
+    it('should return false when plaintext password does not match hash', async () => {
+      const hash = await bcrypt.hash('secret123', 10);
+      const isMatch = await service.comparePassword('wrongpassword', hash);
+      expect(isMatch).toBe(false);
+    });
+  });
+
   describe('create', () => {
-    it('should create and save a new user', async () => {
+    it('should create and save a new user with a hashed password', async () => {
       const newUserData = {
         email: 'newuser@historyheroes.org',
         password: 'password123',
       };
 
-      const savedUser: User = {
+      mockUsersRepository.save.mockImplementation(async (entity: User) => ({
         id: 2,
-        email: newUserData.email,
-        password: newUserData.password,
+        email: entity.email,
+        password: entity.password,
         createdAt: new Date(),
         updatedAt: new Date(),
-      };
-
-      mockUsersRepository.save.mockResolvedValue(savedUser);
+      }));
 
       const result = await service.create(newUserData);
 
-      expect(result).toEqual(savedUser);
-      const expectedUser = new User();
-      expectedUser.email = newUserData.email;
-      expectedUser.password = newUserData.password;
-      expect(mockUsersRepository.save).toHaveBeenCalledWith(expectedUser);
+      expect(result.id).toBe(2);
+      expect(result.email).toBe(newUserData.email);
+      expect(result.password).not.toBe(newUserData.password);
+
+      const isMatch = await bcrypt.compare(
+        newUserData.password,
+        result.password!,
+      );
+      expect(isMatch).toBe(true);
+
+      expect(mockUsersRepository.save).toHaveBeenCalledWith(
+        expect.objectContaining({
+          email: newUserData.email,
+          password: expect.any(String),
+        }),
+      );
     });
   });
 });

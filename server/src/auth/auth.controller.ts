@@ -43,8 +43,16 @@ export class AuthController {
       includePassword: true,
     });
 
-    // **note** this password should already be unhashed from getByEmail
-    if (!user || user.password !== body.password) {
+    if (!user || !user.password) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+
+    const isPasswordValid = await this.userService.comparePassword(
+      body.password,
+      user.password,
+    );
+
+    if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid email or password');
     }
 

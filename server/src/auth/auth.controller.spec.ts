@@ -15,6 +15,7 @@ describe('AuthController', () => {
   const mockUsersService = {
     getByEmail: vi.fn(),
     create: vi.fn(),
+    comparePassword: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -42,9 +43,10 @@ describe('AuthController', () => {
       const mockUser: Partial<User> = {
         id: 1,
         email: 'test@historyheroes.org',
-        password: 'password123',
+        password: 'hashed-password',
       };
       mockUsersService.getByEmail.mockResolvedValue(mockUser);
+      mockUsersService.comparePassword.mockResolvedValue(true);
 
       const mockReq = {
         session: {} as Record<string, any>,
@@ -60,6 +62,10 @@ describe('AuthController', () => {
       expect(mockUsersService.getByEmail).toHaveBeenCalledWith(
         { email: 'test@historyheroes.org', password: 'password123' },
         { includePassword: true },
+      );
+      expect(mockUsersService.comparePassword).toHaveBeenCalledWith(
+        'password123',
+        'hashed-password',
       );
     });
 
@@ -80,9 +86,10 @@ describe('AuthController', () => {
       const mockUser: Partial<User> = {
         id: 1,
         email: 'test@historyheroes.org',
-        password: 'correct-password',
+        password: 'hashed-password',
       };
       mockUsersService.getByEmail.mockResolvedValue(mockUser);
+      mockUsersService.comparePassword.mockResolvedValue(false);
 
       const mockReq = { session: {} } as unknown as Request;
 
@@ -92,6 +99,10 @@ describe('AuthController', () => {
           mockReq,
         ),
       ).rejects.toThrow(UnauthorizedException);
+      expect(mockUsersService.comparePassword).toHaveBeenCalledWith(
+        'wrong-password',
+        'hashed-password',
+      );
     });
   });
 
@@ -150,7 +161,7 @@ describe('AuthController', () => {
       const createdUser: Partial<User> = {
         id: 2,
         email: 'newuser@historyheroes.org',
-        password: 'password123',
+        password: 'hashed-password',
       };
       mockUsersService.create.mockResolvedValue(createdUser);
 
