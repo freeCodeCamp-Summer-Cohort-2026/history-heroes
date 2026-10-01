@@ -130,6 +130,25 @@ test('shows an empty state when the module has no lessons', async () => {
   ).toBeInTheDocument()
 })
 
+test('shows a friendly error message when the module fails to load', async () => {
+  vi.stubGlobal(
+    'fetch',
+    vi
+      .fn()
+      .mockRejectedValue(
+        new Error('Request failed with status 500: database connection failed'),
+      ),
+  )
+
+  renderModulePage()
+
+  const alert = await screen.findByRole('alert')
+
+  expect(alert).toHaveTextContent("We couldn't load this module right now.")
+  expect(alert).not.toHaveTextContent(/status 500/i)
+  expect(alert).not.toHaveTextContent(/database connection failed/i)
+})
+
 test('offers the module lab after the lessons', async () => {
   mockServer(testLessons)
   renderModulePage()
