@@ -60,7 +60,10 @@ function TestConsumer() {
       </button>
       <button
         onClick={() => {
-          handleLogin?.({ email: 'test@example.com', password: 'password123' })
+          handleLogin?.({
+            email: 'test@example.com',
+            password: 'password123',
+          }).catch(() => {})
         }}
         data-testid="btn-login"
       >
@@ -72,7 +75,7 @@ function TestConsumer() {
             email: 'test@example.com',
             password: 'password123',
             isContentAuthor: false,
-          })
+          }).catch(() => {})
         }}
         data-testid="btn-register"
       >
@@ -445,5 +448,121 @@ describe('AuthProvider error and loading handling', () => {
         JSON.stringify({ id: 10, email: 'sessionuser@example.com' }),
       )
     })
+  })
+
+  test('handleLogin re-throws error on failure', async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ message: 'Unauthorized' }), {
+        status: 401,
+      }),
+    )
+
+    let capturedError: unknown
+    function ThrowTestConsumer() {
+      const { handleLogin } = useAuth()
+      return (
+        <button
+          onClick={async () => {
+            try {
+              await handleLogin({ email: 'a@b.com', password: 'pwd' })
+            } catch (err) {
+              capturedError = err
+            }
+          }}
+          data-testid="btn-login-throw"
+        >
+          Login
+        </button>
+      )
+    }
+
+    render(
+      <AuthProvider>
+        <ThrowTestConsumer />
+      </AuthProvider>,
+    )
+
+    await act(async () => {
+      screen.getByTestId('btn-login-throw').click()
+    })
+
+    expect(capturedError).toBeInstanceOf(Error)
+    expect((capturedError as Error).message).toBe('Login failed')
+  })
+
+  test('handleRegister re-throws error on failure', async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ message: 'Conflict' }), {
+        status: 409,
+      }),
+    )
+
+    let capturedError: unknown
+    function ThrowTestConsumer() {
+      const { handleRegister } = useAuth()
+      return (
+        <button
+          onClick={async () => {
+            try {
+              await handleRegister({
+                email: 'a@b.com',
+                password: 'pwd',
+                isContentAuthor: false,
+              })
+            } catch (err) {
+              capturedError = err
+            }
+          }}
+          data-testid="btn-register-throw"
+        >
+          Register
+        </button>
+      )
+    }
+
+    render(
+      <AuthProvider>
+        <ThrowTestConsumer />
+      </AuthProvider>,
+    )
+
+    await act(async () => {
+      screen.getByTestId('btn-register-throw').click()
+    })
+
+    expect(capturedError).toBeInstanceOf(Error)
+    expect((capturedError as Error).message).toBe('Registration failed')
+  })
+
+  test('showLogin is true initially and does not flicker during unauthenticated session load', async () => {
+    globalThis.fetch = vi
+      .fn()
+      .mockResolvedValue(new Response(null, { status: 401 }))
+
+    function ShowLoginConsumer() {
+      const { showLogin, loading } = useAuth()
+      return (
+        <div>
+          <div data-testid="consumer-showLogin">{String(showLogin)}</div>
+          <div data-testid="consumer-loading">{String(loading)}</div>
+        </div>
+      )
+    }
+
+    render(
+      <AuthProvider>
+        <ShowLoginConsumer />
+      </AuthProvider>,
+    )
+
+    // Initially showLogin is true because there is no user
+    expect(screen.getByTestId('consumer-showLogin')).toHaveTextContent('true')
+
+    await waitFor(() => {
+      expect(screen.getByTestId('consumer-loading')).toHaveTextContent('false')
+    })
+
+    // After session loads unauthenticated, showLogin remains true
+    expect(screen.getByTestId('consumer-showLogin')).toHaveTextContent('true')
   })
 })

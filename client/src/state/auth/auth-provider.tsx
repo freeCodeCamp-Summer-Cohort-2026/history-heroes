@@ -70,7 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }: {
       email: string
       password: string
-    }): Promise<User | null> => {
+    }): Promise<User> => {
       setState((prev) => ({
         ...prev,
         loginLoading: true,
@@ -103,7 +103,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           loginLoading: false,
           loginError: error,
         }))
-        return null
+        throw error
       }
     },
     [],
@@ -118,7 +118,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       email: string
       password: string
       isContentAuthor: boolean
-    }): Promise<User | null> => {
+    }): Promise<User> => {
       setState((prev) => ({
         ...prev,
         registerLoading: true,
@@ -151,7 +151,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           registerLoading: false,
           registerError: error,
         }))
-        return null
+        throw error
       }
     },
     [],
@@ -205,7 +205,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         // calculated state
         loading,
-        showLogin: !loading && !state.user,
+        showLogin: !state.user,
 
         // callbacks
         handleLogin,

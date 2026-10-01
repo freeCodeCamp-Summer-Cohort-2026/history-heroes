@@ -48,14 +48,7 @@ export default function ProfilePage() {
 
   const onLogout = async () => {
     try {
-      if (handleLogout) {
-        await handleLogout()
-      } else {
-        const response = await fetch('/api/v1/auth/logout', { method: 'POST' })
-        if (!response.ok) {
-          throw new Error('Failed to logout')
-        }
-      }
+      await handleLogout()
       setFetchedUser(null)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to logout')

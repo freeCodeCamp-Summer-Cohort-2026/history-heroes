@@ -7,8 +7,14 @@ import type { AuthState, AuthActions } from '../../state/auth/auth-types'
 function renderLoginPage({
   authState = {},
   authActions = {
-    handleLogin: vi.fn().mockResolvedValue(null),
-    handleRegister: vi.fn().mockResolvedValue(null),
+    handleLogin: vi
+      .fn()
+      .mockResolvedValue({ id: 1, email: 'test@historyheroes.org' }),
+    handleRegister: vi
+      .fn()
+      .mockResolvedValue({ id: 1, email: 'test@historyheroes.org' }),
+    handleLogout: vi.fn().mockResolvedValue(undefined),
+    getUserSession: vi.fn().mockResolvedValue(null),
   },
 }: {
   authState?: AuthState
@@ -65,11 +71,17 @@ describe('LoginPage', () => {
   })
 
   test('calls handleLogin with form data on valid submit', async () => {
-    const handleLogin = vi.fn().mockResolvedValue(null)
+    const handleLogin = vi
+      .fn()
+      .mockResolvedValue({ id: 1, email: 'hero@example.com' })
     renderLoginPage({
       authActions: {
         handleLogin,
-        handleRegister: vi.fn().mockResolvedValue(null),
+        handleRegister: vi
+          .fn()
+          .mockResolvedValue({ id: 1, email: 'hero@example.com' }),
+        handleLogout: vi.fn().mockResolvedValue(undefined),
+        getUserSession: vi.fn().mockResolvedValue(null),
       },
     })
 

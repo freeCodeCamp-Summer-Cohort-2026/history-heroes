@@ -28,7 +28,7 @@ export interface AuthState {
    */
   logoutLoading?: boolean
   /**
-   * Calculated from loading + user.
+   * Calculated from user (true when user is not logged in).
    */
   showLogin?: boolean
   /**
@@ -54,15 +54,12 @@ export interface AuthState {
 }
 
 export interface AuthActions {
-  handleLogin: (params: {
-    email: string
-    password: string
-  }) => Promise<User | null>
+  handleLogin: (params: { email: string; password: string }) => Promise<User>
   handleRegister: (params: {
     email: string
     password: string
     isContentAuthor: boolean
-  }) => Promise<User | null>
-  handleLogout?: () => Promise<void>
+  }) => Promise<User>
+  handleLogout: () => Promise<void>
   getUserSession?: () => Promise<User | null>
 }

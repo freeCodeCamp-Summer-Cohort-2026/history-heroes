@@ -16,6 +16,7 @@ function renderProfilePage({
   const defaultActions: AuthActions = {
     handleLogin: vi.fn(),
     handleRegister: vi.fn(),
+    handleLogout: vi.fn(),
     ...authActions,
   }
 
@@ -178,31 +179,5 @@ describe('ProfilePage', () => {
         'Logout network error',
       )
     })
-  })
-
-  test('shows error alert when fallback logout fetch fails', async () => {
-    const originalFetch = globalThis.fetch
-    globalThis.fetch = vi
-      .fn()
-      .mockResolvedValue(new Response(null, { status: 500 }))
-
-    try {
-      renderProfilePage({
-        authState: {
-          user: { id: 42, email: 'hero@example.com' },
-        },
-        authActions: {
-          handleLogout: undefined,
-        },
-      })
-
-      fireEvent.click(screen.getByRole('button', { name: /logout/i }))
-
-      await waitFor(() => {
-        expect(screen.getByRole('alert')).toHaveTextContent('Failed to logout')
-      })
-    } finally {
-      globalThis.fetch = originalFetch
-    }
   })
 })

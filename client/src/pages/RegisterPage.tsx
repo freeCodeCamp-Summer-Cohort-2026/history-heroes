@@ -39,11 +39,15 @@ export default function RegisterPage() {
   })
 
   const onSubmit = async (data: RegisterFormData) => {
-    await handleRegister({
-      email: data.email,
-      password: data.password,
-      isContentAuthor: data.isContentAuthor,
-    })
+    try {
+      await handleRegister({
+        email: data.email,
+        password: data.password,
+        isContentAuthor: data.isContentAuthor,
+      })
+    } catch {
+      // registerError is handled in auth context state
+    }
   }
 
   if (isAuthenticated) {

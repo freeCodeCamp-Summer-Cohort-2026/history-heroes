@@ -29,10 +29,14 @@ export default function LoginPage() {
   })
 
   const onSubmit = async (data: LoginFormData) => {
-    await handleLogin({
-      email: data.email,
-      password: data.password,
-    })
+    try {
+      await handleLogin({
+        email: data.email,
+        password: data.password,
+      })
+    } catch {
+      // loginError is handled in auth context state
+    }
   }
 
   if (isAuthenticated) {

@@ -21,6 +21,9 @@ import { UsersService } from '../users/users.service';
 import { ZodValidationPipe } from '../core/pipes/zod-validation.pipe';
 import { AuthenticatedGuard } from './guards/authenticated.guard';
 
+export const DUMMY_PASSWORD_HASH =
+  '$2b$10$frK7jkPeMEgJ2JFAH4xAXOqC/AkA3mNBQbdJislz0Vsqkky1dem6O';
+
 /**
  * The auth controller manages authentication, for:
  * - login
@@ -43,16 +46,13 @@ export class AuthController {
       includePassword: true,
     });
 
-    if (!user || !user.password) {
-      throw new UnauthorizedException('Invalid email or password');
-    }
-
+    const hashToCompare = user?.password || DUMMY_PASSWORD_HASH;
     const isPasswordValid = await this.userService.comparePassword(
       body.password,
-      user.password,
+      hashToCompare,
     );
 
-    if (!isPasswordValid) {
+    if (!user || !user.password || !isPasswordValid) {
       throw new UnauthorizedException('Invalid email or password');
     }
 
