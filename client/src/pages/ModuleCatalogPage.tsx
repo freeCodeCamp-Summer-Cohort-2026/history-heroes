@@ -10,7 +10,6 @@ import useModuleFilters from '../features/module/useModuleFilters'
 export default function ModuleCatalogPage() {
   const [modules, setModules] = useState<ModuleSummary[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const {
     periodsList,
     themesList,
