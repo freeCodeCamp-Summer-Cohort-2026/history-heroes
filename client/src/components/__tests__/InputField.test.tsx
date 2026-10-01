@@ -49,23 +49,4 @@ describe('InputField', () => {
       screen.getByText('Password must contain at least 8 characters.'),
     ).toBeInTheDocument()
   })
-
-  it('toggles password visibility', () => {
-    render(<InputField label="Password" type="password" />)
-    const input = screen.getByLabelText('Password')
-    expect(input).toHaveAttribute('type', 'password')
-
-    fireEvent.click(screen.getByRole('button', { name: 'Show password' }))
-    expect(input).toHaveAttribute('type', 'text')
-
-    fireEvent.click(screen.getByRole('button', { name: 'Hide password' }))
-    expect(input).toHaveAttribute('type', 'password')
-  })
-  it('does not show password toggle for non-password inputs', () => {
-    render(<InputField label="Email" type="email" />)
-
-    expect(
-      screen.queryByRole('button', { name: /password/i }),
-    ).not.toBeInTheDocument()
-  })
 })

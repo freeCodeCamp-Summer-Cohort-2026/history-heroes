@@ -3,6 +3,7 @@
 import { useState } from 'react'
 
 import InputField from './InputField'
+import PasswordField from './PasswordField'
 import Button from './Button'
 import FeedbackState from './FeedbackState'
 import LessonListItem from './LessonListItem'
@@ -166,13 +167,12 @@ export default function ComponentShowcase() {
             requiredError="This field is required."
           />
 
-          <InputField
+          <PasswordField
             label="Password with validation error"
-            type="password"
             validationError="Password must meet the required complexity."
           />
 
-          <InputField label="Password" type="password" />
+          <PasswordField label="Password" />
         </div>
       </section>
       <section>
