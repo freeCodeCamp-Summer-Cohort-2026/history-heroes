@@ -258,4 +258,192 @@ describe('AuthProvider error and loading handling', () => {
       expect(screen.getByTestId('logoutLoading')).toHaveTextContent('false')
     })
   })
+
+  test('updates user state on successful handleLogin', async () => {
+    const mockUser = { id: 1, email: 'test@example.com' }
+    globalThis.fetch = vi
+      .fn()
+      .mockResolvedValueOnce(new Response(null, { status: 401 }))
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ user: mockUser }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+      )
+
+    render(
+      <AuthProvider>
+        <TestConsumer />
+      </AuthProvider>,
+    )
+
+    await waitFor(() => {
+      expect(screen.getByTestId('loading')).toHaveTextContent('false')
+    })
+
+    await act(async () => {
+      screen.getByTestId('btn-login').click()
+    })
+
+    await waitFor(() => {
+      expect(screen.getByTestId('user')).toHaveTextContent(
+        JSON.stringify(mockUser),
+      )
+      expect(screen.getByTestId('loginLoading')).toHaveTextContent('false')
+      expect(screen.getByTestId('loginError')).toHaveTextContent('')
+    })
+  })
+
+  test('updates user state on successful handleRegister', async () => {
+    const mockUser = { id: 2, email: 'test@example.com' }
+    globalThis.fetch = vi
+      .fn()
+      .mockResolvedValueOnce(new Response(null, { status: 401 }))
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ user: mockUser }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+      )
+
+    render(
+      <AuthProvider>
+        <TestConsumer />
+      </AuthProvider>,
+    )
+
+    await waitFor(() => {
+      expect(screen.getByTestId('loading')).toHaveTextContent('false')
+    })
+
+    await act(async () => {
+      screen.getByTestId('btn-register').click()
+    })
+
+    await waitFor(() => {
+      expect(screen.getByTestId('user')).toHaveTextContent(
+        JSON.stringify(mockUser),
+      )
+      expect(screen.getByTestId('registerLoading')).toHaveTextContent('false')
+      expect(screen.getByTestId('registerError')).toHaveTextContent('')
+    })
+  })
+
+  test('updates user state on successful getUserSession', async () => {
+    const sessionResponse = {
+      session_info: {
+        userId: 10,
+        email: 'sessionuser@example.com',
+      },
+    }
+    globalThis.fetch = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify(sessionResponse), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    )
+
+    render(
+      <AuthProvider>
+        <TestConsumer />
+      </AuthProvider>,
+    )
+
+    await waitFor(() => {
+      expect(screen.getByTestId('loading')).toHaveTextContent('false')
+      expect(screen.getByTestId('user')).toHaveTextContent(
+        JSON.stringify({ id: 10, email: 'sessionuser@example.com' }),
+      )
+    })
+  })
+
+  test('clears user state on successful handleLogout', async () => {
+    const sessionResponse = {
+      session_info: {
+        userId: 10,
+        email: 'sessionuser@example.com',
+      },
+    }
+    globalThis.fetch = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify(sessionResponse), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ success: true }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+      )
+
+    render(
+      <AuthProvider>
+        <TestConsumer />
+      </AuthProvider>,
+    )
+
+    await waitFor(() => {
+      expect(screen.getByTestId('user')).toHaveTextContent(
+        JSON.stringify({ id: 10, email: 'sessionuser@example.com' }),
+      )
+    })
+
+    await act(async () => {
+      screen.getByTestId('btn-logout').click()
+    })
+
+    await waitFor(() => {
+      expect(screen.getByTestId('user')).toHaveTextContent('null')
+      expect(screen.getByTestId('logoutLoading')).toHaveTextContent('false')
+      expect(screen.getByTestId('logoutError')).toHaveTextContent('')
+    })
+  })
+
+  test('failed handleLogin preserves existing authenticated user', async () => {
+    const sessionResponse = {
+      session_info: {
+        userId: 10,
+        email: 'sessionuser@example.com',
+      },
+    }
+    globalThis.fetch = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify(sessionResponse), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ message: 'Unauthorized' }), {
+          status: 401,
+        }),
+      )
+
+    render(
+      <AuthProvider>
+        <TestConsumer />
+      </AuthProvider>,
+    )
+
+    await waitFor(() => {
+      expect(screen.getByTestId('user')).toHaveTextContent(
+        JSON.stringify({ id: 10, email: 'sessionuser@example.com' }),
+      )
+    })
+
+    await act(async () => {
+      screen.getByTestId('btn-login').click()
+    })
+
+    await waitFor(() => {
+      expect(screen.getByTestId('loginError')).toHaveTextContent('Login failed')
+      expect(screen.getByTestId('user')).toHaveTextContent(
+        JSON.stringify({ id: 10, email: 'sessionuser@example.com' }),
+      )
+    })
+  })
 })

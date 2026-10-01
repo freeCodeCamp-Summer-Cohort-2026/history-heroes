@@ -138,4 +138,71 @@ describe('ProfilePage', () => {
     expect(screen.getByRole('status')).toBeInTheDocument()
     expect(screen.getByText(/loading/i)).toBeInTheDocument()
   })
+
+  test('shows error alert when getUserSession rejects', async () => {
+    const getUserSession = vi
+      .fn()
+      .mockRejectedValue(new Error('Network connection failed'))
+    renderProfilePage({
+      authState: { user: null },
+      authActions: { getUserSession },
+    })
+
+    await waitFor(() => {
+      expect(getUserSession).toHaveBeenCalled()
+    })
+
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Network connection failed',
+    )
+    expect(screen.queryByText(/login or register/i)).not.toBeInTheDocument()
+  })
+
+  test('shows error alert when handleLogout fails', async () => {
+    const handleLogout = vi
+      .fn()
+      .mockRejectedValue(new Error('Logout network error'))
+    renderProfilePage({
+      authState: {
+        user: { id: 42, email: 'hero@example.com' },
+      },
+      authActions: {
+        handleLogout,
+      },
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: /logout/i }))
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toHaveTextContent(
+        'Logout network error',
+      )
+    })
+  })
+
+  test('shows error alert when fallback logout fetch fails', async () => {
+    const originalFetch = globalThis.fetch
+    globalThis.fetch = vi
+      .fn()
+      .mockResolvedValue(new Response(null, { status: 500 }))
+
+    try {
+      renderProfilePage({
+        authState: {
+          user: { id: 42, email: 'hero@example.com' },
+        },
+        authActions: {
+          handleLogout: undefined,
+        },
+      })
+
+      fireEvent.click(screen.getByRole('button', { name: /logout/i }))
+
+      await waitFor(() => {
+        expect(screen.getByRole('alert')).toHaveTextContent('Failed to logout')
+      })
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+  })
 })

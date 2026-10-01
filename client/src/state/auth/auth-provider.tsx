@@ -43,7 +43,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           : null
       setState((prev) => ({
         ...prev,
-        user: prev.user ?? userInfo,
+        user: userInfo,
         getUserSessionLoading: false,
         getUserSessionError: undefined,
       }))
@@ -100,7 +100,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.error(error)
         setState((prev) => ({
           ...prev,
-          user: null,
           loginLoading: false,
           loginError: error,
         }))
@@ -149,7 +148,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.error(error)
         setState((prev) => ({
           ...prev,
-          user: null,
           registerLoading: false,
           registerError: error,
         }))

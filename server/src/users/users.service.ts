@@ -16,9 +16,13 @@ export class UsersService {
     @Optional()
     private readonly configService?: ConfigService,
   ) {
-    this.saltRounds = Number(
+    const rounds = Number(
       this.configService?.get<number | string>('BCRYPT_SALT_ROUNDS', 10) ?? 10,
     );
+    if (!Number.isInteger(rounds) || rounds < 10) {
+      throw new Error('BCRYPT_SALT_ROUNDS must be at least 10');
+    }
+    this.saltRounds = rounds;
   }
 
   /**

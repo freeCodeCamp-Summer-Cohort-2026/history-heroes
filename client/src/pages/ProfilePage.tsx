@@ -47,11 +47,18 @@ export default function ProfilePage() {
   const isLoading = (loading && !currentUser) || (isFetching && !currentUser)
 
   const onLogout = async () => {
-    setFetchedUser(null)
-    if (handleLogout) {
-      await handleLogout()
-    } else {
-      fetch('/api/v1/auth/logout', { method: 'POST' }).catch(console.error)
+    try {
+      if (handleLogout) {
+        await handleLogout()
+      } else {
+        const response = await fetch('/api/v1/auth/logout', { method: 'POST' })
+        if (!response.ok) {
+          throw new Error('Failed to logout')
+        }
+      }
+      setFetchedUser(null)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to logout')
     }
   }
 
@@ -69,6 +76,14 @@ export default function ProfilePage() {
       {(() => {
         if (isLoading) {
           return <LoadingIndicator />
+        }
+
+        if (error) {
+          return (
+            <div role="alert" className="text-error">
+              {error}
+            </div>
+          )
         }
 
         if (!currentUser) {
@@ -90,14 +105,6 @@ export default function ProfilePage() {
                   </div>
                 </div>
               </Card>
-            </div>
-          )
-        }
-
-        if (error) {
-          return (
-            <div role="alert" className="text-error">
-              {error}
             </div>
           )
         }

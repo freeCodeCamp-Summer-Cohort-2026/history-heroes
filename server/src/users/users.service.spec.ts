@@ -157,4 +157,46 @@ describe('UsersService', () => {
       );
     });
   });
+
+  describe('saltRounds configuration', () => {
+    it('should throw an error if BCRYPT_SALT_ROUNDS is less than 10', () => {
+      const mockConfigService = {
+        get: vi.fn().mockReturnValue(5),
+      };
+
+      expect(() => {
+        new UsersService(mockUsersRepository as any, mockConfigService as any);
+      }).toThrow('BCRYPT_SALT_ROUNDS must be at least 10');
+    });
+
+    it('should throw an error if BCRYPT_SALT_ROUNDS is non-numeric or NaN', () => {
+      const mockConfigService = {
+        get: vi.fn().mockReturnValue('invalid'),
+      };
+
+      expect(() => {
+        new UsersService(mockUsersRepository as any, mockConfigService as any);
+      }).toThrow('BCRYPT_SALT_ROUNDS must be at least 10');
+    });
+
+    it('should throw an error if BCRYPT_SALT_ROUNDS is a float', () => {
+      const mockConfigService = {
+        get: vi.fn().mockReturnValue(10.5),
+      };
+
+      expect(() => {
+        new UsersService(mockUsersRepository as any, mockConfigService as any);
+      }).toThrow('BCRYPT_SALT_ROUNDS must be at least 10');
+    });
+
+    it('should succeed when BCRYPT_SALT_ROUNDS is 10 or greater', () => {
+      const mockConfigService = {
+        get: vi.fn().mockReturnValue('12'),
+      };
+
+      expect(() => {
+        new UsersService(mockUsersRepository as any, mockConfigService as any);
+      }).not.toThrow();
+    });
+  });
 });
