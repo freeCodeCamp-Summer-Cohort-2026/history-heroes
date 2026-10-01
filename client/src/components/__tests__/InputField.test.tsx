@@ -61,4 +61,13 @@ describe('InputField', () => {
     expect(screen.getByText('Email is required.')).toBeInTheDocument()
     expect(screen.queryByText('Email is invalid.')).not.toBeInTheDocument()
   })
+  it('render an input suffix', () => {
+    render(
+      <InputField
+        label="Search"
+        inputSuffix={<button type="button">clear</button>}
+      />,
+    )
+    expect(screen.getByRole('button', { name: 'clear' })).toBeInTheDocument()
+  })
 })

@@ -1,10 +1,11 @@
 import { useId } from 'react'
-import type { ComponentProps } from 'react'
+import type { ComponentProps, ReactNode } from 'react'
 
 type InputFieldProps = ComponentProps<'input'> & {
   label: string
   requiredError?: string
   validationError?: string
+  inputSuffix?: ReactNode
 }
 
 export default function InputField({
@@ -13,6 +14,7 @@ export default function InputField({
   className = '',
   requiredError,
   validationError,
+  inputSuffix,
   ...inputProps
 }: InputFieldProps) {
   const generateId = useId()
@@ -24,7 +26,19 @@ export default function InputField({
       <legend className="fieldset-legend">
         <label htmlFor={inputId}>{label}</label>
       </legend>
-      <input id={inputId} className={`input ${className}`} {...inputProps} />
+      <div className="relative w-fit">
+        <input
+          id={inputId}
+          className={`input ${inputSuffix ? 'pr-10' : ''} ${className}`}
+          {...inputProps}
+        />
+
+        {inputSuffix && (
+          <div className="absolute inset-y-0 right-2 flex items-center">
+            {inputSuffix}
+          </div>
+        )}
+      </div>
       {errorMessage && <p className="text-error text-sm">{errorMessage}</p>}
     </fieldset>
   )
