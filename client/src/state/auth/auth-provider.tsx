@@ -18,6 +18,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }))
     try {
       const response = await fetch('/api/v1/auth/session')
+      if (response.status === 401) {
+        setState((prev) => ({
+          ...prev,
+          user: null,
+          getUserSessionLoading: false,
+          getUserSessionError: undefined,
+        }))
+        return null
+      }
       if (!response.ok) {
         throw new Error('Failed to load session information')
       }

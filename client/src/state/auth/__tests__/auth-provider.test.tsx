@@ -121,10 +121,10 @@ describe('AuthProvider error and loading handling', () => {
       )
     })
 
-    // Now call getUserSession explicitly
+    // Now call getUserSession explicitly with server error
     globalThis.fetch = vi
       .fn()
-      .mockResolvedValueOnce(new Response(null, { status: 401 }))
+      .mockResolvedValueOnce(new Response(null, { status: 500 }))
 
     await act(async () => {
       screen.getByTestId('btn-getUserSession').click()
@@ -137,6 +137,40 @@ describe('AuthProvider error and loading handling', () => {
       expect(screen.getByTestId('getUserSessionLoading')).toHaveTextContent(
         'false',
       )
+    })
+  })
+
+  test('treats 401 response in getUserSession as unauthenticated without error', async () => {
+    globalThis.fetch = vi
+      .fn()
+      .mockResolvedValue(new Response(null, { status: 401 }))
+
+    render(
+      <AuthProvider>
+        <TestConsumer />
+      </AuthProvider>,
+    )
+
+    await waitFor(() => {
+      expect(screen.getByTestId('loading')).toHaveTextContent('false')
+      expect(screen.getByTestId('getUserSessionLoading')).toHaveTextContent(
+        'false',
+      )
+      expect(screen.getByTestId('getUserSessionError')).toHaveTextContent('')
+      expect(screen.getByTestId('user')).toHaveTextContent('null')
+    })
+
+    // Now call getUserSession explicitly
+    await act(async () => {
+      screen.getByTestId('btn-getUserSession').click()
+    })
+
+    await waitFor(() => {
+      expect(screen.getByTestId('getUserSessionError')).toHaveTextContent('')
+      expect(screen.getByTestId('getUserSessionLoading')).toHaveTextContent(
+        'false',
+      )
+      expect(screen.getByTestId('user')).toHaveTextContent('null')
     })
   })
 
