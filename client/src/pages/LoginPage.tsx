@@ -38,14 +38,18 @@ export default function LoginPage() {
     return <Navigate to="/" replace />
   }
 
-  const errorMessage =
-    loginError instanceof Error
-      ? loginError.message
-      : typeof loginError === 'string'
-        ? loginError
-        : loginError
-          ? 'Login failed'
-          : null
+  const errorMessage = (() => {
+    if (loginError instanceof Error) {
+      return loginError.message
+    }
+    if (typeof loginError === 'string') {
+      return loginError
+    }
+    if (loginError) {
+      return 'Login failed'
+    }
+    return null
+  })()
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-base-100">
