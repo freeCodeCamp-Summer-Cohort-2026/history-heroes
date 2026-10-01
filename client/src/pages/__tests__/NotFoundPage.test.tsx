@@ -1,9 +1,10 @@
-import { render, screen } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { routes } from '../../App'
+import { renderWithAuth } from '../../test/utils'
 
 test(`tests uknown route reaching the page`, async () => {
-  render(
+  renderWithAuth(
     <RouterProvider
       router={createMemoryRouter(routes, { initialEntries: ['/random'] })}
     />,

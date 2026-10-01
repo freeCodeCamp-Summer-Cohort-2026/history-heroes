@@ -1,6 +1,7 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, screen } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { routes } from '../../App'
+import { renderWithAuth } from '../../test/utils'
 import type { Activity } from '../../features/activities/types'
 import type { Lesson } from '../../features/lesson/model/Lesson'
 import type { ModuleSummary } from '../../features/module/model/ModuleSummary'
@@ -111,7 +112,7 @@ function lessonCompletionRequests(
 }
 
 function renderAt(path: string) {
-  render(
+  renderWithAuth(
     <RouterProvider
       router={createMemoryRouter(routes, { initialEntries: [path] })}
     />,

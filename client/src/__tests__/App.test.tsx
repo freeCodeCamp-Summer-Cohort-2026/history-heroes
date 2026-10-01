@@ -1,6 +1,7 @@
-import { render, screen, fireEvent } from '@testing-library/react'
+import { screen, fireEvent } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { routes } from '../App'
+import { renderWithAuth } from '../test/utils'
 
 beforeEach(() => {
   vi.stubGlobal(
@@ -17,7 +18,7 @@ afterEach(() => {
 })
 
 test('renders the module catalog', async () => {
-  render(
+  renderWithAuth(
     <RouterProvider
       router={createMemoryRouter(routes, { initialEntries: ['/'] })}
     />,
@@ -29,7 +30,7 @@ test('renders the module catalog', async () => {
 })
 
 test('shows a message for an unknown module', async () => {
-  render(
+  renderWithAuth(
     <RouterProvider
       router={createMemoryRouter(routes, {
         initialEntries: ['/modules/seven-wonders'],
@@ -43,7 +44,7 @@ test('shows a message for an unknown module', async () => {
 })
 
 test('shows page not found when unknown route is provided', () => {
-  render(
+  renderWithAuth(
     <RouterProvider
       router={createMemoryRouter(routes, { initialEntries: ['/nonsense'] })}
     />,
@@ -55,7 +56,7 @@ test('shows page not found when unknown route is provided', () => {
 })
 
 test('shows the site heading', async () => {
-  render(
+  renderWithAuth(
     <RouterProvider
       router={createMemoryRouter(routes, {
         initialEntries: ['/modules/seven-wonders/lessons/great-pyramid'],
@@ -76,7 +77,7 @@ test('scrolls to the top when the page changes', async () => {
   const router = createMemoryRouter(routes, {
     initialEntries: ['/modules/seven-wonders'],
   })
-  render(<RouterProvider router={router} />)
+  renderWithAuth(<RouterProvider router={router} />)
 
   await screen.findByText('That module could not be found.')
   scrollSpy.mockClear()

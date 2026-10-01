@@ -8,5 +8,9 @@ import type { AuthActions, AuthState } from './auth-types'
  * Use this instead of the direct AuthContext
  */
 export function useAuth(): AuthState & AuthActions {
-  return useContext(AuthContext)!
+  const context = useContext(AuthContext)
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider')
+  }
+  return context
 }

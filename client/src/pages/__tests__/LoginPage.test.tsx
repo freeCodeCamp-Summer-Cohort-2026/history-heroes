@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import LoginPage from '../LoginPage'
-import { AuthContext } from '../../state/auth/auth-context'
+import { MockAuthProvider } from '../../test/utils'
 import type { AuthState, AuthActions } from '../../state/auth/auth-types'
 
 function renderLoginPage({
@@ -18,9 +18,9 @@ function renderLoginPage({
     {
       path: '/login',
       element: (
-        <AuthContext.Provider value={{ ...authState, ...authActions }}>
+        <MockAuthProvider value={{ ...authState, ...authActions }}>
           <LoginPage />
-        </AuthContext.Provider>
+        </MockAuthProvider>
       ),
     },
     { path: '/', element: <h1>Home Page</h1> },

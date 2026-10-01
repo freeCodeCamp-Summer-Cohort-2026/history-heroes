@@ -1,6 +1,7 @@
-import { render, screen } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { routes } from '../../App'
+import { renderWithAuth } from '../../test/utils'
 import type { ModuleSummary } from '../../features/module/model/ModuleSummary'
 import type { Lesson } from '../../features/lesson/model/Lesson'
 import type { LessonCompletion } from '../../features/progress/model/api'
@@ -53,7 +54,7 @@ function mockServer(lessons: Lesson[], completions: LessonCompletion[] = []) {
 }
 
 function renderModulePage() {
-  render(
+  renderWithAuth(
     <RouterProvider
       router={createMemoryRouter(routes, {
         initialEntries: ['/modules/first-module'],
