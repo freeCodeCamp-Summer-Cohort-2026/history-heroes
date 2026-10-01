@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import Button from '../components/Button'
+import ButtonLink from '../components/ButtonLink'
 import Card from '../components/Card'
 import LoadingIndicator from '../components/LoadingIndicator'
 import { useAuth } from '../state/auth/use-auth'
@@ -20,8 +21,6 @@ export default function ProfilePage() {
           if (!isActive) return
           if (data) {
             setFetchedUser(data)
-          } else {
-            setError('Failed to load user information')
           }
         })
         .catch((err) => {
@@ -44,12 +43,13 @@ export default function ProfilePage() {
     }
   }, [user, getUserSession])
 
-  const currentUser = user ?? fetchedUser
+  const currentUser = user !== undefined ? user : fetchedUser
   const isLoading = (loading && !currentUser) || (isFetching && !currentUser)
 
-  const onLogout = () => {
+  const onLogout = async () => {
+    setFetchedUser(null)
     if (handleLogout) {
-      handleLogout()
+      await handleLogout()
     } else {
       fetch('/api/v1/auth/logout', { method: 'POST' }).catch(console.error)
     }
@@ -59,14 +59,39 @@ export default function ProfilePage() {
     <div className="space-y-8">
       <header className="space-y-3">
         <h1 className="text-heading text-3xl font-bold">Profile Page</h1>
-        <p className="text-body text-base-content/70">
-          Your account and authentication details.
-        </p>
+        {currentUser && (
+          <p className="text-body text-base-content/70">
+            Your account and authentication details.
+          </p>
+        )}
       </header>
 
       {(() => {
         if (isLoading) {
           return <LoadingIndicator />
+        }
+
+        if (!currentUser) {
+          return (
+            <div className="space-y-6 max-w-lg">
+              <Card>
+                <div className="space-y-4">
+                  <h2 className="text-xl font-semibold">Not Logged In</h2>
+                  <p className="text-body">
+                    Please login or register to view your profile.
+                  </p>
+                  <div className="flex flex-wrap items-center gap-4">
+                    <ButtonLink to="/login" variant="primary">
+                      Login
+                    </ButtonLink>
+                    <ButtonLink to="/register" variant="secondary">
+                      Register
+                    </ButtonLink>
+                  </div>
+                </div>
+              </Card>
+            </div>
+          )
         }
 
         if (error) {
