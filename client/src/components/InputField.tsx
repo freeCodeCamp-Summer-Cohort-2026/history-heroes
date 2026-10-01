@@ -22,14 +22,14 @@ export default function InputField({
   const errorMessage = requiredError ?? validationError
 
   return (
-    <fieldset className="fieldset">
+    <fieldset className="fieldset w-full">
       <legend className="fieldset-legend">
         <label htmlFor={inputId}>{label}</label>
       </legend>
-      <div className="relative w-fit">
+      <div className="relative w-full">
         <input
           id={inputId}
-          className={`input ${inputSuffix ? 'pr-10' : ''} ${className}`}
+          className={`input w-full ${inputSuffix ? 'pr-10' : ''} ${className}`}
           {...inputProps}
         />
 

@@ -3,6 +3,8 @@ import { useForm, useWatch } from 'react-hook-form'
 import Button from '../components/Button'
 import ButtonLink from '../components/ButtonLink'
 import Card from '../components/Card'
+import InputField from '../components/InputField'
+import PasswordField from '../components/PasswordField'
 import { useAuth } from '../state/auth/use-auth'
 import { EMAIL_REGEX } from '../utils/regex'
 
@@ -62,7 +64,7 @@ export default function RegisterPage() {
     <div className="flex flex-col items-center justify-center min-h-screen bg-base-100">
       <Card>
         <form
-          className="flex flex-col items-center justify-center gap-4"
+          className="flex flex-col items-center justify-center gap-4 w-full sm:w-80"
           onSubmit={handleSubmit(onSubmit)}
           noValidate
         >
@@ -72,66 +74,76 @@ export default function RegisterPage() {
             </div>
           )}
 
-          <div className="flex flex-col gap-1 w-full">
-            <label htmlFor="email">Email</label>
-            <input
-              id="email"
-              type="email"
-              className={`input input-bordered ${errors.email ? 'input-error' : ''}`}
-              {...register('email', {
-                required: 'Email is required',
-                pattern: {
-                  value: EMAIL_REGEX,
-                  message: 'Invalid email address',
-                },
-              })}
-            />
-            {errors.email && (
-              <span className="text-error text-xs">{errors.email.message}</span>
-            )}
-          </div>
+          <InputField
+            id="email"
+            label="Email"
+            type="email"
+            className={errors.email ? 'input-error' : ''}
+            requiredError={
+              errors.email?.type === 'required'
+                ? errors.email.message
+                : undefined
+            }
+            validationError={
+              errors.email && errors.email.type !== 'required'
+                ? errors.email.message
+                : undefined
+            }
+            {...register('email', {
+              required: 'Email is required',
+              pattern: {
+                value: EMAIL_REGEX,
+                message: 'Invalid email address',
+              },
+            })}
+          />
 
-          <div className="flex flex-col gap-1 w-full">
-            <label htmlFor="password">Password</label>
-            <input
-              id="password"
-              type="password"
-              autoComplete="new-password"
-              className={`input input-bordered ${errors.password ? 'input-error' : ''}`}
-              {...register('password', {
-                required: 'Password is required',
-                minLength: {
-                  value: 8,
-                  message: 'Password must be at least 8 characters',
-                },
-              })}
-            />
-            {errors.password && (
-              <span className="text-error text-xs">
-                {errors.password.message}
-              </span>
-            )}
-          </div>
+          <PasswordField
+            id="password"
+            label="Password"
+            autoComplete="new-password"
+            className={errors.password ? 'input-error' : ''}
+            requiredError={
+              errors.password?.type === 'required'
+                ? errors.password.message
+                : undefined
+            }
+            validationError={
+              errors.password && errors.password.type !== 'required'
+                ? errors.password.message
+                : undefined
+            }
+            {...register('password', {
+              required: 'Password is required',
+              minLength: {
+                value: 8,
+                message: 'Password must be at least 8 characters',
+              },
+            })}
+          />
 
-          <div className="flex flex-col gap-1 w-full">
-            <label htmlFor="confirmPassword">Confirm Password</label>
-            <input
-              id="confirmPassword"
-              type="password"
-              autoComplete="new-password"
-              className={`input input-bordered ${errors.confirmPassword ? 'input-error' : ''}`}
-              {...register('confirmPassword', {
-                required: 'Please confirm your password',
-                validate: (value) =>
-                  value === password || 'Passwords do not match',
-              })}
-            />
-            {errors.confirmPassword && (
-              <span className="text-error text-xs">
-                {errors.confirmPassword.message}
-              </span>
-            )}
-          </div>
+          <PasswordField
+            id="confirmPassword"
+            label="Confirm Password"
+            autoComplete="new-password"
+            className={errors.confirmPassword ? 'input-error' : ''}
+            requiredError={
+              errors.confirmPassword?.type === 'required'
+                ? errors.confirmPassword.message
+                : undefined
+            }
+            validationError={
+              errors.confirmPassword &&
+              errors.confirmPassword.type !== 'required'
+                ? errors.confirmPassword.message
+                : undefined
+            }
+            {...register('confirmPassword', {
+              required: 'Please confirm your password',
+              validate: (value) =>
+                value === password || 'Passwords do not match',
+            })}
+          />
 
           <div className="flex flex-row items-center gap-2">
             <input
