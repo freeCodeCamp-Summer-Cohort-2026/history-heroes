@@ -11,7 +11,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   })
 
   const getUserSession = useCallback(async (): Promise<User | null> => {
-    setState((prev) => ({ ...prev, getUserSessionLoading: true }))
+    setState((prev) => ({
+      ...prev,
+      getUserSessionLoading: true,
+      getUserSessionError: undefined,
+    }))
     try {
       const response = await fetch('/api/v1/auth/session')
       if (!response.ok) {
@@ -47,81 +51,58 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   useEffect(() => {
-    fetch('/api/v1/auth/session')
-      .then((response) => {
+    void getUserSession()
+  }, [getUserSession])
+
+  const handleLogin = useCallback(
+    async ({
+      email,
+      password,
+    }: {
+      email: string
+      password: string
+    }): Promise<User | null> => {
+      setState((prev) => ({
+        ...prev,
+        loginLoading: true,
+        loginError: undefined,
+      }))
+      try {
+        const response = await fetch('/api/v1/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, password }),
+        })
         if (!response.ok) {
-          throw new Error('Failed to load session information')
+          throw new Error('Login failed')
         }
-        return response.json()
-      })
-      .then((data) => {
-        const sessionData = data.session_info ?? data
-        const userInfo: User | null =
-          sessionData?.userId !== undefined
-            ? {
-                id: Number(sessionData.userId),
-                ...(sessionData.email
-                  ? { email: String(sessionData.email) }
-                  : {}),
-              }
-            : null
+        const data = await response.json()
+        const userResult: User = data.user ?? data
         setState((prev) => ({
           ...prev,
-          user: prev.user ?? userInfo,
-          getUserSessionLoading: false,
-          getUserSessionError: undefined,
+          user: userResult,
+          loginLoading: false,
+          loginError: undefined,
         }))
-      })
-      .catch((error) => {
+        return userResult
+      } catch (error) {
+        console.error(error)
         setState((prev) => ({
           ...prev,
           user: null,
-          getUserSessionLoading: false,
-          getUserSessionError: error,
+          loginLoading: false,
+          loginError: error,
         }))
-      })
-  }, [])
-
-  const handleLogin = useCallback(
-    ({ email, password }: { email: string; password: string }) => {
-      setState((prev) => ({ ...prev, loginLoading: true }))
-      fetch('/api/v1/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error('Login failed')
-          }
-          return response.json()
-        })
-        .then((data) => {
-          const userResult: User = data.user ?? data
-          setState((prev) => ({
-            ...prev,
-            user: userResult,
-            loginLoading: false,
-            loginError: undefined,
-          }))
-        })
-        .catch((error) => {
-          console.error(error)
-          setState((prev) => ({
-            ...prev,
-            user: null,
-            loginLoading: false,
-            loginError: error,
-          }))
-        })
+        return null
+      }
     },
     [],
   )
 
   const handleRegister = useCallback(
-    ({
+    async ({
       email,
       password,
       isContentAuthor,
@@ -129,73 +110,77 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       email: string
       password: string
       isContentAuthor: boolean
-    }) => {
-      setState((prev) => ({ ...prev, registerLoading: true }))
-      fetch('/api/v1/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password, isContentAuthor }),
-      })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error('Registration failed')
-          }
-          return response.json()
+    }): Promise<User | null> => {
+      setState((prev) => ({
+        ...prev,
+        registerLoading: true,
+        registerError: undefined,
+      }))
+      try {
+        const response = await fetch('/api/v1/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, password, isContentAuthor }),
         })
-        .then((data) => {
-          const userResult: User = data.user ?? data
-          setState((prev) => ({
-            ...prev,
-            user: userResult,
-            registerLoading: false,
-            registerError: undefined,
-          }))
-        })
-        .catch((error) => {
-          console.error(error)
-          setState((prev) => ({
-            ...prev,
-            user: null,
-            registerLoading: false,
-            registerError: error,
-          }))
-        })
+        if (!response.ok) {
+          throw new Error('Registration failed')
+        }
+        const data = await response.json()
+        const userResult: User = data.user ?? data
+        setState((prev) => ({
+          ...prev,
+          user: userResult,
+          registerLoading: false,
+          registerError: undefined,
+        }))
+        return userResult
+      } catch (error) {
+        console.error(error)
+        setState((prev) => ({
+          ...prev,
+          user: null,
+          registerLoading: false,
+          registerError: error,
+        }))
+        return null
+      }
     },
     [],
   )
 
-  const handleLogout = useCallback(() => {
-    setState((prev) => ({ ...prev, logoutLoading: true }))
-    return fetch('/api/v1/auth/logout', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Logout failed')
-        }
-        return response.json()
+  const handleLogout = useCallback(async (): Promise<void> => {
+    setState((prev) => ({
+      ...prev,
+      logoutLoading: true,
+      logoutError: undefined,
+    }))
+    try {
+      const response = await fetch('/api/v1/auth/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
       })
-      .then(() => {
-        setState((prev) => ({
-          ...prev,
-          user: null,
-          logoutLoading: false,
-          logoutError: undefined,
-        }))
-      })
-      .catch((error) => {
-        console.error(error)
-        setState((prev) => ({
-          ...prev,
-          logoutLoading: false,
-          logoutError: error,
-        }))
-      })
+      if (!response.ok) {
+        throw new Error('Logout failed')
+      }
+      await response.json()
+      setState((prev) => ({
+        ...prev,
+        user: null,
+        logoutLoading: false,
+        logoutError: undefined,
+      }))
+    } catch (error) {
+      console.error(error)
+      setState((prev) => ({
+        ...prev,
+        logoutLoading: false,
+        logoutError: error,
+      }))
+    }
   }, [])
 
   const loading = Boolean(

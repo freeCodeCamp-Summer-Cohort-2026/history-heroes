@@ -12,7 +12,7 @@ interface LoginFormData {
 }
 
 export default function LoginPage() {
-  const { user, handleLogin } = useAuth()
+  const { user, handleLogin, loginError, loginLoading } = useAuth()
   const isAuthenticated = Boolean(user)
 
   const {
@@ -26,8 +26,8 @@ export default function LoginPage() {
     },
   })
 
-  const onSubmit = (data: LoginFormData) => {
-    handleLogin?.({
+  const onSubmit = async (data: LoginFormData) => {
+    await handleLogin({
       email: data.email,
       password: data.password,
     })
@@ -38,6 +38,15 @@ export default function LoginPage() {
     return <Navigate to="/" replace />
   }
 
+  const errorMessage =
+    loginError instanceof Error
+      ? loginError.message
+      : typeof loginError === 'string'
+        ? loginError
+        : loginError
+          ? 'Login failed'
+          : null
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-base-100">
       <Card>
@@ -46,6 +55,12 @@ export default function LoginPage() {
           onSubmit={handleSubmit(onSubmit)}
           noValidate
         >
+          {errorMessage && (
+            <div role="alert" className="alert alert-error text-sm w-full">
+              <span>{errorMessage}</span>
+            </div>
+          )}
+
           <div className="flex flex-col gap-1 w-full">
             <label htmlFor="email">Email</label>
             <input
@@ -91,7 +106,7 @@ export default function LoginPage() {
             <ButtonLink to="/register" variant="secondary">
               Register
             </ButtonLink>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button type="submit" disabled={isSubmitting || loginLoading}>
               Login
             </Button>
           </div>

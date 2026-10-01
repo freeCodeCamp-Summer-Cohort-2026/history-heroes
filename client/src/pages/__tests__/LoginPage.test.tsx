@@ -7,8 +7,8 @@ import type { AuthState, AuthActions } from '../../state/auth/auth-types'
 function renderLoginPage({
   authState = {},
   authActions = {
-    handleLogin: vi.fn(),
-    handleRegister: vi.fn(),
+    handleLogin: vi.fn().mockResolvedValue(null),
+    handleRegister: vi.fn().mockResolvedValue(null),
   },
 }: {
   authState?: AuthState
@@ -56,12 +56,20 @@ describe('LoginPage', () => {
     ).toBeInTheDocument()
   })
 
+  test('displays error message when loginError is present', () => {
+    renderLoginPage({
+      authState: { loginError: new Error('Invalid credentials') },
+    })
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Invalid credentials')
+  })
+
   test('calls handleLogin with form data on valid submit', async () => {
-    const handleLogin = vi.fn()
+    const handleLogin = vi.fn().mockResolvedValue(null)
     renderLoginPage({
       authActions: {
         handleLogin,
-        handleRegister: vi.fn(),
+        handleRegister: vi.fn().mockResolvedValue(null),
       },
     })
 

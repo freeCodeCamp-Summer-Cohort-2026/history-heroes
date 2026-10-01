@@ -9,9 +9,9 @@ export const createMockAuthContext = (
   loading: false,
   showLogin: true,
   user: null,
-  handleLogin: vi.fn(),
-  handleRegister: vi.fn(),
-  handleLogout: vi.fn(),
+  handleLogin: vi.fn().mockResolvedValue(null),
+  handleRegister: vi.fn().mockResolvedValue(null),
+  handleLogout: vi.fn().mockResolvedValue(undefined),
   getUserSession: vi.fn().mockResolvedValue(null),
   ...overrides,
 })

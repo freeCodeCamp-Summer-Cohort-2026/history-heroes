@@ -54,12 +54,15 @@ export interface AuthState {
 }
 
 export interface AuthActions {
-  handleLogin: (params: { email: string; password: string }) => void
+  handleLogin: (params: {
+    email: string
+    password: string
+  }) => Promise<User | null>
   handleRegister: (params: {
     email: string
     password: string
     isContentAuthor: boolean
-  }) => void
-  handleLogout?: () => void
+  }) => Promise<User | null>
+  handleLogout?: () => Promise<void>
   getUserSession?: () => Promise<User | null>
 }

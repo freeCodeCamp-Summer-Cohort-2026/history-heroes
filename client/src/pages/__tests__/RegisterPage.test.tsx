@@ -7,8 +7,8 @@ import type { AuthState, AuthActions } from '../../state/auth/auth-types'
 function renderRegisterPage({
   authState = {},
   authActions = {
-    handleLogin: vi.fn(),
-    handleRegister: vi.fn(),
+    handleLogin: vi.fn().mockResolvedValue(null),
+    handleRegister: vi.fn().mockResolvedValue(null),
   },
 }: {
   authState?: AuthState
@@ -60,11 +60,19 @@ describe('RegisterPage', () => {
     ).toBeInTheDocument()
   })
 
+  test('displays error message when registerError is present', () => {
+    renderRegisterPage({
+      authState: { registerError: new Error('Registration failed') },
+    })
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Registration failed')
+  })
+
   test('calls handleRegister with form data on valid submit', async () => {
-    const handleRegister = vi.fn()
+    const handleRegister = vi.fn().mockResolvedValue(null)
     renderRegisterPage({
       authActions: {
-        handleLogin: vi.fn(),
+        handleLogin: vi.fn().mockResolvedValue(null),
         handleRegister,
       },
     })

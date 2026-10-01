@@ -14,7 +14,7 @@ interface RegisterFormData {
 }
 
 export default function RegisterPage() {
-  const { user, handleRegister } = useAuth()
+  const { user, handleRegister, registerError, registerLoading } = useAuth()
   const isAuthenticated = Boolean(user)
 
   const {
@@ -36,8 +36,8 @@ export default function RegisterPage() {
     name: 'password',
   })
 
-  const onSubmit = (data: RegisterFormData) => {
-    handleRegister?.({
+  const onSubmit = async (data: RegisterFormData) => {
+    await handleRegister?.({
       email: data.email,
       password: data.password,
       isContentAuthor: data.isContentAuthor,
@@ -49,6 +49,15 @@ export default function RegisterPage() {
     return <Navigate to="/" replace />
   }
 
+  const errorMessage =
+    registerError instanceof Error
+      ? registerError.message
+      : typeof registerError === 'string'
+        ? registerError
+        : registerError
+          ? 'Registration failed'
+          : null
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-base-100">
       <Card>
@@ -57,6 +66,12 @@ export default function RegisterPage() {
           onSubmit={handleSubmit(onSubmit)}
           noValidate
         >
+          {errorMessage && (
+            <div role="alert" className="alert alert-error text-sm w-full">
+              <span>{errorMessage}</span>
+            </div>
+          )}
+
           <div className="flex flex-col gap-1 w-full">
             <label htmlFor="email">Email</label>
             <input
@@ -134,7 +149,7 @@ export default function RegisterPage() {
             <ButtonLink to="/login" variant="secondary">
               Login
             </ButtonLink>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button type="submit" disabled={isSubmitting || registerLoading}>
               Register
             </Button>
           </div>
