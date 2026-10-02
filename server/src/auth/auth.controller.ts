@@ -4,6 +4,8 @@ import {
   Controller,
   Get,
   InternalServerErrorException,
+  OnModuleInit,
+  Optional,
   Post,
   Req,
   Res,
@@ -11,7 +13,9 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import type { Request, Response } from 'express';
+import * as bcrypt from 'bcrypt';
 import { LoginRequestDto, loginRequestSchema } from './dto/login-request.dto';
 import {
   RegisterRequestDto,
@@ -31,8 +35,33 @@ import { AuthenticatedGuard } from './guards/authenticated.guard';
  * Sessions identify users, who could be logged in or not logged in.
  */
 @Controller('auth')
-export class AuthController {
-  constructor(private readonly userService: UsersService) {}
+export class AuthController implements OnModuleInit {
+  private dummyPasswordHash: string;
+  private readonly saltRounds: number;
+
+  constructor(
+    private readonly userService: UsersService,
+    @Optional() private readonly configService?: ConfigService,
+  ) {
+    const rounds = Number(
+      this.configService?.get<number | string>('BCRYPT_SALT_ROUNDS', 10) ?? 10,
+    );
+    if (!Number.isInteger(rounds) || rounds < 10) {
+      throw new Error('BCRYPT_SALT_ROUNDS must be at least 10');
+    }
+    this.saltRounds = rounds;
+    this.dummyPasswordHash = bcrypt.hashSync(
+      'dummy-password-timing-mitigation',
+      this.saltRounds,
+    );
+  }
+
+  async onModuleInit() {
+    this.dummyPasswordHash = await bcrypt.hash(
+      'dummy-password-timing-mitigation',
+      this.saltRounds,
+    );
+  }
 
   @Post('login')
   async login(
@@ -43,8 +72,13 @@ export class AuthController {
       includePassword: true,
     });
 
-    // **note** this password should already be unhashed from getByEmail
-    if (!user || user.password !== body.password) {
+    const hashToCompare = user?.password || this.dummyPasswordHash;
+    const isPasswordValid = await this.userService.comparePassword(
+      body.password,
+      hashToCompare,
+    );
+
+    if (!user || !user.password || !isPasswordValid) {
       throw new UnauthorizedException('Invalid email or password');
     }
 

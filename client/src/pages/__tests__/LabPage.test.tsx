@@ -1,6 +1,7 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, screen } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { routes } from '../../App'
+import { renderWithAuth } from '../../test/utils'
 import type { Lab } from '../../features/lab/model/Lab'
 
 const testLab: Lab = {
@@ -33,7 +34,7 @@ const testLab: Lab = {
 }
 
 function renderLabPage() {
-  render(
+  renderWithAuth(
     <RouterProvider
       router={createMemoryRouter(routes, {
         initialEntries: ['/modules/first-module/lab'],

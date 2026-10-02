@@ -15,6 +15,7 @@ describe('AuthController', () => {
   const mockUsersService = {
     getByEmail: vi.fn(),
     create: vi.fn(),
+    comparePassword: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -42,9 +43,10 @@ describe('AuthController', () => {
       const mockUser: Partial<User> = {
         id: 1,
         email: 'test@historyheroes.org',
-        password: 'password123',
+        password: 'hashed-password',
       };
       mockUsersService.getByEmail.mockResolvedValue(mockUser);
+      mockUsersService.comparePassword.mockResolvedValue(true);
 
       const mockReq = {
         session: {} as Record<string, any>,
@@ -61,10 +63,15 @@ describe('AuthController', () => {
         { email: 'test@historyheroes.org', password: 'password123' },
         { includePassword: true },
       );
+      expect(mockUsersService.comparePassword).toHaveBeenCalledWith(
+        'password123',
+        'hashed-password',
+      );
     });
 
     it('should throw UnauthorizedException if user is not found', async () => {
       mockUsersService.getByEmail.mockResolvedValue(null);
+      mockUsersService.comparePassword.mockResolvedValue(false);
 
       const mockReq = { session: {} } as unknown as Request;
 
@@ -74,15 +81,43 @@ describe('AuthController', () => {
           mockReq,
         ),
       ).rejects.toThrow(UnauthorizedException);
+      expect(mockUsersService.comparePassword).toHaveBeenCalledWith(
+        'password123',
+        expect.stringMatching(/^\$2[aby]\$10\$/),
+      );
+    });
+
+    it('should throw UnauthorizedException if user has falsy password', async () => {
+      const mockUser: Partial<User> = {
+        id: 1,
+        email: 'test@historyheroes.org',
+        password: '',
+      };
+      mockUsersService.getByEmail.mockResolvedValue(mockUser);
+      mockUsersService.comparePassword.mockResolvedValue(false);
+
+      const mockReq = { session: {} } as unknown as Request;
+
+      await expect(
+        controller.login(
+          { email: 'test@historyheroes.org', password: 'password123' },
+          mockReq,
+        ),
+      ).rejects.toThrow(UnauthorizedException);
+      expect(mockUsersService.comparePassword).toHaveBeenCalledWith(
+        'password123',
+        expect.stringMatching(/^\$2[aby]\$10\$/),
+      );
     });
 
     it('should throw UnauthorizedException if password does not match', async () => {
       const mockUser: Partial<User> = {
         id: 1,
         email: 'test@historyheroes.org',
-        password: 'correct-password',
+        password: 'hashed-password',
       };
       mockUsersService.getByEmail.mockResolvedValue(mockUser);
+      mockUsersService.comparePassword.mockResolvedValue(false);
 
       const mockReq = { session: {} } as unknown as Request;
 
@@ -92,6 +127,10 @@ describe('AuthController', () => {
           mockReq,
         ),
       ).rejects.toThrow(UnauthorizedException);
+      expect(mockUsersService.comparePassword).toHaveBeenCalledWith(
+        'wrong-password',
+        'hashed-password',
+      );
     });
   });
 
@@ -150,7 +189,7 @@ describe('AuthController', () => {
       const createdUser: Partial<User> = {
         id: 2,
         email: 'newuser@historyheroes.org',
-        password: 'password123',
+        password: 'hashed-password',
       };
       mockUsersService.create.mockResolvedValue(createdUser);
 
@@ -194,6 +233,84 @@ describe('AuthController', () => {
       expect(controller.getSession(session)).toEqual({
         session_info: session,
       });
+    });
+  });
+
+  describe('dummyPasswordHash configuration & lifecycle', () => {
+    it('should use configured BCRYPT_SALT_ROUNDS in timing-safe dummy hash', async () => {
+      const mockConfigService = {
+        get: vi.fn().mockReturnValue(11),
+      };
+      const customController = new AuthController(
+        mockUsersService as any,
+        mockConfigService as any,
+      );
+
+      mockUsersService.getByEmail.mockResolvedValue(null);
+      mockUsersService.comparePassword.mockResolvedValue(false);
+
+      const mockReq = { session: {} } as unknown as Request;
+
+      await expect(
+        customController.login(
+          { email: 'unknown@historyheroes.org', password: 'password123' },
+          mockReq,
+        ),
+      ).rejects.toThrow(UnauthorizedException);
+
+      expect(mockUsersService.comparePassword).toHaveBeenCalledWith(
+        'password123',
+        expect.stringMatching(/^\$2[aby]\$11\$/),
+      );
+    });
+
+    it('should generate dummy hash asynchronously onModuleInit', async () => {
+      const mockConfigService = {
+        get: vi.fn().mockReturnValue(10),
+      };
+      const customController = new AuthController(
+        mockUsersService as any,
+        mockConfigService as any,
+      );
+
+      await customController.onModuleInit();
+
+      mockUsersService.getByEmail.mockResolvedValue(null);
+      mockUsersService.comparePassword.mockResolvedValue(false);
+
+      const mockReq = { session: {} } as unknown as Request;
+
+      await expect(
+        customController.login(
+          { email: 'unknown@historyheroes.org', password: 'password123' },
+          mockReq,
+        ),
+      ).rejects.toThrow(UnauthorizedException);
+
+      expect(mockUsersService.comparePassword).toHaveBeenCalledWith(
+        'password123',
+        expect.stringMatching(/^\$2[aby]\$10\$/),
+      );
+    });
+
+    it('should throw an error if BCRYPT_SALT_ROUNDS is less than 10', () => {
+      const mockConfigService = {
+        get: vi.fn().mockReturnValue(8),
+      };
+
+      expect(() => {
+        new AuthController(mockUsersService as any, mockConfigService as any);
+      }).toThrow('BCRYPT_SALT_ROUNDS must be at least 10');
+    });
+
+    it('should throw an error if BCRYPT_SALT_ROUNDS is non-numeric', () => {
+      const mockConfigService = {
+        get: vi.fn().mockReturnValue('invalid'),
+      };
+
+      expect(() => {
+        new AuthController(mockUsersService as any, mockConfigService as any);
+      }).toThrow('BCRYPT_SALT_ROUNDS must be at least 10');
     });
   });
 });

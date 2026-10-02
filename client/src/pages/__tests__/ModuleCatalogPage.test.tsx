@@ -1,6 +1,7 @@
-import { render, screen, fireEvent, within } from '@testing-library/react'
+import { screen, fireEvent, within } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { routes } from '../../App'
+import { renderWithAuth } from '../../test/utils'
 
 const testModules = [
   {
@@ -32,7 +33,7 @@ afterEach(() => {
 })
 
 test('displays both modules', async () => {
-  render(
+  renderWithAuth(
     <RouterProvider
       router={createMemoryRouter(routes, { initialEntries: ['/'] })}
     />,
@@ -43,7 +44,7 @@ test('displays both modules', async () => {
 })
 
 test('opens the first module when it is selected', async () => {
-  render(
+  renderWithAuth(
     <RouterProvider
       router={createMemoryRouter(routes, { initialEntries: ['/'] })}
     />,
@@ -60,7 +61,7 @@ test('opens the first module when it is selected', async () => {
 })
 
 test('opens the second module when it is selected', async () => {
-  render(
+  renderWithAuth(
     <RouterProvider
       router={createMemoryRouter(routes, { initialEntries: ['/'] })}
     />,
@@ -77,7 +78,7 @@ test('opens the second module when it is selected', async () => {
 })
 
 test('shows each module as a card', async () => {
-  render(
+  renderWithAuth(
     <RouterProvider
       router={createMemoryRouter(routes, { initialEntries: ['/'] })}
     />,
@@ -94,7 +95,7 @@ test('shows an empty state when there are no modules', async () => {
       json: async () => [],
     }),
   )
-  render(
+  renderWithAuth(
     <RouterProvider
       router={createMemoryRouter(routes, { initialEntries: ['/'] })}
     />,
@@ -106,7 +107,7 @@ test('shows an empty state when there are no modules', async () => {
 })
 
 test('shows the period and theme on a module card', async () => {
-  render(
+  renderWithAuth(
     <RouterProvider
       router={createMemoryRouter(routes, { initialEntries: ['/'] })}
     />,
@@ -131,7 +132,7 @@ test('shows a friendly error message when modules fail to load', async () => {
       ),
   )
 
-  render(
+  renderWithAuth(
     <RouterProvider
       router={createMemoryRouter(routes, { initialEntries: ['/'] })}
     />,
@@ -147,7 +148,7 @@ test('shows a friendly error message when modules fail to load', async () => {
 })
 
 test('displays the page title with site-name', () => {
-  render(
+  renderWithAuth(
     <RouterProvider
       router={createMemoryRouter(routes, { initialEntries: ['/'] })}
     />,
