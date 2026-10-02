@@ -10,6 +10,7 @@ describe('ProgressController', () => {
 
   const mockProgressService = {
     getProgress: vi.fn(),
+    resetProgress: vi.fn(),
     recordLessonProgress: vi.fn(),
     getLessonProgress: vi.fn(),
     recordLabProgress: vi.fn(),
@@ -62,6 +63,56 @@ describe('ProgressController', () => {
       expect(mockProgressService.getProgress).toHaveBeenCalledWith({
         userId: 10,
         sessionId: 'sess-123',
+      });
+    });
+  });
+
+  describe('resetProgress', () => {
+    it('should reset progress for authenticated user with session', async () => {
+      mockProgressService.resetProgress.mockResolvedValue({
+        deletedLessons: 2,
+        deletedLabs: 1,
+      });
+
+      const mockReq = {
+        session: { userId: 5 },
+        sessionID: 'sess-abc',
+      } as unknown as Request;
+
+      const result = await controller.resetProgress(mockReq);
+
+      expect(mockProgressService.resetProgress).toHaveBeenCalledWith({
+        userId: 5,
+        sessionId: 'sess-abc',
+      });
+      expect(result).toEqual({
+        message: 'Progress reset successfully',
+        deletedLessons: 2,
+        deletedLabs: 1,
+      });
+    });
+
+    it('should reset progress for guest session without userId', async () => {
+      mockProgressService.resetProgress.mockResolvedValue({
+        deletedLessons: 1,
+        deletedLabs: 0,
+      });
+
+      const mockReq = {
+        session: undefined,
+        sessionID: 'guest-sess',
+      } as unknown as Request;
+
+      const result = await controller.resetProgress(mockReq);
+
+      expect(mockProgressService.resetProgress).toHaveBeenCalledWith({
+        userId: undefined,
+        sessionId: 'guest-sess',
+      });
+      expect(result).toEqual({
+        message: 'Progress reset successfully',
+        deletedLessons: 1,
+        deletedLabs: 0,
       });
     });
   });

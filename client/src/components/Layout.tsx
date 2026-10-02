@@ -15,20 +15,18 @@ export default function Layout() {
 
         <div className="flex-none mt-2 sm:mt-0">
           <ul className="menu menu-horizontal px-1 flex-wrap sm:flex-nowrap gap-2">
-            {showLogin ? (
+            {showLogin && (
               <li>
                 <Link to="/login" className="text-sm sm:text-base">
                   Login
                 </Link>
               </li>
-            ) : (
-              <li>
-                <Link to="/profile" className="text-sm sm:text-base">
-                  Profile
-                </Link>
-              </li>
             )}
-
+            <li>
+              <Link to="/profile" className="text-sm sm:text-base">
+                Profile
+              </Link>
+            </li>
             <li>
               <Link to="/" className="text-sm sm:text-base">
                 Modules

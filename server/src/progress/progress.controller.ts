@@ -1,5 +1,6 @@
 import {
   Controller,
+  Delete,
   Get,
   NotFoundException,
   Param,
@@ -11,6 +12,7 @@ import type { Request } from 'express';
 import { ProgressService } from './progress.service';
 import { UserLessonProgress } from './entities/user-lesson-progress.entity';
 import { UserLabProgress } from './entities/user-lab-progress.entity';
+import { ResetProgressResponseDto } from './dto/reset-progress-response.dto';
 
 @Controller('progress')
 export class ProgressController {
@@ -26,6 +28,27 @@ export class ProgressController {
     const sessionId = req.sessionID;
 
     return this.progressService.getProgress({ userId, sessionId });
+  }
+
+  /**
+   * Resets all progress for the current user's session and/or authenticated user ID.
+   * Accessible at: DELETE /api/v1/progress
+   */
+  @Delete()
+  async resetProgress(@Req() req: Request): Promise<ResetProgressResponseDto> {
+    const userId = req.session?.userId;
+    const sessionId = req.sessionID;
+
+    const result = await this.progressService.resetProgress({
+      userId,
+      sessionId,
+    });
+
+    return {
+      message: 'Progress reset successfully',
+      deletedLessons: result.deletedLessons,
+      deletedLabs: result.deletedLabs,
+    };
   }
 
   /**

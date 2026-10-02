@@ -19,6 +19,7 @@ describe('ProgressService', () => {
     create: vi.fn(),
     save: vi.fn(),
     remove: vi.fn(),
+    delete: vi.fn(),
   };
 
   const mockLabProgressRepository = {
@@ -27,6 +28,7 @@ describe('ProgressService', () => {
     create: vi.fn(),
     save: vi.fn(),
     remove: vi.fn(),
+    delete: vi.fn(),
   };
 
   const mockTransaction = vi.fn();
@@ -594,6 +596,86 @@ describe('ProgressService', () => {
       expect(mockLabProgressRepository.save).toHaveBeenCalledWith(
         expect.objectContaining({ userId: 42 }),
       );
+    });
+  });
+
+  describe('resetProgress', () => {
+    it('should throw UnauthorizedException if neither userId nor sessionId is provided', async () => {
+      await expect(service.resetProgress({})).rejects.toThrow(
+        UnauthorizedException,
+      );
+    });
+
+    it('should delete lesson and lab records when userId and sessionId are provided', async () => {
+      mockLessonProgressRepository.delete
+        .mockResolvedValueOnce({ affected: 2 })
+        .mockResolvedValueOnce({ affected: 1 });
+      mockLabProgressRepository.delete
+        .mockResolvedValueOnce({ affected: 3 })
+        .mockResolvedValueOnce({ affected: 0 });
+
+      const result = await service.resetProgress({
+        userId: 10,
+        sessionId: 'sess-abc',
+      });
+
+      expect(mockTransaction).toHaveBeenCalled();
+      expect(mockLessonProgressRepository.delete).toHaveBeenCalledWith({
+        userId: 10,
+      });
+      expect(mockLessonProgressRepository.delete).toHaveBeenCalledWith({
+        sessionId: 'sess-abc',
+      });
+      expect(mockLabProgressRepository.delete).toHaveBeenCalledWith({
+        userId: 10,
+      });
+      expect(mockLabProgressRepository.delete).toHaveBeenCalledWith({
+        sessionId: 'sess-abc',
+      });
+      expect(result).toEqual({
+        deletedLessons: 3,
+        deletedLabs: 3,
+      });
+    });
+
+    it('should delete lesson and lab records when only userId is provided', async () => {
+      mockLessonProgressRepository.delete.mockResolvedValueOnce({
+        affected: 4,
+      });
+      mockLabProgressRepository.delete.mockResolvedValueOnce({ affected: 1 });
+
+      const result = await service.resetProgress({ userId: 10 });
+
+      expect(mockLessonProgressRepository.delete).toHaveBeenCalledWith({
+        userId: 10,
+      });
+      expect(mockLabProgressRepository.delete).toHaveBeenCalledWith({
+        userId: 10,
+      });
+      expect(result).toEqual({
+        deletedLessons: 4,
+        deletedLabs: 1,
+      });
+    });
+
+    it('should delete lesson and lab records when only sessionId is provided', async () => {
+      mockLessonProgressRepository.delete.mockResolvedValueOnce({
+        affected: 1,
+      });
+      mockLabProgressRepository.delete.mockResolvedValueOnce({ affected: 2 });
+
+      const result = await service.resetProgress({ sessionId: 'guest-sess' });
+
+      expect(mockLessonProgressRepository.delete).toHaveBeenCalledWith({
+        sessionId: 'guest-sess',
+      });
+      expect(mockLabProgressRepository.delete).toHaveBeenCalledWith({
+        sessionId: 'guest-sess',
+      });
+      expect(result).toEqual({
+        deletedLessons: 1,
+        deletedLabs: 2,
+      });
     });
   });
 });
