@@ -59,27 +59,6 @@ describe('ProfilePage', () => {
     expect(screen.getByRole('link', { name: /^register/i })).toBeInTheDocument()
   })
 
-  test('does not show an error when getUserSession resolves to null', async () => {
-    const getUserSession = vi.fn().mockResolvedValue(null)
-    renderProfilePage({
-      authState: { user: null },
-      authActions: { getUserSession },
-    })
-
-    await waitFor(() => {
-      expect(getUserSession).toHaveBeenCalled()
-    })
-
-    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
-    expect(screen.queryByText(/failed to load/i)).not.toBeInTheDocument()
-    expect(
-      screen.queryByText(/your account and authentication details/i),
-    ).not.toBeInTheDocument()
-    expect(screen.getByText(/login or register/i)).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /^login/i })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /^register/i })).toBeInTheDocument()
-  })
-
   test('redirects to /login when Login button link is clicked', async () => {
     renderProfilePage({
       authState: { user: null },
@@ -138,25 +117,6 @@ describe('ProfilePage', () => {
 
     expect(screen.getByRole('status')).toBeInTheDocument()
     expect(screen.getByText(/loading/i)).toBeInTheDocument()
-  })
-
-  test('shows error alert when getUserSession rejects', async () => {
-    const getUserSession = vi
-      .fn()
-      .mockRejectedValue(new Error('Network connection failed'))
-    renderProfilePage({
-      authState: { user: null },
-      authActions: { getUserSession },
-    })
-
-    await waitFor(() => {
-      expect(getUserSession).toHaveBeenCalled()
-    })
-
-    expect(screen.getByRole('alert')).toHaveTextContent(
-      'Network connection failed',
-    )
-    expect(screen.queryByText(/login or register/i)).not.toBeInTheDocument()
   })
 
   test('shows error alert when handleLogout fails', async () => {

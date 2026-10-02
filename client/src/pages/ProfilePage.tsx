@@ -1,55 +1,17 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import Button from '../components/Button'
 import ButtonLink from '../components/ButtonLink'
 import Card from '../components/Card'
 import LoadingIndicator from '../components/LoadingIndicator'
 import { useAuth } from '../state/auth/use-auth'
-import type { User } from '../state/auth/auth-types'
 
 export default function ProfilePage() {
-  const { user, getUserSession, handleLogout, loading } = useAuth()
-  const [fetchedUser, setFetchedUser] = useState<User | null>(null)
-  const [isFetching, setIsFetching] = useState(!user && Boolean(getUserSession))
+  const { user, handleLogout, loading } = useAuth()
   const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    let isActive = true
-
-    if (!user && getUserSession) {
-      getUserSession()
-        .then((data) => {
-          if (!isActive) return
-          if (data) {
-            setFetchedUser(data)
-          }
-        })
-        .catch((err) => {
-          if (!isActive) return
-          setError(
-            err instanceof Error
-              ? err.message
-              : 'Failed to load user information',
-          )
-        })
-        .finally(() => {
-          if (isActive) {
-            setIsFetching(false)
-          }
-        })
-    }
-
-    return () => {
-      isActive = false
-    }
-  }, [user, getUserSession])
-
-  const currentUser = user !== undefined ? user : fetchedUser
-  const isLoading = (loading && !currentUser) || (isFetching && !currentUser)
 
   const onLogout = async () => {
     try {
       await handleLogout()
-      setFetchedUser(null)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to logout')
     }
@@ -59,7 +21,7 @@ export default function ProfilePage() {
     <div className="space-y-8">
       <header className="space-y-3">
         <h1 className="text-heading text-3xl font-bold">Profile Page</h1>
-        {currentUser && (
+        {user && (
           <p className="text-body text-base-content/70">
             Your account and authentication details.
           </p>
@@ -67,7 +29,7 @@ export default function ProfilePage() {
       </header>
 
       {(() => {
-        if (isLoading) {
+        if (loading) {
           return <LoadingIndicator />
         }
 
@@ -79,7 +41,7 @@ export default function ProfilePage() {
           )
         }
 
-        if (!currentUser) {
+        if (!user) {
           return (
             <div className="space-y-6 max-w-lg">
               <Card>
@@ -110,20 +72,16 @@ export default function ProfilePage() {
                   Authentication Information
                 </h2>
                 <div className="space-y-2 text-body">
-                  {currentUser?.id !== undefined && (
+                  {user.id !== undefined && (
                     <div>
                       <span className="font-medium">User ID: </span>
-                      <span data-testid="user-id">
-                        {String(currentUser.id)}
-                      </span>
+                      <span data-testid="user-id">{String(user.id)}</span>
                     </div>
                   )}
-                  {currentUser?.email !== undefined && (
+                  {user.email !== undefined && (
                     <div>
                       <span className="font-medium">Email: </span>
-                      <span data-testid="user-email">
-                        {String(currentUser.email)}
-                      </span>
+                      <span data-testid="user-email">{String(user.email)}</span>
                     </div>
                   )}
                 </div>
