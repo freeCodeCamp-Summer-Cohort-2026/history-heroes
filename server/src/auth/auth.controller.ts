@@ -4,6 +4,8 @@ import {
   Controller,
   Get,
   InternalServerErrorException,
+  OnModuleInit,
+  Optional,
   Post,
   Req,
   Res,
@@ -11,7 +13,9 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import type { Request, Response } from 'express';
+import * as bcrypt from 'bcrypt';
 import { LoginRequestDto, loginRequestSchema } from './dto/login-request.dto';
 import {
   RegisterRequestDto,
@@ -20,9 +24,6 @@ import {
 import { UsersService } from '../users/users.service';
 import { ZodValidationPipe } from '../core/pipes/zod-validation.pipe';
 import { AuthenticatedGuard } from './guards/authenticated.guard';
-
-export const DUMMY_PASSWORD_HASH =
-  '$2b$10$frK7jkPeMEgJ2JFAH4xAXOqC/AkA3mNBQbdJislz0Vsqkky1dem6O';
 
 /**
  * The auth controller manages authentication, for:
@@ -34,8 +35,33 @@ export const DUMMY_PASSWORD_HASH =
  * Sessions identify users, who could be logged in or not logged in.
  */
 @Controller('auth')
-export class AuthController {
-  constructor(private readonly userService: UsersService) {}
+export class AuthController implements OnModuleInit {
+  private dummyPasswordHash: string;
+  private readonly saltRounds: number;
+
+  constructor(
+    private readonly userService: UsersService,
+    @Optional() private readonly configService?: ConfigService,
+  ) {
+    const rounds = Number(
+      this.configService?.get<number | string>('BCRYPT_SALT_ROUNDS', 10) ?? 10,
+    );
+    if (!Number.isInteger(rounds) || rounds < 10) {
+      throw new Error('BCRYPT_SALT_ROUNDS must be at least 10');
+    }
+    this.saltRounds = rounds;
+    this.dummyPasswordHash = bcrypt.hashSync(
+      'dummy-password-timing-mitigation',
+      this.saltRounds,
+    );
+  }
+
+  async onModuleInit() {
+    this.dummyPasswordHash = await bcrypt.hash(
+      'dummy-password-timing-mitigation',
+      this.saltRounds,
+    );
+  }
 
   @Post('login')
   async login(
@@ -46,7 +72,7 @@ export class AuthController {
       includePassword: true,
     });
 
-    const hashToCompare = user?.password || DUMMY_PASSWORD_HASH;
+    const hashToCompare = user?.password || this.dummyPasswordHash;
     const isPasswordValid = await this.userService.comparePassword(
       body.password,
       hashToCompare,

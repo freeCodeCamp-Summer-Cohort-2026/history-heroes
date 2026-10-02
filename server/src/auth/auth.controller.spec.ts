@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
-import { AuthController, DUMMY_PASSWORD_HASH } from './auth.controller';
+import { AuthController } from './auth.controller';
 import { UsersService } from '../users/users.service';
 import { User } from '../users/entities/user.entity';
 
@@ -83,7 +83,7 @@ describe('AuthController', () => {
       ).rejects.toThrow(UnauthorizedException);
       expect(mockUsersService.comparePassword).toHaveBeenCalledWith(
         'password123',
-        DUMMY_PASSWORD_HASH,
+        expect.stringMatching(/^\$2[aby]\$10\$/),
       );
     });
 
@@ -106,7 +106,7 @@ describe('AuthController', () => {
       ).rejects.toThrow(UnauthorizedException);
       expect(mockUsersService.comparePassword).toHaveBeenCalledWith(
         'password123',
-        DUMMY_PASSWORD_HASH,
+        expect.stringMatching(/^\$2[aby]\$10\$/),
       );
     });
 
@@ -233,6 +233,84 @@ describe('AuthController', () => {
       expect(controller.getSession(session)).toEqual({
         session_info: session,
       });
+    });
+  });
+
+  describe('dummyPasswordHash configuration & lifecycle', () => {
+    it('should use configured BCRYPT_SALT_ROUNDS in timing-safe dummy hash', async () => {
+      const mockConfigService = {
+        get: vi.fn().mockReturnValue(11),
+      };
+      const customController = new AuthController(
+        mockUsersService as any,
+        mockConfigService as any,
+      );
+
+      mockUsersService.getByEmail.mockResolvedValue(null);
+      mockUsersService.comparePassword.mockResolvedValue(false);
+
+      const mockReq = { session: {} } as unknown as Request;
+
+      await expect(
+        customController.login(
+          { email: 'unknown@historyheroes.org', password: 'password123' },
+          mockReq,
+        ),
+      ).rejects.toThrow(UnauthorizedException);
+
+      expect(mockUsersService.comparePassword).toHaveBeenCalledWith(
+        'password123',
+        expect.stringMatching(/^\$2[aby]\$11\$/),
+      );
+    });
+
+    it('should generate dummy hash asynchronously onModuleInit', async () => {
+      const mockConfigService = {
+        get: vi.fn().mockReturnValue(10),
+      };
+      const customController = new AuthController(
+        mockUsersService as any,
+        mockConfigService as any,
+      );
+
+      await customController.onModuleInit();
+
+      mockUsersService.getByEmail.mockResolvedValue(null);
+      mockUsersService.comparePassword.mockResolvedValue(false);
+
+      const mockReq = { session: {} } as unknown as Request;
+
+      await expect(
+        customController.login(
+          { email: 'unknown@historyheroes.org', password: 'password123' },
+          mockReq,
+        ),
+      ).rejects.toThrow(UnauthorizedException);
+
+      expect(mockUsersService.comparePassword).toHaveBeenCalledWith(
+        'password123',
+        expect.stringMatching(/^\$2[aby]\$10\$/),
+      );
+    });
+
+    it('should throw an error if BCRYPT_SALT_ROUNDS is less than 10', () => {
+      const mockConfigService = {
+        get: vi.fn().mockReturnValue(8),
+      };
+
+      expect(() => {
+        new AuthController(mockUsersService as any, mockConfigService as any);
+      }).toThrow('BCRYPT_SALT_ROUNDS must be at least 10');
+    });
+
+    it('should throw an error if BCRYPT_SALT_ROUNDS is non-numeric', () => {
+      const mockConfigService = {
+        get: vi.fn().mockReturnValue('invalid'),
+      };
+
+      expect(() => {
+        new AuthController(mockUsersService as any, mockConfigService as any);
+      }).toThrow('BCRYPT_SALT_ROUNDS must be at least 10');
     });
   });
 });
