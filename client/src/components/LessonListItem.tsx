@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Check, ArrowRight } from 'lucide-react'
 import type { Lesson } from '../features/lesson/model/Lesson'
 
 type LessonState = 'locked' | 'unlocked' | 'completed'
@@ -24,12 +25,12 @@ const stateStyles = {
   },
   unlocked: {
     container: 'bg-base-100',
-    icon: '→',
+    icon: <ArrowRight className="size-5" />,
     label: 'Available',
   },
   completed: {
     container: 'bg-success/5 border-success/30',
-    icon: '✓',
+    icon: <Check className="size-5" />,
     label: 'Completed',
   },
 }
@@ -64,9 +65,7 @@ export default function LessonListItem({
         </span>
       </div>
 
-      <span className="text-lg font-bold sm:ml-4" aria-hidden="true">
-        {styles.icon}
-      </span>
+      <span aria-hidden="true">{styles.icon}</span>
     </>
   )
 

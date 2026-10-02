@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { ArrowRight } from 'lucide-react'
 import LessonListItem from '../components/LessonListItem'
 import ProgressIndicator from '../components/ProgressIndicator'
 import { fetchModules } from '../features/module/model/api'
@@ -124,8 +125,8 @@ export default function ModulePage() {
               Always open
             </span>
           </span>
-          <span className="text-lg font-bold" aria-hidden="true">
-            →
+          <span aria-hidden="true">
+            <ArrowRight className="size-5" />
           </span>
         </Link>
       </section>

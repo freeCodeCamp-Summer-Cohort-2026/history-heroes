@@ -1,3 +1,4 @@
+import { Check, AlertTriangle } from 'lucide-react'
 type FeedbackStateProps =
   | {
       type: 'correct'
@@ -26,7 +27,11 @@ export default function FeedbackState(props: FeedbackStateProps) {
     ? 'border-success/30 bg-success/10'
     : 'border-warning/30 bg-warning/10'
 
-  const icon = isCorrect ? '✓' : '!'
+  const icon = isCorrect ? (
+    <Check className="size-5" />
+  ) : (
+    <AlertTriangle className="size-5" />
+  )
   const title = isCorrect ? 'Correct' : 'Not yet'
 
   return (
