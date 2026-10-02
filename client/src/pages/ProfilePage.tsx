@@ -1,21 +1,60 @@
-import { useState } from 'react'
 import Button from '../components/Button'
-import ButtonLink from '../components/ButtonLink'
-import Card from '../components/Card'
 import LoadingIndicator from '../components/LoadingIndicator'
-import { useAuth } from '../state/auth/use-auth'
+import { useProfile } from './useProfile'
+import AccountInfoCard from './profile/AccountInfoCard'
+import ContentAuthorCard from './profile/ContentAuthorCard'
+import ChangePasswordCard from './profile/ChangePasswordCard'
+import ResetProgressCard from './profile/ResetProgressCard'
+import DeleteAccountCard from './profile/DeleteAccountCard'
+import ResetProgressModal from './profile/ResetProgressModal'
+import DeleteAccountModal from './profile/DeleteAccountModal'
+import GuestProfileView from './profile/GuestProfileView'
 
+/**
+ * ProfilePage serves as the central account management and settings view for History Heroes.
+ *
+ * How it is used:
+ * Mounted at `/profile`. Connects to `useProfile` to orchestrate user details, content author role
+ * privileges, password changes, progress resets, account deletion, and session sign-outs across
+ * dedicated subcomponents.
+ *
+ * When it is shown:
+ * Rendered when a user navigates to the `/profile` route, supporting both authenticated users
+ * and unauthenticated/guest sessions.
+ */
 export default function ProfilePage() {
-  const { user, handleLogout, loading } = useAuth()
-  const [error, setError] = useState<string | null>(null)
-
-  const onLogout = async () => {
-    try {
-      await handleLogout()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to logout')
-    }
-  }
+  const {
+    user,
+    loading,
+    logoutError,
+    onLogout,
+    // Content Author
+    authorLoading,
+    authorSuccess,
+    authorError,
+    onToggleAuthor,
+    // Change Password
+    passwordSuccess,
+    passwordError,
+    passwordForm,
+    newPasswordValue,
+    onChangePassword,
+    // Reset Progress
+    showResetModal,
+    resetLoading,
+    resetSuccess,
+    resetError,
+    openResetModal,
+    closeResetModal,
+    handleConfirmResetProgress,
+    // Delete Account
+    showDeleteModal,
+    deleteLoading,
+    deleteError,
+    openDeleteModal,
+    closeDeleteModal,
+    handleConfirmDeleteAccount,
+  } = useProfile()
 
   return (
     <div className="space-y-8">
@@ -33,60 +72,54 @@ export default function ProfilePage() {
           return <LoadingIndicator />
         }
 
-        if (error) {
+        if (logoutError) {
           return (
             <div role="alert" className="text-error">
-              {error}
+              {logoutError}
             </div>
           )
         }
 
         if (!user) {
           return (
-            <div className="space-y-6 max-w-lg">
-              <Card>
-                <div className="space-y-4">
-                  <h2 className="text-xl font-semibold">Not Logged In</h2>
-                  <p className="text-body">
-                    Please login or register to view your profile.
-                  </p>
-                  <div className="flex flex-wrap items-center gap-4">
-                    <ButtonLink to="/login" variant="primary">
-                      Login
-                    </ButtonLink>
-                    <ButtonLink to="/register" variant="secondary">
-                      Register
-                    </ButtonLink>
-                  </div>
-                </div>
-              </Card>
-            </div>
+            <GuestProfileView
+              resetSuccess={resetSuccess}
+              resetError={resetError}
+              onOpenResetModal={openResetModal}
+            />
           )
         }
 
         return (
           <div className="space-y-6 max-w-lg">
-            <Card>
-              <div className="space-y-3">
-                <h2 className="text-xl font-semibold">
-                  Authentication Information
-                </h2>
-                <div className="space-y-2 text-body">
-                  {user.id !== undefined && (
-                    <div>
-                      <span className="font-medium">User ID: </span>
-                      <span data-testid="user-id">{String(user.id)}</span>
-                    </div>
-                  )}
-                  {user.email !== undefined && (
-                    <div>
-                      <span className="font-medium">Email: </span>
-                      <span data-testid="user-email">{String(user.email)}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </Card>
+            <AccountInfoCard user={user} />
+
+            <ContentAuthorCard
+              isContentAuthor={user.isContentAuthor}
+              authorLoading={authorLoading}
+              authorSuccess={authorSuccess}
+              authorError={authorError}
+              onToggleAuthor={onToggleAuthor}
+            />
+
+            <ChangePasswordCard
+              passwordForm={passwordForm}
+              passwordSuccess={passwordSuccess}
+              passwordError={passwordError}
+              newPasswordValue={newPasswordValue}
+              onChangePassword={onChangePassword}
+            />
+
+            <ResetProgressCard
+              resetSuccess={resetSuccess}
+              resetError={resetError}
+              onOpenModal={openResetModal}
+            />
+
+            <DeleteAccountCard
+              deleteError={deleteError}
+              onOpenModal={openDeleteModal}
+            />
 
             <div>
               <Button onClick={onLogout} variant="secondary">
@@ -96,6 +129,20 @@ export default function ProfilePage() {
           </div>
         )
       })()}
+
+      <ResetProgressModal
+        isOpen={showResetModal}
+        resetLoading={resetLoading}
+        onClose={closeResetModal}
+        onConfirm={handleConfirmResetProgress}
+      />
+
+      <DeleteAccountModal
+        isOpen={showDeleteModal}
+        deleteLoading={deleteLoading}
+        onClose={closeDeleteModal}
+        onConfirm={handleConfirmDeleteAccount}
+      />
     </div>
   )
 }

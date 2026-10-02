@@ -24,6 +24,9 @@ export class User {
   })
   password?: string;
 
+  @Column({ default: false })
+  isContentAuthor: boolean;
+
   @CreateDateColumn()
   createdAt: Date;
 

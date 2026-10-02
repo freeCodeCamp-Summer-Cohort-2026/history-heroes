@@ -448,4 +448,46 @@ export class ProgressService implements OnModuleInit {
 
     return null;
   }
+
+  /**
+   * Resets (deletes) all progress for the user and/or session across lessons and labs.
+   */
+  async resetProgress(options: {
+    userId?: number | null;
+    sessionId?: string | null;
+  }): Promise<{ deletedLessons: number; deletedLabs: number }> {
+    const { userId, sessionId } = options;
+
+    if (!userId && !sessionId) {
+      throw new UnauthorizedException('No active user or session found');
+    }
+
+    return await this.dataSource.transaction(async (manager) => {
+      const lessonRepo = manager.getRepository(UserLessonProgress);
+      const labRepo = manager.getRepository(UserLabProgress);
+
+      let deletedLessons = 0;
+      let deletedLabs = 0;
+
+      if (userId) {
+        const res = await lessonRepo.delete({ userId });
+        deletedLessons += res.affected ?? 0;
+      }
+      if (sessionId) {
+        const res = await lessonRepo.delete({ sessionId });
+        deletedLessons += res.affected ?? 0;
+      }
+
+      if (userId) {
+        const res = await labRepo.delete({ userId });
+        deletedLabs += res.affected ?? 0;
+      }
+      if (sessionId) {
+        const res = await labRepo.delete({ sessionId });
+        deletedLabs += res.affected ?? 0;
+      }
+
+      return { deletedLessons, deletedLabs };
+    });
+  }
 }

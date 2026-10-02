@@ -4,6 +4,7 @@ export interface User {
   username?: string
   createdAt?: string | Date
   updatedAt?: string | Date
+  isContentAuthor?: boolean
 }
 
 export interface AuthState {
@@ -62,4 +63,10 @@ export interface AuthActions {
   }) => Promise<User>
   handleLogout: () => Promise<void>
   getUserSession?: () => Promise<User | null>
+  updateContentAuthor?: (isContentAuthor: boolean) => Promise<User>
+  changePassword?: (params: {
+    currentPassword: string
+    newPassword: string
+  }) => Promise<void>
+  deleteAccount?: () => Promise<void>
 }

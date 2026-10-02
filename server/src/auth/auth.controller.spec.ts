@@ -14,6 +14,7 @@ describe('AuthController', () => {
 
   const mockUsersService = {
     getByEmail: vi.fn(),
+    getById: vi.fn(),
     create: vi.fn(),
     comparePassword: vi.fn(),
   };
@@ -44,6 +45,7 @@ describe('AuthController', () => {
         id: 1,
         email: 'test@historyheroes.org',
         password: 'hashed-password',
+        isContentAuthor: true,
       };
       mockUsersService.getByEmail.mockResolvedValue(mockUser);
       mockUsersService.comparePassword.mockResolvedValue(true);
@@ -57,7 +59,11 @@ describe('AuthController', () => {
         mockReq,
       );
 
-      expect(result).toEqual({ id: 1, email: 'test@historyheroes.org' });
+      expect(result).toEqual({
+        id: 1,
+        email: 'test@historyheroes.org',
+        isContentAuthor: true,
+      });
       expect(mockReq.session.userId).toBe(1);
       expect(mockUsersService.getByEmail).toHaveBeenCalledWith(
         { email: 'test@historyheroes.org', password: 'password123' },
@@ -183,13 +189,14 @@ describe('AuthController', () => {
   });
 
   describe('register', () => {
-    it('should create user, set session userId and return created user info', async () => {
+    it('should create user with default isContentAuthor, set session userId and return created user info', async () => {
       mockUsersService.getByEmail.mockResolvedValue(null);
 
       const createdUser: Partial<User> = {
         id: 2,
         email: 'newuser@historyheroes.org',
         password: 'hashed-password',
+        isContentAuthor: false,
       };
       mockUsersService.create.mockResolvedValue(createdUser);
 
@@ -198,15 +205,65 @@ describe('AuthController', () => {
       } as unknown as Request;
 
       const result = await controller.register(
-        { email: 'newuser@historyheroes.org', password: 'password123' },
+        {
+          email: 'newuser@historyheroes.org',
+          password: 'password123',
+          isContentAuthor: false,
+        },
         mockReq,
       );
 
-      expect(result).toEqual({ id: 2, email: 'newuser@historyheroes.org' });
+      expect(result).toEqual({
+        id: 2,
+        email: 'newuser@historyheroes.org',
+        isContentAuthor: false,
+      });
       expect(mockReq.session.userId).toBe(2);
       expect(mockUsersService.getByEmail).toHaveBeenCalledWith({
         email: 'newuser@historyheroes.org',
         password: 'password123',
+        isContentAuthor: false,
+      });
+      expect(mockUsersService.create).toHaveBeenCalledWith({
+        email: 'newuser@historyheroes.org',
+        password: 'password123',
+        isContentAuthor: false,
+      });
+    });
+
+    it('should create user with isContentAuthor: true when provided', async () => {
+      mockUsersService.getByEmail.mockResolvedValue(null);
+
+      const createdUser: Partial<User> = {
+        id: 3,
+        email: 'author@historyheroes.org',
+        password: 'hashed-password',
+        isContentAuthor: true,
+      };
+      mockUsersService.create.mockResolvedValue(createdUser);
+
+      const mockReq = {
+        session: {} as Record<string, any>,
+      } as unknown as Request;
+
+      const result = await controller.register(
+        {
+          email: 'author@historyheroes.org',
+          password: 'password123',
+          isContentAuthor: true,
+        },
+        mockReq,
+      );
+
+      expect(result).toEqual({
+        id: 3,
+        email: 'author@historyheroes.org',
+        isContentAuthor: true,
+      });
+      expect(mockUsersService.create).toHaveBeenCalledWith({
+        email: 'author@historyheroes.org',
+        password: 'password123',
+        isContentAuthor: true,
       });
     });
 
@@ -220,7 +277,11 @@ describe('AuthController', () => {
 
       await expect(
         controller.register(
-          { email: 'existing@historyheroes.org', password: 'password123' },
+          {
+            email: 'existing@historyheroes.org',
+            password: 'password123',
+            isContentAuthor: false,
+          },
           mockReq,
         ),
       ).rejects.toThrow(ConflictException);
@@ -228,9 +289,51 @@ describe('AuthController', () => {
   });
 
   describe('getSession', () => {
-    it('should return session info object', () => {
+    it('should return session info object with user details including isContentAuthor when user exists', async () => {
       const session = { userId: 1, cookie: {} };
-      expect(controller.getSession(session)).toEqual({
+      mockUsersService.getById.mockResolvedValue({
+        id: 1,
+        email: 'test@historyheroes.org',
+        isContentAuthor: true,
+      });
+
+      const result = await controller.getSession(session);
+
+      expect(mockUsersService.getById).toHaveBeenCalledWith(1);
+      expect(result).toEqual({
+        session_info: {
+          ...session,
+          userId: 1,
+          email: 'test@historyheroes.org',
+          isContentAuthor: true,
+          user: {
+            id: 1,
+            email: 'test@historyheroes.org',
+            isContentAuthor: true,
+          },
+        },
+      });
+    });
+
+    it('should return raw session info when user is not found in database', async () => {
+      const session = { userId: 999, cookie: {} };
+      mockUsersService.getById.mockResolvedValue(null);
+
+      const result = await controller.getSession(session);
+
+      expect(mockUsersService.getById).toHaveBeenCalledWith(999);
+      expect(result).toEqual({
+        session_info: session,
+      });
+    });
+
+    it('should return raw session info when session has no userId', async () => {
+      const session = { cookie: {} };
+
+      const result = await controller.getSession(session);
+
+      expect(mockUsersService.getById).not.toHaveBeenCalled();
+      expect(result).toEqual({
         session_info: session,
       });
     });

@@ -37,6 +37,9 @@ export class UserSeeder implements EntitySeeder<UserSeedData> {
         return entityManager.create(User, {
           email: item.email,
           password: hashedPassword,
+          ...(item.isContentAuthor !== undefined
+            ? { isContentAuthor: item.isContentAuthor }
+            : {}),
         });
       }),
     );

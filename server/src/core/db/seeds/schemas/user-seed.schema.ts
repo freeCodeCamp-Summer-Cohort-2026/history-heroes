@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const UserSeedItemSchema = z.object({
   email: z.email(),
   password: z.string().min(1, 'Password is required for seed users'),
+  isContentAuthor: z.boolean().optional(),
 });
 
 export const UserSeedFileSchema = z.object({

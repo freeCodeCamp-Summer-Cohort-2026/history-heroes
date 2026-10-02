@@ -3,6 +3,7 @@ import {
   getLabCompletion,
   recordLabCompletion,
   recordLessonCompletion,
+  resetProgress,
 } from '../api'
 
 afterEach(() => {
@@ -152,4 +153,31 @@ test('throws when getLabCompletion encounters error other than 404', async () =>
   await expect(getLabCompletion('great-pyramid-lab')).rejects.toThrow(
     'Failed to get lab completion: 500',
   )
+})
+
+test('resets progress and returns response message', async () => {
+  const result = { message: 'Progress reset successfully', count: 5 }
+  const fetchMock = vi.fn().mockResolvedValue({
+    ok: true,
+    json: async () => result,
+  })
+  vi.stubGlobal('fetch', fetchMock)
+
+  await expect(resetProgress()).resolves.toEqual(result)
+  expect(fetchMock).toHaveBeenCalledTimes(1)
+  expect(fetchMock).toHaveBeenCalledWith('/api/v1/progress', {
+    method: 'DELETE',
+  })
+})
+
+test('throws when resetProgress fails', async () => {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockResolvedValue({
+      ok: false,
+      status: 500,
+    }),
+  )
+
+  await expect(resetProgress()).rejects.toThrow('Failed to reset progress: 500')
 })
