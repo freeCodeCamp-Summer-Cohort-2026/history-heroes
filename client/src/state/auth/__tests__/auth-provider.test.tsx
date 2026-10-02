@@ -18,6 +18,9 @@ function TestConsumer() {
     handleRegister,
     handleLogout,
     getUserSession,
+    updateContentAuthor,
+    changePassword,
+    deleteAccount,
   } = useAuth()
 
   return (
@@ -88,6 +91,33 @@ function TestConsumer() {
         data-testid="btn-logout"
       >
         Logout
+      </button>
+      <button
+        onClick={() => {
+          void updateContentAuthor?.(true)
+        }}
+        data-testid="btn-updateContentAuthor"
+      >
+        Set Author
+      </button>
+      <button
+        onClick={() => {
+          void changePassword?.({
+            currentPassword: 'currentPassword123',
+            newPassword: 'newPassword123',
+          })
+        }}
+        data-testid="btn-changePassword"
+      >
+        Change Password
+      </button>
+      <button
+        onClick={() => {
+          void deleteAccount?.()
+        }}
+        data-testid="btn-deleteAccount"
+      >
+        Delete Account
       </button>
     </div>
   )
@@ -564,5 +594,228 @@ describe('AuthProvider error and loading handling', () => {
 
     // After session loads unauthenticated, showLogin remains true
     expect(screen.getByTestId('consumer-showLogin')).toHaveTextContent('true')
+  })
+
+  test('parses and sets isContentAuthor from getUserSession', async () => {
+    const sessionResponse = {
+      session_info: {
+        userId: 15,
+        email: 'author@example.com',
+        isContentAuthor: true,
+      },
+    }
+    globalThis.fetch = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify(sessionResponse), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    )
+
+    render(
+      <AuthProvider>
+        <TestConsumer />
+      </AuthProvider>,
+    )
+
+    await waitFor(() => {
+      expect(screen.getByTestId('user')).toHaveTextContent(
+        JSON.stringify({
+          id: 15,
+          email: 'author@example.com',
+          isContentAuthor: true,
+        }),
+      )
+    })
+  })
+
+  test('sets isContentAuthor on login and registration', async () => {
+    const loginUser = {
+      id: 20,
+      email: 'author@test.com',
+      isContentAuthor: true,
+    }
+    globalThis.fetch = vi
+      .fn()
+      .mockResolvedValueOnce(new Response(null, { status: 401 }))
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ user: loginUser }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+      )
+
+    render(
+      <AuthProvider>
+        <TestConsumer />
+      </AuthProvider>,
+    )
+
+    await waitFor(() => {
+      expect(screen.getByTestId('loading')).toHaveTextContent('false')
+    })
+
+    await act(async () => {
+      screen.getByTestId('btn-login').click()
+    })
+
+    await waitFor(() => {
+      expect(screen.getByTestId('user')).toHaveTextContent(
+        JSON.stringify(loginUser),
+      )
+    })
+  })
+
+  test('updates content author via updateContentAuthor', async () => {
+    const initialSession = {
+      session_info: {
+        userId: 10,
+        email: 'author@example.com',
+        isContentAuthor: false,
+      },
+    }
+    const patchResponse = {
+      id: 10,
+      email: 'author@example.com',
+      isContentAuthor: true,
+    }
+
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify(initialSession), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify(patchResponse), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+      )
+    globalThis.fetch = fetchMock
+
+    render(
+      <AuthProvider>
+        <TestConsumer />
+      </AuthProvider>,
+    )
+
+    await waitFor(() => {
+      expect(screen.getByTestId('user')).toHaveTextContent(
+        JSON.stringify({
+          id: 10,
+          email: 'author@example.com',
+          isContentAuthor: false,
+        }),
+      )
+    })
+
+    await act(async () => {
+      screen.getByTestId('btn-updateContentAuthor').click()
+    })
+
+    expect(fetchMock).toHaveBeenCalledWith('/api/v1/users/me', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ isContentAuthor: true }),
+    })
+
+    await waitFor(() => {
+      expect(screen.getByTestId('user')).toHaveTextContent(
+        JSON.stringify(patchResponse),
+      )
+    })
+  })
+
+  test('sends changePassword request successfully', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(new Response(null, { status: 401 }))
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({ message: 'Password changed successfully' }),
+          {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+          },
+        ),
+      )
+    globalThis.fetch = fetchMock
+
+    render(
+      <AuthProvider>
+        <TestConsumer />
+      </AuthProvider>,
+    )
+
+    await waitFor(() => {
+      expect(screen.getByTestId('loading')).toHaveTextContent('false')
+    })
+
+    await act(async () => {
+      screen.getByTestId('btn-changePassword').click()
+    })
+
+    expect(fetchMock).toHaveBeenCalledWith('/api/v1/users/me/change-password', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        currentPassword: 'currentPassword123',
+        newPassword: 'newPassword123',
+      }),
+    })
+  })
+
+  test('deletes account and sets user to null', async () => {
+    const initialSession = {
+      session_info: {
+        userId: 10,
+        email: 'user@example.com',
+      },
+    }
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify(initialSession), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ message: 'Account deleted' }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+      )
+    globalThis.fetch = fetchMock
+
+    render(
+      <AuthProvider>
+        <TestConsumer />
+      </AuthProvider>,
+    )
+
+    await waitFor(() => {
+      expect(screen.getByTestId('user')).toHaveTextContent(
+        JSON.stringify({ id: 10, email: 'user@example.com' }),
+      )
+    })
+
+    await act(async () => {
+      screen.getByTestId('btn-deleteAccount').click()
+    })
+
+    expect(fetchMock).toHaveBeenCalledWith('/api/v1/users/me', {
+      method: 'DELETE',
+    })
+
+    await waitFor(() => {
+      expect(screen.getByTestId('user')).toHaveTextContent('null')
+    })
   })
 })

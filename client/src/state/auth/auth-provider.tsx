@@ -32,15 +32,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       const data = await response.json()
       const sessionData = data.session_info ?? data
-      const userInfo: User | null =
-        sessionData?.userId !== undefined
-          ? {
-              id: Number(sessionData.userId),
-              ...(sessionData.email
-                ? { email: String(sessionData.email) }
-                : {}),
-            }
-          : null
+      const userInfo: User | null = (() => {
+        if (sessionData?.userId === undefined) {
+          return null
+        }
+        const userObj: User = {
+          id: Number(sessionData.userId),
+        }
+        if (sessionData.email) {
+          userObj.email = String(sessionData.email)
+        }
+        if (sessionData.isContentAuthor !== undefined) {
+          userObj.isContentAuthor = Boolean(sessionData.isContentAuthor)
+        }
+        return userObj
+      })()
       setState((prev) => ({
         ...prev,
         user: userInfo,
@@ -190,6 +196,86 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
+  const updateContentAuthor = useCallback(
+    async (isContentAuthor: boolean): Promise<User> => {
+      const response = await fetch('/api/v1/users/me', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ isContentAuthor }),
+      })
+      if (!response.ok) {
+        throw new Error('Failed to update content author status')
+      }
+      const updatedUser: User = await response.json()
+      setState((prev) => ({
+        ...prev,
+        user: prev.user
+          ? {
+              ...prev.user,
+              ...updatedUser,
+            }
+          : updatedUser,
+      }))
+      return updatedUser
+    },
+    [],
+  )
+
+  const changePassword = useCallback(
+    async ({
+      currentPassword,
+      newPassword,
+    }: {
+      currentPassword: string
+      newPassword: string
+    }): Promise<void> => {
+      const response = await fetch('/api/v1/users/me/change-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ currentPassword, newPassword }),
+      })
+      if (!response.ok) {
+        let errorMessage = 'Failed to change password'
+        try {
+          const errorData = await response.json()
+          if (errorData?.message) {
+            errorMessage = errorData.message
+          }
+        } catch {
+          // ignore parsing error
+        }
+        throw new Error(errorMessage)
+      }
+    },
+    [],
+  )
+
+  const deleteAccount = useCallback(async (): Promise<void> => {
+    const response = await fetch('/api/v1/users/me', {
+      method: 'DELETE',
+    })
+    if (!response.ok) {
+      let errorMessage = 'Failed to delete account'
+      try {
+        const errorData = await response.json()
+        if (errorData?.message) {
+          errorMessage = errorData.message
+        }
+      } catch {
+        // ignore parsing error
+      }
+      throw new Error(errorMessage)
+    }
+    setState((prev) => ({
+      ...prev,
+      user: null,
+    }))
+  }, [])
+
   const loading = Boolean(
     state.loading ||
     state.getUserSessionLoading ||
@@ -212,6 +298,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         handleRegister,
         handleLogout,
         getUserSession,
+        updateContentAuthor,
+        changePassword,
+        deleteAccount,
       }}
     >
       {children}

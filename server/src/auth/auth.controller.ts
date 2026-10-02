@@ -87,6 +87,7 @@ export class AuthController implements OnModuleInit {
     return {
       id: user.id,
       email: user.email,
+      isContentAuthor: user.isContentAuthor,
     };
   }
 
@@ -118,7 +119,11 @@ export class AuthController implements OnModuleInit {
       throw new ConflictException('Email is already registered');
     }
 
-    const createdUser = await this.userService.create(body);
+    const createdUser = await this.userService.create({
+      email: body.email,
+      password: body.password,
+      isContentAuthor: body.isContentAuthor,
+    });
 
     req.session.userId = createdUser.id;
 
@@ -126,6 +131,7 @@ export class AuthController implements OnModuleInit {
     return {
       id: createdUser.id,
       email: createdUser.email,
+      isContentAuthor: createdUser.isContentAuthor,
     };
   }
 
@@ -134,7 +140,25 @@ export class AuthController implements OnModuleInit {
    */
   @Get('session')
   @UseGuards(AuthenticatedGuard)
-  getSession(@Session() session: Record<string, any>) {
+  async getSession(@Session() session: Record<string, any>) {
+    if (session?.userId) {
+      const user = await this.userService.getById(session.userId);
+      if (user) {
+        return {
+          session_info: {
+            ...session,
+            userId: user.id,
+            email: user.email,
+            isContentAuthor: user.isContentAuthor,
+            user: {
+              id: user.id,
+              email: user.email,
+              isContentAuthor: user.isContentAuthor,
+            },
+          },
+        };
+      }
+    }
     return { session_info: session };
   }
 }
