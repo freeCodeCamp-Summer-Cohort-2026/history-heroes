@@ -1,3 +1,4 @@
+import { GripVertical } from 'lucide-react'
 import type { DragEvent, ReactNode } from 'react'
 import { classNames } from '../utils/class-names'
 
@@ -42,18 +43,9 @@ export default function DraggableCard({
 
 function DragHandleIcon() {
   return (
-    <svg
+    <GripVertical
+      className="size-5 shrink-0 text-base-content/40"
       aria-hidden="true"
-      viewBox="0 0 16 16"
-      fill="currentColor"
-      className="h-5 w-5 shrink-0 text-base-content/40"
-    >
-      <circle cx="6" cy="4" r="1.25" />
-      <circle cx="10" cy="4" r="1.25" />
-      <circle cx="6" cy="8" r="1.25" />
-      <circle cx="10" cy="8" r="1.25" />
-      <circle cx="6" cy="12" r="1.25" />
-      <circle cx="10" cy="12" r="1.25" />
-    </svg>
+    />
   )
 }
