@@ -4,7 +4,7 @@ A full stack web app written in TypeScript made for teaching history topics, dev
 
 The client side uses React and Vite, while the server side features a REST API built with the NestJS framework and a database powered by SQLite and TypeORM.
 
-Every module is divided into lessons - each one having its own activity related to that lesson's content - and has its own lab activity that relates to all lessons within a module. An user can only access a new lesson after the previous one is completed and will get feedback on activities as they submit their answer.
+Each module is divided into lessons - each with its own activity related to that lesson's content - and includes a lab activity that relates to all lessons within the module. A user can only access a new lesson after completing the previous one and will receive feedback on activities as they submit their answers.
 
 ## Team Members
 
