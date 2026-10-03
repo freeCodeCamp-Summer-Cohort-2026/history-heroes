@@ -378,6 +378,9 @@ test('does not render a next lesson after completing the final lesson', async ()
   )
   expect(lessonCompletionRequests(fetchMock, 'second-lesson')).toHaveLength(1)
   expect(screen.queryByRole('link', { name: /next lesson/i })).toBeNull()
+  expect(
+    screen.getByRole('link', { name: /continue to lab/i }),
+  ).toHaveAttribute('href', '/modules/first-module/lab')
   expect(screen.getByRole('link', { name: 'Back to module' })).toHaveAttribute(
     'href',
     '/modules/first-module',

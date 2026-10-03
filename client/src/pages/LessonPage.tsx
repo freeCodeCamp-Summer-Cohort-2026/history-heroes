@@ -190,17 +190,16 @@ function LessonPageContent({
             Lesson completion saved.
           </p>
           <div className="flex flex-col gap-3 sm:flex-row">
-            {nextLesson && isNextLessonUnlocked && (
+            {nextLesson && isNextLessonUnlocked ? (
               <ButtonLink to={`/modules/${moduleId}/lessons/${nextLesson.id}`}>
                 Next lesson: {nextLesson.title}
               </ButtonLink>
+            ) : (
+              <ButtonLink to={`/modules/${moduleId}/lab`}>
+                Continue to lab
+              </ButtonLink>
             )}
-            <ButtonLink
-              variant={
-                nextLesson && isNextLessonUnlocked ? 'secondary' : 'primary'
-              }
-              to={`/modules/${moduleId}`}
-            >
+            <ButtonLink variant="secondary" to={`/modules/${moduleId}`}>
               Back to module
             </ButtonLink>
           </div>
