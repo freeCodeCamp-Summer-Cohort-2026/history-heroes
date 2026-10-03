@@ -2,7 +2,7 @@
 
 A full stack web app written in TypeScript made for teaching history topics, developed for freeCodeCamp-Summer-Cohort-2026.
 
-On the client side it is used the React library and Vite tool, while on the server side we have the REST API that is built with NestJS framework and the database which is set with the SQLite engine and TypeORM library.
+The client side uses React and Vite, while the server side features a REST API built with the NestJS framework and a database powered by SQLite and TypeORM.
 
 Every module is divided into lessons - each one having its own activity related to that lesson's content - and has its own lab activity that relates to all lessons within a module. An user can only access a new lesson after the previous one is completed and will get feedback on activities as they submit their answer.
 
