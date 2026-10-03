@@ -1,7 +1,6 @@
 import { useState } from 'react'
-import { Lock } from 'lucide-react'
+import { Lock, Check, ArrowRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { Check, ArrowRight } from 'lucide-react'
 import type { Lesson } from '../features/lesson/model/Lesson'
 
 type LessonState = 'locked' | 'unlocked' | 'completed'
