@@ -36,6 +36,13 @@ function normalizeToBoolean(val: string | boolean | unknown): boolean {
         const nodeEnv = configService.get<string>('NODE_ENV')?.toLowerCase();
         const isDevOrTest = nodeEnv === 'development' || nodeEnv === 'test';
 
+        const synchronize = normalizeToBoolean(
+          configService.get('DATABASE_SYNCHRONIZE', isDevOrTest),
+        );
+        const migrationsRun = normalizeToBoolean(
+          configService.get('DATABASE_MIGRATIONS_RUN', !synchronize),
+        );
+
         return {
           type: 'better-sqlite3',
           database: resolvedPath,
@@ -47,9 +54,12 @@ function normalizeToBoolean(val: string | boolean | unknown): boolean {
           autoLoadEntities: true,
           // Auto-synchronize schema by default only in development and test environments.
           // Outside dev/test (e.g. production), it defaults to false to prevent accidental schema changes or data loss.
-          synchronize: normalizeToBoolean(
-            configService.get('DATABASE_SYNCHRONIZE', isDevOrTest),
-          ),
+          synchronize,
+          // Auto-run pending migrations when synchronization is disabled (e.g. production)
+          migrationsRun,
+          migrations: synchronize
+            ? []
+            : [path.join(__dirname, 'migrations/*{.ts,.js}')],
           logging: nodeEnv === 'development',
         };
       },
