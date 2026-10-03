@@ -1,6 +1,10 @@
 # history-heroes
 
-Full stack web app for freeCodeCamp-Summer-Cohort-2026
+A full stack web app written in TypeScript made for teaching history topics to teenagers developed for freeCodeCamp-Summer-Cohort-2026.
+
+On the client side it is used the React library and Vite tool, while on the server side we have the REST API that is built with NestJS framework and the database which is set with the SQLite engine and TypeORM library.
+
+Every module is divided into lessons - each one having its own activity related to that lesson's content - and has its own lab activity that relates to all lessons within a module. An user can only access a new lesson after the previous one is completed and will get feedback on activities as they submit their answer.
 
 ## Team Members
 
