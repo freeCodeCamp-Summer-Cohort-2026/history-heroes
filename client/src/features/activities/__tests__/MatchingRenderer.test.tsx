@@ -342,3 +342,73 @@ test('missing or empty group output', () => {
 
   expect(screen.getByText(/No items available/i)).toBeInTheDocument()
 })
+
+test('displays drop target slots and available choices bank clearly', () => {
+  const content = {
+    left: [{ id: 'yr-2019', label: '2019' }],
+    right: [{ id: 'ev-covid', label: 'COVID outbreak' }],
+  }
+  const answer = { pairs: [] }
+
+  render(
+    <MatchingRenderer
+      content={content}
+      answer={answer}
+      onAnswerChange={() => {}}
+      disabled={false}
+    />,
+  )
+
+  expect(screen.getByText('Items to match')).toBeInTheDocument()
+  expect(screen.getByText('Available choices')).toBeInTheDocument()
+  expect(screen.getByText('Drop match here')).toBeInTheDocument()
+})
+
+test('updates target slot to show paired state when matched', () => {
+  const content = {
+    left: [{ id: 'yr-2019', label: '2019' }],
+    right: [{ id: 'ev-covid', label: 'COVID outbreak' }],
+  }
+  const answer = { pairs: [{ left: 'yr-2019', right: 'ev-covid' }] }
+
+  render(
+    <MatchingRenderer
+      content={content}
+      answer={answer}
+      onAnswerChange={() => {}}
+      disabled={false}
+    />,
+  )
+
+  expect(screen.getByText('Paired')).toBeInTheDocument()
+  expect(screen.queryByText('Drop match here')).toBeNull()
+})
+
+test('removes paired options from the available choices bank', () => {
+  const content = {
+    left: [
+      { id: 'yr-2019', label: '2019' },
+      { id: 'yr-2020', label: '2020' },
+    ],
+    right: [
+      { id: 'ev-covid', label: 'COVID outbreak' },
+      { id: 'ev-lockdown', label: 'Global lockdowns' },
+    ],
+  }
+  const answer = { pairs: [{ left: 'yr-2019', right: 'ev-covid' }] }
+
+  render(
+    <MatchingRenderer
+      content={content}
+      answer={answer}
+      onAnswerChange={() => {}}
+      disabled={false}
+    />,
+  )
+
+  const choicesList = screen.getByRole('list', {
+    name: 'Available choices to match',
+  })
+  expect(choicesList).toHaveTextContent('Global lockdowns')
+  expect(choicesList).not.toHaveTextContent('COVID outbreak')
+})
