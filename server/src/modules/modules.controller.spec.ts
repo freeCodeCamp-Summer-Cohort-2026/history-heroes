@@ -47,6 +47,7 @@ describe('ModulesController', () => {
   const mockModulesService = {
     findAll: vi.fn().mockResolvedValue(mockModules),
     findById: vi.fn().mockResolvedValue(mockModules[0]),
+    update: vi.fn(),
   };
 
   const mockLessonService = {
@@ -83,6 +84,29 @@ describe('ModulesController', () => {
       expect(mockModulesService.findAll).toHaveBeenCalled();
     });
   });
+
+  describe('update', () => {
+    it('should update a module', async () => {
+      const updates = {
+        title: 'Updated Seven Wonders',
+        description: 'Updated description',
+        period: 'Ancient',
+        theme: 'Architecture',
+      }
+
+      const updatedModule = {
+        ...mockModules[0],
+        ...updates,
+      }
+
+      mockModulesService.update.mockResolvedValue(updatedModule)
+
+      const result = await controller.update('seven-wonders', updates)
+
+      expect(result).toEqual(updatedModule)
+      expect(mockModulesService.update).toHaveBeenCalledWith('seven-wonders', updates,)
+    })
+  })
 
   describe('getModuleLessons', () => {
     it('should return an empty lesson collection when module exists with no lessons', async () => {
