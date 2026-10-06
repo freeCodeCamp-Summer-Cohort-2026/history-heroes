@@ -101,7 +101,6 @@ export default function MatchingRenderer({
               >
                 <MatchingPromptPiece
                   item={item}
-                  pairedLabel={findOppositeLabel?.label}
                   isPaired={Boolean(findPaired)}
                   isDragOver={isDragOver}
                   isDragging={isLeftBeingDragged}
@@ -133,7 +132,6 @@ export default function MatchingRenderer({
 
                 <MatchingSlotPiece
                   pairedItem={findOppositeLabel}
-                  promptLabel={item.label}
                   isDragging={isRightBeingDragged}
                   isDragOver={isDragOver}
                   isAwaitingPlacement={Boolean(selectedChoiceId)}

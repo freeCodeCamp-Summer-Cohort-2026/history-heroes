@@ -4,7 +4,6 @@ import { ChevronChoiceNotch } from './ChevronPuzzleEdges'
 
 interface MatchingChoiceChipProps {
   item: { id: string; label: string }
-  pairedLabel?: string
   isPaired: boolean
   isDragging: boolean
   isSelected: boolean
@@ -18,7 +17,6 @@ interface MatchingChoiceChipProps {
 
 export function MatchingChoiceChip({
   item,
-  pairedLabel,
   isPaired,
   isDragging,
   isSelected,
@@ -63,10 +61,7 @@ export function MatchingChoiceChip({
             aria-hidden="true"
           />
         )}
-        <span>
-          {item.label}
-          {pairedLabel ? ` - ${pairedLabel}` : ''}
-        </span>
+        <span>{item.label}</span>
         {isPaired && (
           <span className="badge badge-xs badge-success">in use</span>
         )}

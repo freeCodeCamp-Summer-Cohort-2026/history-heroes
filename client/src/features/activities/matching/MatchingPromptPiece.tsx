@@ -4,7 +4,6 @@ import { ChevronMaleTab } from './ChevronPuzzleEdges'
 
 interface MatchingPromptPieceProps {
   item: { id: string; label: string }
-  pairedLabel?: string
   isPaired: boolean
   isDragOver: boolean
   isDragging: boolean
@@ -19,7 +18,6 @@ interface MatchingPromptPieceProps {
 
 export function MatchingPromptPiece({
   item,
-  pairedLabel,
   isPaired,
   isDragOver,
   isDragging,
@@ -63,10 +61,7 @@ export function MatchingPromptPiece({
             aria-hidden="true"
           />
         )}
-        <span className="font-semibold text-body">
-          {item.label}
-          {pairedLabel ? ` - ${pairedLabel}` : ''}
-        </span>
+        <span className="font-semibold text-body">{item.label}</span>
       </div>
       <ChevronMaleTab isPaired={isPaired} isDragOver={isDragOver} />
     </div>

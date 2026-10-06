@@ -315,7 +315,8 @@ test('incomplete pairings remain valid activity state', () => {
     />,
   )
 
-  expect(screen.getByText(/2019 - COVID outbreak/i)).toBeInTheDocument()
+  expect(screen.getByText(/^2019$/i)).toBeInTheDocument()
+  expect(screen.getByText(/^COVID outbreak$/i)).toBeInTheDocument()
   expect(screen.getByText(/^2020$/i)).toBeInTheDocument()
 })
 

@@ -4,7 +4,6 @@ import { ChevronFemaleNotch } from './ChevronPuzzleEdges'
 
 interface MatchingSlotPieceProps {
   pairedItem?: { id: string; label: string }
-  promptLabel?: string
   isDragging: boolean
   isDragOver: boolean
   isAwaitingPlacement: boolean
@@ -20,7 +19,6 @@ interface MatchingSlotPieceProps {
 
 export function MatchingSlotPiece({
   pairedItem,
-  promptLabel,
   isDragging,
   isDragOver,
   isAwaitingPlacement,
@@ -63,10 +61,7 @@ export function MatchingSlotPiece({
                 aria-hidden="true"
               />
             )}
-            <span className="font-semibold text-body">
-              {pairedItem.label}
-              {promptLabel ? ` - ${promptLabel}` : ''}
-            </span>
+            <span className="font-semibold text-body">{pairedItem.label}</span>
             <div className="flex items-center gap-1 font-medium text-success text-small ml-1">
               <Check className="size-3.5 shrink-0" aria-hidden="true" />
               <span>Paired</span>
