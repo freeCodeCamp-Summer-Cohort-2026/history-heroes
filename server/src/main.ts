@@ -16,6 +16,8 @@ async function bootstrap() {
 
   app.use(helmet());
   app.setGlobalPrefix('api/v1');
+  // required to allow the app to work behind a reverse proxy (like tailscale)
+  app.getHttpAdapter().getInstance().set('trust proxy', 1);
 
   const configService = app.get(ConfigService);
 
