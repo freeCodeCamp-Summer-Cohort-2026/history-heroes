@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { NotFoundException } from '@nestjs/common'
+import { NotFoundException } from '@nestjs/common';
 import { ModulesService } from './modules.service';
 import { Module } from './entities/module.entity';
 
@@ -23,11 +23,11 @@ describe('ModulesService', () => {
   const mockModulesRepository = {
     find: vi.fn().mockResolvedValue(mockModules),
     findOne: vi.fn(),
-    save: vi.fn()
+    save: vi.fn(),
   };
 
   beforeEach(async () => {
-    vi.clearAllMocks()
+    vi.clearAllMocks();
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -57,46 +57,46 @@ describe('ModulesService', () => {
       });
     });
   });
-describe('update', () => {
-  it('should update an existing module', async () => {
-    const existingModule = { ...mockModules[0] }
+  describe('update', () => {
+    it('should update an existing module', async () => {
+      const existingModule = { ...mockModules[0] };
 
-    const updates = {
-      title: 'Updated Seven Wonders',
-      description: 'Updated description',
-      period: 'Ancient',
-      theme: 'Architecture',
-    }
+      const updates = {
+        title: 'Updated Seven Wonders',
+        description: 'Updated description',
+        period: 'Ancient',
+        theme: 'Architecture',
+      };
 
-    mockModulesRepository.findOne.mockResolvedValue(existingModule)
-    mockModulesRepository.save.mockImplementation((module) =>
-      Promise.resolve(module),
-    )
+      mockModulesRepository.findOne.mockResolvedValue(existingModule);
+      mockModulesRepository.save.mockImplementation((module) =>
+        Promise.resolve(module),
+      );
 
-    const result = await service.update('seven-wonders', updates)
+      const result = await service.update('seven-wonders', updates);
 
-    expect(mockModulesRepository.findOne).toHaveBeenCalledWith({
-      where: { id: 'seven-wonders' },
-    })
+      expect(mockModulesRepository.findOne).toHaveBeenCalledWith({
+        where: { id: 'seven-wonders' },
+      });
 
-    expect(mockModulesRepository.save).toHaveBeenCalledWith({
-      ...existingModule,
-      ...updates,
-    })
+      expect(mockModulesRepository.save).toHaveBeenCalledWith({
+        ...existingModule,
+        ...updates,
+      });
 
-    expect(result).toMatchObject(updates)
-  })
+      expect(result).toMatchObject(updates);
+    });
 
-  it('should throw NotFoundException when module does not exist', async () => {
-    mockModulesRepository.findOne.mockResolvedValue(null)
+    it('should throw NotFoundException when module does not exist', async () => {
+      mockModulesRepository.findOne.mockResolvedValue(null);
 
-    await expect(
-      service.update('missing-module', {
-        title: 'Updated title',
-      }),
-    ).rejects.toThrow(NotFoundException)
+      await expect(
+        service.update('missing-module', {
+          title: 'Updated title',
+        }),
+      ).rejects.toThrow(NotFoundException);
 
-    expect(mockModulesRepository.save).not.toHaveBeenCalled()
-  })
-})
+      expect(mockModulesRepository.save).not.toHaveBeenCalled();
+    });
+  });
 });

@@ -31,19 +31,16 @@ export class ModulesService {
       },
     });
   }
-  
-  async update(
-    moduleId: string,
-    updates: UpdateModuleDto,
-    ): Promise<Module> {
-      const module = await this.findById(moduleId);
 
-      if (!module) {
-        throw new NotFoundException(`Module with id "${moduleId}" not found`);
-      }
+  async update(moduleId: string, updates: UpdateModuleDto): Promise<Module> {
+    const module = await this.findById(moduleId);
 
-      Object.assign(module, updates);
+    if (!module) {
+      throw new NotFoundException(`Module with id "${moduleId}" not found`);
+    }
 
-      return this.modulesRepository.save(module);
+    Object.assign(module, updates);
+
+    return this.modulesRepository.save(module);
   }
 }

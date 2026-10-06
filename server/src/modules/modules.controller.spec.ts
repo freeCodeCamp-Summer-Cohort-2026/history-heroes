@@ -92,21 +92,24 @@ describe('ModulesController', () => {
         description: 'Updated description',
         period: 'Ancient',
         theme: 'Architecture',
-      }
+      };
 
       const updatedModule = {
         ...mockModules[0],
         ...updates,
-      }
+      };
 
-      mockModulesService.update.mockResolvedValue(updatedModule)
+      mockModulesService.update.mockResolvedValue(updatedModule);
 
-      const result = await controller.update('seven-wonders', updates)
+      const result = await controller.update('seven-wonders', updates);
 
-      expect(result).toEqual(updatedModule)
-      expect(mockModulesService.update).toHaveBeenCalledWith('seven-wonders', updates,)
-    })
-  })
+      expect(result).toEqual(updatedModule);
+      expect(mockModulesService.update).toHaveBeenCalledWith(
+        'seven-wonders',
+        updates,
+      );
+    });
+  });
 
   describe('getModuleLessons', () => {
     it('should return an empty lesson collection when module exists with no lessons', async () => {
