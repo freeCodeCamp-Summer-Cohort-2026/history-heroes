@@ -95,6 +95,35 @@ describe('Activity item schema', () => {
     };
   });
 
+  let dummyTrueFalseActivity: {
+    id: string;
+    type: string;
+    title: string;
+    checkStatement: string;
+    content: {
+      statement: string;
+    };
+    successCriteria: {
+      correctAnswer: boolean;
+    };
+  };
+
+  //reset dummy true-false activity before each test
+  beforeEach(() => {
+    dummyTrueFalseActivity = {
+      id: 'dummy-true-false-activity',
+      type: 'true-false',
+      title: 'Dummy true, false activity',
+      checkStatement: 'This is a dummy true, false activity',
+      content: {
+        statement: 'This is a dummy lesson',
+      },
+      successCriteria: {
+        correctAnswer: true,
+      },
+    };
+  });
+
   it('should exist', () => {
     expect(ActivitySeedItemSchema).toBeDefined();
   });
@@ -327,6 +356,38 @@ describe('Activity item schema', () => {
 
         ActivitySeedItemSchema.parse(dummyMatchingActivity);
       });
+    });
+  });
+
+  describe('true-false-activity', () => {
+    const expectValidationFailure = (activity: unknown) => {
+      const result = ActivitySeedItemSchema.safeParse(activity);
+
+      expect(result.success).toBeFalsy();
+      expect(result.error).toBeDefined();
+    };
+    it('should be valid for unmodified dummy activity', () => {
+      ActivitySeedItemSchema.parse(dummyTrueFalseActivity);
+    });
+    it('should be invalid for empty statements', () => {
+      dummyTrueFalseActivity.content.statement = '';
+      expectValidationFailure(dummyTrueFalseActivity);
+    });
+
+    it('should be invalid when correctAnswer is missing', () => {
+      const copy = JSON.parse(JSON.stringify(dummyTrueFalseActivity));
+      delete copy.successCriteria.correctAnswer;
+      expectValidationFailure(copy);
+    });
+    it('should be invalid when correctAnswer is a string', () => {
+      const copy = JSON.parse(JSON.stringify(dummyTrueFalseActivity));
+      copy.successCriteria.correctAnswer = 'true';
+      expectValidationFailure(copy);
+    });
+
+    it('should be valid when correctAnswer is false', () => {
+      dummyTrueFalseActivity.successCriteria.correctAnswer = false;
+      ActivitySeedItemSchema.parse(dummyTrueFalseActivity);
     });
   });
 

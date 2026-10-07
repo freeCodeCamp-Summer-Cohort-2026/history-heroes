@@ -104,7 +104,19 @@ const Matching = z
     if (rightResult) ctx.addIssue({ code: 'custom', message: rightResult });
   });
 
-const ActivityTypes = z.discriminatedUnion('type', [Ordering, Matching]);
+const TrueFalse = z.object({
+  type: z.literal('true-false'),
+  content: z.object({ statement: z.string().nonempty() }),
+  successCriteria: z.object({
+    correctAnswer: z.boolean(),
+  }),
+});
+
+const ActivityTypes = z.discriminatedUnion('type', [
+  Ordering,
+  Matching,
+  TrueFalse,
+]);
 
 export const ActivitySeedItemSchema = z
   .object({
