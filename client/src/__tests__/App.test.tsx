@@ -1,4 +1,4 @@
-import { screen, fireEvent } from '@testing-library/react'
+import { screen, fireEvent, waitFor } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { routes } from '../App'
 import { renderWithAuth } from '../test/utils'
@@ -135,4 +135,70 @@ test('renders the module editor route', async () => {
 
   expect(screen.getByText('Ancient')).toBeInTheDocument()
   expect(screen.getByText('Architecture')).toBeInTheDocument()
+})
+test('saves module changes', async () => {
+  const module = {
+    id: 'seven-wonders',
+    title: 'Seven Wonders',
+    description: 'Explore the ancient wonders.',
+    period: 'Ancient',
+    theme: 'Architecture',
+  }
+
+  const fetchMock = vi.fn().mockImplementation((url, options) => {
+    if (url === '/api/v1/modules') {
+      return Promise.resolve({
+        ok: true,
+        json: async () => [module],
+      })
+    }
+
+    if (
+      url === '/api/v1/modules/seven-wonders' &&
+      options?.method === 'PATCH'
+    ) {
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({
+          ...module,
+          title: 'Seven Wonders Updated',
+        }),
+      })
+    }
+
+    throw new Error(`Unexpected fetch request: ${String(url)}`)
+  })
+
+  vi.stubGlobal('fetch', fetchMock)
+
+  renderWithAuth(
+    <RouterProvider
+      router={createMemoryRouter(routes, {
+        initialEntries: ['/modules/seven-wonders/edit'],
+      })}
+    />,
+  )
+
+  const titleInput = await screen.findByLabelText('Title')
+
+  fireEvent.change(titleInput, {
+    target: { value: 'Seven Wonders Updated' },
+  })
+
+  fireEvent.click(screen.getByRole('button', { name: /save/i }))
+
+  await waitFor(() => {
+    expect(fetchMock).toHaveBeenCalledWith('/api/v1/modules/seven-wonders', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        title: 'Seven Wonders Updated',
+        description: 'Explore the ancient wonders.',
+        period: 'Ancient',
+        theme: 'Architecture',
+      }),
+    })
+  })
 })

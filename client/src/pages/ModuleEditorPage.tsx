@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import InputField from '../components/InputField'
-import { fetchModules } from '../features/module/model/api'
+import { fetchModules, updateModule } from '../features/module/model/api'
 import type { ModuleSummary } from '../features/module/model/ModuleSummary'
 import ErrorState from '../components/ErrorState'
 import { useForm } from 'react-hook-form'
@@ -19,15 +19,25 @@ export default function ModuleEditorPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [hasError, setHasError] = useState(false)
   const [view, setView] = useState<'edit' | 'preview'>('edit')
-  const { register, reset, watch } = useForm<ModuleEditorFormData>({
-    defaultValues: {
-      title: '',
-      description: '',
-      period: '',
-      theme: '',
-    },
-  })
+  const { register, reset, watch, handleSubmit } =
+    useForm<ModuleEditorFormData>({
+      defaultValues: {
+        title: '',
+        description: '',
+        period: '',
+        theme: '',
+      },
+    })
+
   const formValues = watch()
+  const onSubmit = async (values: ModuleEditorFormData) => {
+    if (!moduleId) return
+
+    const updatedModule = await updateModule(moduleId, values)
+
+    setCurrentModule(updatedModule)
+  }
+
   useEffect(() => {
     if (!moduleId) return
 
@@ -84,7 +94,7 @@ export default function ModuleEditorPage() {
       </div>
 
       {view === 'edit' && (
-        <form className="space-y-4">
+        <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
           <InputField id="title" label="Title" {...register('title')} />
 
           <fieldset className="fieldset w-full">
@@ -102,6 +112,10 @@ export default function ModuleEditorPage() {
           <InputField id="period" label="Period" {...register('period')} />
 
           <InputField id="theme" label="Theme" {...register('theme')} />
+
+          <button type="submit" className="btn btn-primary">
+            Save
+          </button>
         </form>
       )}
       {view === 'preview' && (
