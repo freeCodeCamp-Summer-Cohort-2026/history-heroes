@@ -16,7 +16,7 @@ test('updates a module and returns the updated module', async () => {
     id: 'seven-wonders',
     ...updates,
   }
-  
+
   const fetchMock = vi.fn().mockResolvedValue({
     ok: true,
     json: async () => updatedModule,
@@ -28,16 +28,13 @@ test('updates a module and returns the updated module', async () => {
     updatedModule,
   )
 
-  expect(fetchMock).toHaveBeenCalledWith(
-    '/api/v1/modules/seven-wonders',
-    {
-      method: 'PATCH',
-      headers: {
+  expect(fetchMock).toHaveBeenCalledWith('/api/v1/modules/seven-wonders', {
+    method: 'PATCH',
+    headers: {
       'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(updates),
-    }
-  )
+    },
+    body: JSON.stringify(updates),
+  })
 })
 
 test('throws when the module cannot be updated', async () => {
@@ -48,9 +45,9 @@ test('throws when the module cannot be updated', async () => {
       status: 400,
     }),
   )
-    await expect(
-      updateModule('seven-wonders', {
-        title: 'Updated title',
-      }),
-    ).rejects.toThrow('Failed to update module: 400')
+  await expect(
+    updateModule('seven-wonders', {
+      title: 'Updated title',
+    }),
+  ).rejects.toThrow('Failed to update module: 400')
 })

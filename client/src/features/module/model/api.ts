@@ -2,7 +2,9 @@ import type { ModuleSummary } from './ModuleSummary'
 
 const MODULES_URL = '/api/v1/modules'
 
-export type UpdateModuleInput = Partial<Pick<ModuleSummary, 'title' | 'description' | 'period' | 'theme'>>
+export type UpdateModuleInput = Partial<
+  Pick<ModuleSummary, 'title' | 'description' | 'period' | 'theme'>
+>
 
 export async function fetchModules(): Promise<ModuleSummary[]> {
   const response = await fetch(MODULES_URL)
@@ -15,10 +17,10 @@ export async function fetchModules(): Promise<ModuleSummary[]> {
 }
 
 export async function updateModule(
-  moduleId:string,
+  moduleId: string,
   updates: UpdateModuleInput,
 ): Promise<ModuleSummary> {
-  const response = await fetch(`${ MODULES_URL }/${moduleId}`, {
+  const response = await fetch(`${MODULES_URL}/${moduleId}`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
