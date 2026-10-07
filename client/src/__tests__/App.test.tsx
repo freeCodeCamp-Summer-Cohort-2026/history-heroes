@@ -115,5 +115,24 @@ test('renders the module editor route', async () => {
     await screen.findByRole('heading', { name: /edit module/i }),
   ).toBeInTheDocument()
 
-  expect(screen.getByDisplayValue('Seven Wonders')).toBeInTheDocument()
+  expect(screen.getByLabelText('Title')).toHaveValue('Seven Wonders')
+
+  expect(screen.getByLabelText('Description')).toHaveValue(
+    'Explore the ancient wonders.',
+  )
+
+  expect(screen.getByLabelText('Period')).toHaveValue('Ancient')
+
+  expect(screen.getByLabelText('Theme')).toHaveValue('Architecture')
+
+  fireEvent.click(screen.getByRole('button', { name: /preview/i }))
+
+  expect(
+    screen.getByRole('heading', { name: 'Seven Wonders' }),
+  ).toBeInTheDocument()
+
+  expect(screen.getByText('Explore the ancient wonders.')).toBeInTheDocument()
+
+  expect(screen.getByText('Ancient')).toBeInTheDocument()
+  expect(screen.getByText('Architecture')).toBeInTheDocument()
 })
