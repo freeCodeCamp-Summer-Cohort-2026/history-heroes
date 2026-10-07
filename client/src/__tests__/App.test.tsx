@@ -86,3 +86,34 @@ test('scrolls to the top when the page changes', async () => {
 
   expect(scrollSpy).toHaveBeenCalledWith(0, 0)
 })
+
+test('renders the module editor route', async () => {
+  const module = {
+    id: 'seven-wonders',
+    title: 'Seven Wonders',
+    description: 'Explore the ancient wonders.',
+    period: 'Ancient',
+    theme: 'Architecture',
+  }
+
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => [module],
+    }),
+  )
+
+  renderWithAuth(
+    <RouterProvider
+      router={createMemoryRouter(routes, {
+        initialEntries: ['/modules/seven-wonders/edit'],
+      })}
+    />,
+  )
+  expect(
+    await screen.findByRole('heading', { name: /edit module/i }),
+  ).toBeInTheDocument()
+
+  expect(screen.getByDisplayValue('Seven Wonders')).toBeInTheDocument()
+})
