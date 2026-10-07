@@ -4,7 +4,7 @@ import InputField from '../components/InputField'
 import { fetchModules, updateModule } from '../features/module/model/api'
 import type { ModuleSummary } from '../features/module/model/ModuleSummary'
 import ErrorState from '../components/ErrorState'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 
 type ModuleEditorFormData = {
   title: string
@@ -19,7 +19,7 @@ export default function ModuleEditorPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [hasError, setHasError] = useState(false)
   const [view, setView] = useState<'edit' | 'preview'>('edit')
-  const { register, reset, watch, handleSubmit } =
+  const { register, reset, control, handleSubmit } =
     useForm<ModuleEditorFormData>({
       defaultValues: {
         title: '',
@@ -29,7 +29,7 @@ export default function ModuleEditorPage() {
       },
     })
 
-  const formValues = watch()
+  const formValues = useWatch({ control })
   const onSubmit = async (values: ModuleEditorFormData) => {
     if (!moduleId) return
 
