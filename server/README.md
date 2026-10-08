@@ -57,9 +57,18 @@ To visually inspect or edit the database file, you can use:
 
 When preparing schema changes for production or releasing stable versions, use TypeORM CLI migrations instead of relying on runtime schema synchronization (`DATABASE_SYNCHRONIZE`).
 
-The CLI connects via [src/core/db/data-source.ts](src/core/db/data-source.ts), a standalone TypeORM DataSource configured to discover entity classes and migration files outside of NestJS runtime dependency injection.
+#### Development vs. Production Migration Behavior
+
+- **Local Development (`NODE_ENV=development`)**:
+  - `DATABASE_SYNCHRONIZE=true` by default. Schema changes to entity classes are automatically synchronized with `data/dev.sqlite` upon server restart.
+  - Automatic migration execution is disabled (`DATABASE_MIGRATIONS_RUN=false`) to avoid conflicting with schema synchronization.
+- **Production (`NODE_ENV=production`)**:
+  - Schema synchronization is disabled (`DATABASE_SYNCHRONIZE=false`) to prevent accidental data loss.
+  - TypeORM migrations automatically execute during server bootstrap (`DATABASE_MIGRATIONS_RUN=true`), ensuring schema updates and initial setups run safely before requests are served.
 
 #### Available CLI Commands
+
+The CLI connects via [src/core/db/data-source.ts](src/core/db/data-source.ts), a standalone TypeORM DataSource configured to discover entity classes and migration files outside of NestJS runtime dependency injection.
 
 | Command                                                                | Description                                                                              |
 | ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
@@ -72,14 +81,46 @@ The CLI connects via [src/core/db/data-source.ts](src/core/db/data-source.ts), a
 #### Workflow for Schema Migrations
 
 1. Modify or add entities under `src/**/*.entity.ts`.
-2. Generate the diff migration:
+2. Generate the diff migration against an active or temporary SQLite database:
    ```bash
    npm run migration:generate -- src/core/db/migrations/AddFeatureName
    ```
-3. Apply the migration:
+3. Inspect and verify the generated SQL queries inside `src/core/db/migrations/<timestamp>-AddFeatureName.ts`.
+4. Apply the migration:
    ```bash
    npm run migration:run
    ```
+5. Test rolling back if needed:
+   ```bash
+   npm run migration:revert
+   ```
+
+#### Database Backups and Disaster Recovery
+
+Before applying migrations or deploying new versions against a production database, always take a backup of the SQLite database file:
+
+- **Offline Backup** (recommended when server is stopped):
+
+  ```bash
+  cp data/app.sqlite data/app.sqlite.$(date +%Y%m%d%H%M%S).bak
+  ```
+
+- **Online Backup** (using SQLite CLI while server is running):
+
+  ```bash
+  sqlite3 data/app.sqlite ".backup 'data/backup-$(date +%Y%m%d%H%M%S).sqlite'"
+  ```
+
+- **Rollback / Recovery**:
+  If a migration fails or causes issues:
+  1. Roll back the last migration via CLI:
+     ```bash
+     npm run migration:revert
+     ```
+  2. Or restore the database file from your backup:
+     ```bash
+     cp data/app.sqlite.<timestamp>.bak data/app.sqlite
+     ```
 
 ## Compile and run the project
 

@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, Check } from 'lucide-react'
 import LessonListItem from '../components/LessonListItem'
 import ProgressIndicator from '../components/ProgressIndicator'
+import ButtonLink from '../components/ButtonLink'
 import { fetchModules } from '../features/module/model/api'
 import type { ModuleSummary } from '../features/module/model/ModuleSummary'
 import { fetchLessons } from '../features/lesson/model/api'
@@ -10,9 +11,16 @@ import type { Lesson } from '../features/lesson/model/Lesson'
 import ErrorState from '../components/ErrorState'
 import {
   getLessonAvailability,
+  getNextIncompleteItem,
+  isModuleFullyCompleted,
   orderLessons,
 } from '../features/lesson/progression'
-import { fetchLessonCompletions } from '../features/progress/model/api'
+import {
+  fetchLessonCompletions,
+  getLabCompletion,
+} from '../features/progress/model/api'
+import { fetchLab } from '../features/lab/model/api'
+import type { Lab } from '../features/lab/model/Lab'
 import { useDocumentTitle } from '../utils/useDocumentTitle'
 
 export default function ModulePage() {
@@ -23,11 +31,14 @@ export default function ModulePage() {
   const [completedLessonIds, setCompletedLessonIds] = useState<Set<string>>(
     new Set(),
   )
+  const [lab, setLab] = useState<Lab | null>(null)
+  const [isLabCompleted, setIsLabCompleted] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [hasError, setHasError] = useState(false)
 
   useEffect(() => {
     if (!moduleId) return
+    let isActive = true
 
     Promise.all([
       fetchModules(),
@@ -35,6 +46,7 @@ export default function ModulePage() {
       fetchLessonCompletions(),
     ])
       .then(([moduleData, lessonData, completionData]) => {
+        if (!isActive) return
         setCurrentModule(
           moduleData.find((oneModule) => oneModule.id === moduleId) ?? null,
         )
@@ -43,8 +55,37 @@ export default function ModulePage() {
           new Set(completionData.map((completion) => completion.lessonId)),
         )
       })
-      .catch(() => setHasError(true))
-      .finally(() => setIsLoading(false))
+      .catch(() => {
+        if (isActive) setHasError(true)
+      })
+      .finally(() => {
+        if (isActive) setIsLoading(false)
+      })
+
+    fetchLab(moduleId)
+      .then(async (labData) => {
+        if (!isActive || !labData) return
+        setLab(labData)
+        try {
+          const labCompletion = await getLabCompletion(labData.id)
+          if (
+            isActive &&
+            labCompletion &&
+            typeof labCompletion.completedAt === 'string'
+          ) {
+            setIsLabCompleted(true)
+          }
+        } catch {
+          // Ignore lab completion fetch error
+        }
+      })
+      .catch(() => {
+        // Module might not have a lab
+      })
+
+    return () => {
+      isActive = false
+    }
   }, [moduleId])
 
   useDocumentTitle(currentModule?.title)
@@ -64,9 +105,26 @@ export default function ModulePage() {
       'completed',
   ).length
 
+  const isModuleComplete = isModuleFullyCompleted({
+    lessons,
+    completedLessonIds,
+    hasLab: Boolean(lab),
+    isLabCompleted,
+  })
+
+  const nextItem = currentModule
+    ? getNextIncompleteItem({
+        moduleId: currentModule.id,
+        lessons,
+        completedLessonIds,
+        hasLab: Boolean(lab),
+        isLabCompleted,
+      })
+    : null
+
   return (
     <div className="space-y-8">
-      <header className="spacec-y-3">
+      <header className="space-y-3">
         <h1 className="text-display">{currentModule.title}</h1>
         <p className="text-body text-base-content/70">
           {currentModule.description}
@@ -80,6 +138,31 @@ export default function ModulePage() {
           )}
         </div>
       </header>
+
+      {isModuleComplete ? (
+        <section
+          role="status"
+          aria-label="Module completion status"
+          className="rounded-lg border border-success/30 bg-success/5 p-4 text-success"
+        >
+          <div className="flex items-center gap-2">
+            <Check className="size-5 shrink-0" aria-hidden="true" />
+            <span className="text-body font-semibold">Module completed!</span>
+          </div>
+          <p className="mt-1 text-small opacity-80">
+            You have completed all lessons and the lab in this module.
+          </p>
+        </section>
+      ) : nextItem ? (
+        <div>
+          <ButtonLink to={nextItem.path} variant="primary">
+            {completedLessonIds.size === 0 && !isLabCompleted
+              ? 'Start module'
+              : 'Resume module'}
+          </ButtonLink>
+        </div>
+      ) : null}
+
       <section className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-heading">Lessons</h2>
@@ -115,18 +198,26 @@ export default function ModulePage() {
         </h2>
         <Link
           to={`/modules/${moduleId}/lab`}
-          className="flex w-full items-center justify-between gap-4 border border-base-300 bg-base-100 p-4 transition hover:bg-base-200"
+          className={`flex w-full items-center justify-between gap-4 border border-base-300 p-4 transition ${
+            isLabCompleted
+              ? 'bg-success/5 border-success/30 hover:bg-base-200'
+              : 'bg-base-100 hover:bg-base-200'
+          }`}
         >
           <span>
             <span className="block text-subheading font-semibold">
               Module lab
             </span>
             <span className="mt-2 block text-caption uppercase tracking-wide">
-              Always open
+              {isLabCompleted ? 'Completed' : 'Always open'}
             </span>
           </span>
           <span aria-hidden="true">
-            <ArrowRight className="size-5" />
+            {isLabCompleted ? (
+              <Check className="size-5" />
+            ) : (
+              <ArrowRight className="size-5" />
+            )}
           </span>
         </Link>
       </section>

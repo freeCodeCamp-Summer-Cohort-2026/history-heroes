@@ -4,7 +4,11 @@ import { routes } from '../../App'
 import { renderWithAuth } from '../../test/utils'
 import type { ModuleSummary } from '../../features/module/model/ModuleSummary'
 import type { Lesson } from '../../features/lesson/model/Lesson'
-import type { LessonCompletion } from '../../features/progress/model/api'
+import type {
+  LabCompletion,
+  LessonCompletion,
+} from '../../features/progress/model/api'
+import type { Lab } from '../../features/lab/model/Lab'
 
 const testModules: ModuleSummary[] = [
   {
@@ -37,19 +41,68 @@ const testLessons: Lesson[] = [
   },
 ]
 
-function mockServer(lessons: Lesson[], completions: LessonCompletion[] = []) {
+const testLab: Lab = {
+  id: 'first-lab',
+  moduleId: 'first-module',
+  title: 'Test Module Lab',
+  description: 'Module lab description',
+  activities: [],
+}
+
+function mockServer(
+  lessons: Lesson[],
+  completions: LessonCompletion[] = [],
+  lab: Lab | null = null,
+  labCompletion: LabCompletion | null = null,
+) {
   vi.stubGlobal(
     'fetch',
-    vi.fn().mockImplementation((url: string) =>
-      Promise.resolve({
+    vi.fn().mockImplementation((url: string) => {
+      if (url === '/api/v1/progress') {
+        return Promise.resolve({
+          ok: true,
+          json: async () => completions,
+        })
+      }
+      if (url.includes('/api/v1/progress/labs/')) {
+        if (!labCompletion) {
+          return Promise.resolve({
+            ok: false,
+            status: 404,
+            json: async () => ({ message: 'Not found' }),
+          })
+        }
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: async () => labCompletion,
+        })
+      }
+      if (url.includes('/api/v1/labs/')) {
+        if (!lab) {
+          return Promise.resolve({
+            ok: false,
+            status: 404,
+            json: async () => ({ message: 'Not found' }),
+          })
+        }
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: async () => lab,
+        })
+      }
+      if (url.includes('/lessons')) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => lessons,
+        })
+      }
+      return Promise.resolve({
         ok: true,
-        json: async () => {
-          if (url === '/api/v1/progress') return completions
-          if (url.includes('/lessons')) return lessons
-          return testModules
-        },
-      }),
-    ),
+        json: async () => testModules,
+      })
+    }),
   )
 }
 
@@ -165,4 +218,102 @@ test('offers the module lab after the lessons', async () => {
     lastLesson.compareDocumentPosition(labLink) &
       Node.DOCUMENT_POSITION_FOLLOWING,
   ).toBeTruthy()
+})
+
+test('allows a learner with no progress to begin with the first applicable item', async () => {
+  mockServer(testLessons, [])
+  renderModulePage()
+
+  const startLink = await screen.findByRole('link', { name: /start module/i })
+  expect(startLink).toHaveAttribute(
+    'href',
+    '/modules/first-module/lessons/first-lesson',
+  )
+})
+
+test('allows a learner with partial progress to continue with the next incomplete item', async () => {
+  mockServer(testLessons, [
+    {
+      lessonId: 'first-lesson',
+      completedAt: '2026-09-20T12:00:00.000Z',
+    },
+  ])
+  renderModulePage()
+
+  const resumeLink = await screen.findByRole('link', {
+    name: /resume module/i,
+  })
+  expect(resumeLink).toHaveAttribute(
+    'href',
+    '/modules/first-module/lessons/second-lesson',
+  )
+})
+
+test('allows a learner who completed all lessons to continue to the module lab', async () => {
+  mockServer(
+    testLessons,
+    [
+      {
+        lessonId: 'first-lesson',
+        completedAt: '2026-09-20T12:00:00.000Z',
+      },
+      {
+        lessonId: 'second-lesson',
+        completedAt: '2026-09-21T12:00:00.000Z',
+      },
+    ],
+    testLab,
+    null,
+  )
+  renderModulePage()
+
+  const resumeLink = await screen.findByRole('link', {
+    name: /resume module/i,
+  })
+  expect(resumeLink).toHaveAttribute('href', '/modules/first-module/lab')
+})
+
+test('shows completed state and does not incorrectly send learner back to earlier items when all items are complete', async () => {
+  mockServer(
+    testLessons,
+    [
+      {
+        lessonId: 'first-lesson',
+        completedAt: '2026-09-20T12:00:00.000Z',
+      },
+      {
+        lessonId: 'second-lesson',
+        completedAt: '2026-09-21T12:00:00.000Z',
+      },
+    ],
+    testLab,
+    {
+      labId: 'first-lab',
+      completedAt: '2026-09-22T12:00:00.000Z',
+    },
+  )
+  renderModulePage()
+
+  expect(
+    await screen.findByRole('status', { name: /module completion status/i }),
+  ).toHaveTextContent('Module completed!')
+  expect(
+    screen.getByText(/you have completed all lessons and the lab/i),
+  ).toBeInTheDocument()
+  expect(screen.queryByRole('link', { name: /start module/i })).toBeNull()
+  expect(screen.queryByRole('link', { name: /resume module/i })).toBeNull()
+
+  const labLink = screen.getByRole('link', { name: /module lab/i })
+  expect(labLink).toHaveTextContent('Completed')
+})
+
+test('restores completed lab status upon page load / refresh', async () => {
+  mockServer(testLessons, [], testLab, {
+    labId: 'first-lab',
+    completedAt: '2026-09-22T12:00:00.000Z',
+  })
+  renderModulePage()
+
+  const labLink = await screen.findByRole('link', { name: /module lab/i })
+  expect(labLink).toHaveTextContent('Completed')
 })

@@ -14,10 +14,15 @@ async function bootstrap() {
     routeResolutionStrategy: 'specificity',
   });
 
+  const configService = app.get(ConfigService);
+
   app.use(helmet());
   app.setGlobalPrefix('api/v1');
 
-  const configService = app.get(ConfigService);
+  // required to allow the app to work behind a reverse proxy (like tailscale) in production
+  if (configService.get<string>('NODE_ENV')?.toLowerCase() === 'production') {
+    app.getHttpAdapter().getInstance().set('trust proxy', 1);
+  }
 
   const port = parseInt(configService.get<string>('PORT', '3000'), 10);
 

@@ -74,7 +74,24 @@ Self hosting is the primary and currently the only way to utilize this codebase 
    npm run start
    ```
 
+   In production mode (`NODE_ENV=production`), database migrations automatically execute on server startup to establish or update tables before requests are accepted. If starting from an empty database, seed data will also be loaded automatically.
+
    The full-stack application (frontend client and backend API) will now be accessible at `http://localhost:3000`.
+
+### Database backups & maintenance
+
+Before upgrading the application bundle or applying migrations on an existing production deployment, back up your database file:
+
+```bash
+# Safe backup command
+cp data/app.sqlite data/app.sqlite.$(date +%Y%m%d%H%M%S).bak
+```
+
+If you prefer to inspect or run migrations manually outside of the server start process, the following commands are available in the production bundle:
+
+- `npm run migration:show` — List applied and pending migrations
+- `npm run migration:run` — Apply all pending migrations manually
+- `npm run migration:revert` — Roll back the last migration step
 
 ### Build from source
 
