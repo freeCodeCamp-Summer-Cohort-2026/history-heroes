@@ -41,6 +41,60 @@ describe('ModulesController (e2e)', () => {
     });
   });
 
+  describe('/api/v1/modules/:moduleId (PATCH)', () => {
+    it('updates a module for an authenticated user', async () => {
+      const agent = await createAuthenticatedAgent(app);
+
+      const response = await agent
+        .patch('/api/v1/modules/seven-wonders')
+        .send({
+          title: 'Updated Seven Wonders',
+          description: 'Updated module description',
+          period: 'Ancient',
+          theme: 'Architecture',
+        })
+        .expect(200);
+
+      expect(response.body).toMatchObject({
+        id: 'seven-wonders',
+        title: 'Updated Seven Wonders',
+        description: 'Updated module description',
+        period: 'Ancient',
+        theme: 'Architecture',
+      });
+    });
+
+    it('rejects updates without authentication', async () => {
+      await request(app.getHttpServer())
+        .patch('/api/v1/modules/seven-wonders')
+        .send({
+          title: 'Should not update',
+        })
+        .expect(401);
+    });
+
+    it('rejects fields that are not editable', async () => {
+      const agent = await createAuthenticatedAgent(app);
+
+      await agent
+        .patch('/api/v1/modules/seven-wonders')
+        .send({
+          id: 'changed-id',
+        })
+        .expect(400);
+    });
+
+    it('returns 404 when the module does not exist', async () => {
+      const agent = await createAuthenticatedAgent(app);
+
+      await agent
+        .patch('/api/v1/modules/missing-module')
+        .send({
+          title: 'Missing module',
+        })
+        .expect(404);
+    });
+  });
   describe('/api/v1/modules/:moduleId/lessons (GET)', () => {
     it('returns a valid empty collection when a module has no lessons', async () => {
       const agent = await createAuthenticatedAgent(app);

@@ -147,6 +147,26 @@ test('shows a friendly error message when modules fail to load', async () => {
   expect(screen.queryByText(/status 500/i)).not.toBeInTheDocument()
 })
 
+test('shows an edit link for each module', async () => {
+  renderWithAuth(
+    <RouterProvider
+      router={createMemoryRouter(routes, { initialEntries: ['/'] })}
+    />,
+  )
+
+  const cards = await screen.findAllByRole('article')
+
+  expect(within(cards[0]).getByRole('link', { name: /edit/i })).toHaveAttribute(
+    'href',
+    '/modules/first-module/edit',
+  )
+
+  expect(within(cards[1]).getByRole('link', { name: /edit/i })).toHaveAttribute(
+    'href',
+    '/modules/second-module/edit',
+  )
+})
+
 test('displays the page title with site-name', () => {
   renderWithAuth(
     <RouterProvider
