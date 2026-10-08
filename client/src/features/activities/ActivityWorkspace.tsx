@@ -4,11 +4,13 @@ import type {
   ActivityWorkspaceSubmissionState,
   MatchingAnswer,
   OrderingAnswer,
+  TrueFalseAnswer,
 } from './types'
 type ActivityResults = Partial<Record<string, ActivityWorkspaceSubmissionState>>
 import Button from '../../components/Button'
 import MatchingRenderer from './MatchingRenderer'
 import OrderingRenderer from './OrderingRenderer'
+import TrueFalseRenderer from './TrueFalseRenderer'
 import FeedbackState from '../../components/FeedbackState'
 import { getDefaultMatchingAnswer } from './get-default-matching-answer'
 import { getDefaultOrderingAnswer } from './get-default-ordering-answer'
@@ -17,13 +19,16 @@ import { isActivityUnlocked, isLessonComplete } from './progression'
 
 function getDefaultWorkingAnswer(
   activity: Activity | null,
-): MatchingAnswer | OrderingAnswer | null {
+): MatchingAnswer | OrderingAnswer | TrueFalseAnswer | null {
   if (!activity) return null
   if (activity.type === 'matching') {
     return getDefaultMatchingAnswer(activity)
   }
   if (activity.type === 'ordering') {
     return getDefaultOrderingAnswer(activity)
+  }
+  if (activity.type === 'true-false') {
+    return { value: null }
   }
   return null
 }
@@ -47,7 +52,7 @@ export default function ActivityWorkspace({
 
   const [prevActivityId, setPrevActivityId] = useState(currentActivity?.id)
   const [currentWorkingAnswer, setCurrentWorkingAnswer] = useState<
-    MatchingAnswer | OrderingAnswer | null
+    MatchingAnswer | OrderingAnswer | TrueFalseAnswer | null
   >(() => getDefaultWorkingAnswer(currentActivity))
 
   if (currentActivity?.id !== prevActivityId) {
@@ -100,7 +105,7 @@ export default function ActivityWorkspace({
   ])
 
   const handleAnswerChanged = useCallback(
-    (newAnswer: MatchingAnswer | OrderingAnswer) => {
+    (newAnswer: MatchingAnswer | OrderingAnswer | TrueFalseAnswer) => {
       setCurrentWorkingAnswer(newAnswer)
 
       if (!currentActivity) return
@@ -150,6 +155,20 @@ export default function ActivityWorkspace({
               : getDefaultOrderingAnswer(currentActivity)
           return (
             <OrderingRenderer
+              content={currentActivity.content}
+              answer={answer}
+              disabled={submissionState === 'correct'}
+              onAnswerChange={handleAnswerChanged}
+            />
+          )
+        }
+        if (currentActivity.type === 'true-false') {
+          const answer: TrueFalseAnswer =
+            currentWorkingAnswer && 'value' in currentWorkingAnswer
+              ? currentWorkingAnswer
+              : { value: null }
+          return (
+            <TrueFalseRenderer
               content={currentActivity.content}
               answer={answer}
               disabled={submissionState === 'correct'}
