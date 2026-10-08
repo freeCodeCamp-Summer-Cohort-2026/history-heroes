@@ -135,6 +135,10 @@ test('renders the module editor route', async () => {
 
   expect(screen.getByText('Ancient')).toBeInTheDocument()
   expect(screen.getByText('Architecture')).toBeInTheDocument()
+
+  expect(
+    screen.getByRole('link', { name: /back to modules/i }),
+  ).toHaveAttribute('href', '/')
 })
 test('saves module changes', async () => {
   const module = {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import InputField from '../components/InputField'
 import { fetchModules, updateModule } from '../features/module/model/api'
 import type { ModuleSummary } from '../features/module/model/ModuleSummary'
@@ -73,6 +73,9 @@ export default function ModuleEditorPage() {
 
   return (
     <div className="space-y-6">
+      <Link to="/" className="link link-primary">
+        Back to modules
+      </Link>
       <h1 className="text-display">Edit module</h1>
 
       <div className="flex gap-2">
