@@ -70,7 +70,7 @@
       "description": "How the lesson process was written by a beginner",
       "contents": "No serious info just like any developer",
       "orderIndex": 1,
-      "activityIds": ["test-ordering-activity"]
+      "activityIds": ["test-ordering-activity", "test-true-false-activity"]
     }
   ]
 }
