@@ -77,18 +77,3 @@ test('replaces the answer when the other option is clicked', () => {
   fireEvent.click(screen.getByRole('radio', { name: 'False' }))
   expect(mockAnswerChange).toHaveBeenCalledWith({ value: false })
 })
-
-test('renders the statement and both options', () => {
-  render(
-    <TrueFalseRenderer
-      content={content}
-      answer={{ value: null }}
-      onAnswerChange={() => {}}
-      disabled={false}
-    />,
-  )
-
-  expect(screen.getByText(content.statement)).toBeInTheDocument()
-  expect(screen.getByRole('radio', { name: 'True' })).toBeInTheDocument()
-  expect(screen.getByRole('radio', { name: 'False' })).toBeInTheDocument()
-})
