@@ -78,6 +78,27 @@ cd server
 npm run dev
 ```
 
+## Database changes & migrations
+
+When your changes modify or add entities under `server/src/**/*.entity.ts`, you **must generate and commit a corresponding TypeORM migration** so production schemas remain in sync without data loss.
+
+### Migration workflow
+
+1. **Modify/Create Entities**: Make your schema adjustments in `server/src/**/*.entity.ts`.
+2. **Generate the Migration**:
+   ```bash
+   cd server
+   npm run migration:generate -- src/core/db/migrations/AddFeatureDescription
+   ```
+3. **Review the Migration**: Inspect the generated file in `server/src/core/db/migrations/`. Check that `up()` and `down()` correctly handle changes (e.g. column renames, default values, and foreign keys).
+4. **Test the Migration**:
+   ```bash
+   npm run test test/migration.spec.ts
+   ```
+5. **Commit Together**: Always commit the new migration file in the exact same commit / PR as the entity changes.
+
+For full CLI options, backup guides, and environment configs, see [server/README.md](server/README.md#database-migrations-typeorm-cli).
+
 ## Branch naming
 
 Branch off `main`, and name the branch after the issue you are working on:

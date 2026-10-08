@@ -68,5 +68,18 @@ jobs:
       - name: Integration tests
         run: npm run test:e2e
 
+      # Verifies all entity changes have corresponding migrations.
+      # A failure here indicates schema drift: entity classes (server/src/**/*.entity.ts)
+      # were modified or added without generating a matching TypeORM migration.
+      # Fix: cd into `server/`, run `npm run migration:generate -- src/core/db/migrations/<MigrationName>`,
+      # verify the generated migration file, and commit it with your entity changes.
+      # See CONTRIBUTING.md ("Database changes & migrations") for details.
+      - name: Check database migrations
+        run: |
+          npm run migration:run
+          npm run migration:check
+        env:
+          DATABASE_STORAGE: data/ci-migration-check.sqlite
+
       - name: Build
         run: npm run build
