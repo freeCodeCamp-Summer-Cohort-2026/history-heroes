@@ -1,4 +1,4 @@
-import { screen, fireEvent, within } from '@testing-library/react'
+import { fireEvent, screen, within } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { routes } from '../../App'
 import { renderWithAuth } from '../../test/utils'
@@ -147,11 +147,20 @@ test('shows a friendly error message when modules fail to load', async () => {
   expect(screen.queryByText(/status 500/i)).not.toBeInTheDocument()
 })
 
-test('shows an edit link for each module', async () => {
+test('shows an edit link for each module when user is a content author', async () => {
   renderWithAuth(
     <RouterProvider
       router={createMemoryRouter(routes, { initialEntries: ['/'] })}
     />,
+    {
+      authValue: {
+        user: {
+          id: 1,
+          email: 'author@historyheroes.org',
+          isContentAuthor: true,
+        },
+      },
+    },
   )
 
   const cards = await screen.findAllByRole('article')
@@ -165,6 +174,33 @@ test('shows an edit link for each module', async () => {
     'href',
     '/modules/second-module/edit',
   )
+})
+
+test('does not show an edit link when user is not a content author', async () => {
+  renderWithAuth(
+    <RouterProvider
+      router={createMemoryRouter(routes, { initialEntries: ['/'] })}
+    />,
+    {
+      authValue: {
+        user: {
+          id: 2,
+          email: 'learner@historyheroes.org',
+          isContentAuthor: false,
+        },
+      },
+    },
+  )
+
+  const cards = await screen.findAllByRole('article')
+
+  expect(
+    within(cards[0]).queryByRole('link', { name: /edit/i }),
+  ).not.toBeInTheDocument()
+
+  expect(
+    within(cards[1]).queryByRole('link', { name: /edit/i }),
+  ).not.toBeInTheDocument()
 })
 
 test('displays the page title with site-name', () => {

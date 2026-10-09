@@ -1,7 +1,7 @@
 import { INestApplication } from '@nestjs/common';
-import type { App } from 'supertest/types';
-import request from 'supertest';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import request from 'supertest';
+import type { App } from 'supertest/types';
 import { Not, Repository } from 'typeorm';
 import { createAuthenticatedAgent, createTestApp } from '../../test/e2e-helper';
 import { Lesson } from '../lessons/entities/lesson.entity';
@@ -62,6 +62,25 @@ describe('ModulesController (e2e)', () => {
         period: 'Ancient',
         theme: 'Architecture',
       });
+    });
+
+    it('rejects updates for non-content-author authenticated users', async () => {
+      const nonAuthorAgent = request.agent(app.getHttpServer());
+      await nonAuthorAgent
+        .post('/api/v1/auth/register')
+        .send({
+          email: 'nonauthor@historyheroes.org',
+          password: 'password123',
+          isContentAuthor: false,
+        })
+        .expect(201);
+
+      await nonAuthorAgent
+        .patch('/api/v1/modules/seven-wonders')
+        .send({
+          title: 'Should be forbidden',
+        })
+        .expect(403);
     });
 
     it('rejects updates without authentication', async () => {

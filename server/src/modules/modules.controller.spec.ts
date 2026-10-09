@@ -1,10 +1,12 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
+import { ContentAuthorGuard } from '../auth/guards/content-author.guard';
+import { Lesson } from '../lessons/entities/lesson.entity';
+import { LessonsService } from '../lessons/lessons.service';
+import { UsersService } from '../users/users.service';
+import { Module } from './entities/module.entity';
 import { ModulesController } from './modules.controller';
 import { ModulesService } from './modules.service';
-import { Module } from './entities/module.entity';
-import { LessonsService } from '../lessons/lessons.service';
-import { Lesson } from '../lessons/entities/lesson.entity';
 
 // TODO: this test can possibly be removed, focus on e2e tests.
 describe('ModulesController', () => {
@@ -68,8 +70,15 @@ describe('ModulesController', () => {
           provide: LessonsService,
           useValue: mockLessonService,
         },
+        {
+          provide: UsersService,
+          useValue: { getById: vi.fn() },
+        },
       ],
-    }).compile();
+    })
+      .overrideGuard(ContentAuthorGuard)
+      .useValue({ canActivate: () => true })
+      .compile();
 
     controller = module.get<ModulesController>(ModulesController);
   });
