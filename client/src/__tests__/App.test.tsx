@@ -1,4 +1,4 @@
-import { screen, fireEvent, waitFor } from '@testing-library/react'
+import { fireEvent, screen, waitFor } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { routes } from '../App'
 import { renderWithAuth } from '../test/utils'
@@ -87,7 +87,7 @@ test('scrolls to the top when the page changes', async () => {
   expect(scrollSpy).toHaveBeenCalledWith(0, 0)
 })
 
-test('renders the module editor route', async () => {
+test('renders the module editor route for content authors', async () => {
   const module = {
     id: 'seven-wonders',
     title: 'Seven Wonders',
@@ -110,6 +110,15 @@ test('renders the module editor route', async () => {
         initialEntries: ['/modules/seven-wonders/edit'],
       })}
     />,
+    {
+      authValue: {
+        user: {
+          id: 1,
+          email: 'author@historyheroes.org',
+          isContentAuthor: true,
+        },
+      },
+    },
   )
   expect(
     await screen.findByRole('heading', { name: /edit module/i }),
@@ -140,6 +149,92 @@ test('renders the module editor route', async () => {
     screen.getByRole('link', { name: /back to modules/i }),
   ).toHaveAttribute('href', '/')
 })
+
+test('redirects unauthenticated users from the module editor route to the module page', async () => {
+  const module = {
+    id: 'seven-wonders',
+    title: 'Seven Wonders',
+    description: 'Explore the ancient wonders.',
+    period: 'Ancient',
+    theme: 'Architecture',
+  }
+
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockImplementation((url) => {
+      if (url === '/api/v1/modules') {
+        return Promise.resolve({
+          ok: true,
+          json: async () => [module],
+        })
+      }
+      return Promise.resolve({
+        ok: true,
+        json: async () => [],
+      })
+    }),
+  )
+
+  renderWithAuth(
+    <RouterProvider
+      router={createMemoryRouter(routes, {
+        initialEntries: ['/modules/seven-wonders/edit'],
+      })}
+    />,
+  )
+
+  expect(
+    await screen.findByRole('heading', { level: 1, name: 'Seven Wonders' }),
+  ).toBeInTheDocument()
+})
+
+test('redirects non-content-author users from the module editor route to the module page', async () => {
+  const module = {
+    id: 'seven-wonders',
+    title: 'Seven Wonders',
+    description: 'Explore the ancient wonders.',
+    period: 'Ancient',
+    theme: 'Architecture',
+  }
+
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockImplementation((url) => {
+      if (url === '/api/v1/modules') {
+        return Promise.resolve({
+          ok: true,
+          json: async () => [module],
+        })
+      }
+      return Promise.resolve({
+        ok: true,
+        json: async () => [],
+      })
+    }),
+  )
+
+  renderWithAuth(
+    <RouterProvider
+      router={createMemoryRouter(routes, {
+        initialEntries: ['/modules/seven-wonders/edit'],
+      })}
+    />,
+    {
+      authValue: {
+        user: {
+          id: 2,
+          email: 'learner@historyheroes.org',
+          isContentAuthor: false,
+        },
+      },
+    },
+  )
+
+  expect(
+    await screen.findByRole('heading', { level: 1, name: 'Seven Wonders' }),
+  ).toBeInTheDocument()
+})
+
 test('saves module changes', async () => {
   const module = {
     id: 'seven-wonders',
@@ -181,6 +276,15 @@ test('saves module changes', async () => {
         initialEntries: ['/modules/seven-wonders/edit'],
       })}
     />,
+    {
+      authValue: {
+        user: {
+          id: 1,
+          email: 'author@historyheroes.org',
+          isContentAuthor: true,
+        },
+      },
+    },
   )
 
   const titleInput = await screen.findByLabelText('Title')

@@ -2,11 +2,13 @@
   "users": [
     {
       "email": "admin@historyheroes.org",
-      "password": "local-dev-only"
+      "password": "local-dev-only",
+      "isContentAuthor": true
     },
     {
       "email": "test@historyheroes.org",
-      "password": "local-dev-only"
+      "password": "local-dev-only",
+      "isContentAuthor": false
     }
   ]
 }

@@ -1,11 +1,12 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { SessionEntity } from './entities/session.entity';
-import { SessionStoreService } from './session-store.service';
 import { ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import session from 'express-session';
-import { AuthController } from './auth.controller';
 import { UsersModule } from '../users/users.module';
+import { AuthController } from './auth.controller';
+import { SessionEntity } from './entities/session.entity';
+import { ContentAuthorGuard } from './guards/content-author.guard';
+import { SessionStoreService } from './session-store.service';
 
 /**
  * The Auth module provides session management, and authentication management.
@@ -16,8 +17,8 @@ import { UsersModule } from '../users/users.module';
     // we require the users module for login and registration, but we don't want to create a circular dependency, so we import it here.
     UsersModule,
   ],
-  providers: [SessionStoreService],
-  exports: [SessionStoreService],
+  providers: [SessionStoreService, ContentAuthorGuard],
+  exports: [SessionStoreService, ContentAuthorGuard],
   controllers: [AuthController],
 })
 export class AuthModule implements NestModule {

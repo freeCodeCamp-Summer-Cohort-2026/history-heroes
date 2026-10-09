@@ -1,11 +1,11 @@
 import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
-import { ModulesService } from './modules.service';
-import { Module } from './entities/module.entity';
-import { GetModuleLessonsResponseDto } from './dto/get-module-lessons-response.dto';
-import { LessonsService } from '../lessons/lessons.service';
-import { AuthenticatedGuard } from '../auth/guards/authenticated.guard';
-import { UpdateModuleDto, updateModuleSchema } from './dto/update-module.dto';
+import { ContentAuthorGuard } from '../auth/guards/content-author.guard';
 import { ZodValidationPipe } from '../core/pipes/zod-validation.pipe';
+import { LessonsService } from '../lessons/lessons.service';
+import { GetModuleLessonsResponseDto } from './dto/get-module-lessons-response.dto';
+import { UpdateModuleDto, updateModuleSchema } from './dto/update-module.dto';
+import { Module } from './entities/module.entity';
+import { ModulesService } from './modules.service';
 
 @Controller('modules')
 export class ModulesController {
@@ -25,7 +25,7 @@ export class ModulesController {
   }
 
   @Patch(':moduleId')
-  @UseGuards(AuthenticatedGuard)
+  @UseGuards(ContentAuthorGuard)
   public update(
     @Param('moduleId') moduleId: string,
     @Body(new ZodValidationPipe(updateModuleSchema))

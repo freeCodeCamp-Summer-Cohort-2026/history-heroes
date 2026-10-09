@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
+import { useForm, useWatch } from 'react-hook-form'
 import { Link, useParams } from 'react-router-dom'
+import ErrorState from '../components/ErrorState'
 import InputField from '../components/InputField'
 import { fetchModules, updateModule } from '../features/module/model/api'
 import type { ModuleSummary } from '../features/module/model/ModuleSummary'
-import ErrorState from '../components/ErrorState'
-import { useForm, useWatch } from 'react-hook-form'
 
 type ModuleEditorFormData = {
   title: string
@@ -18,6 +18,8 @@ export default function ModuleEditorPage() {
   const [currentModule, setCurrentModule] = useState<ModuleSummary | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [hasError, setHasError] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
+  const [saveSuccess, setSaveSuccess] = useState<string | null>(null)
   const [view, setView] = useState<'edit' | 'preview'>('edit')
   const { register, reset, control, handleSubmit } =
     useForm<ModuleEditorFormData>({
@@ -30,12 +32,21 @@ export default function ModuleEditorPage() {
     })
 
   const formValues = useWatch({ control })
+
   const onSubmit = async (values: ModuleEditorFormData) => {
     if (!moduleId) return
+    setSaveError(null)
+    setSaveSuccess(null)
 
-    const updatedModule = await updateModule(moduleId, values)
-
-    setCurrentModule(updatedModule)
+    try {
+      const updatedModule = await updateModule(moduleId, values)
+      setCurrentModule(updatedModule)
+      setSaveSuccess('Module updated successfully.')
+    } catch (err) {
+      setSaveError(
+        err instanceof Error ? err.message : 'Failed to save module changes.',
+      )
+    }
   }
 
   useEffect(() => {
@@ -77,6 +88,13 @@ export default function ModuleEditorPage() {
         Back to modules
       </Link>
       <h1 className="text-display">Edit module</h1>
+
+      {saveError && <ErrorState message={saveError} />}
+      {saveSuccess && (
+        <div role="status" className="alert alert-success">
+          <p>{saveSuccess}</p>
+        </div>
+      )}
 
       <div className="flex gap-2">
         <button
