@@ -8,6 +8,7 @@ import {
   GetLessonResponseDto,
   LessonActivityDto,
 } from './dto/get-lesson-response.dto';
+import { UpdateLessonDto } from './dto/update-lesson.dto';
 
 export interface FindLessonOptions {
   selectActivities?: boolean;
@@ -68,6 +69,22 @@ export class LessonsService {
    *
    * Returns in order-index value
    */
+
+  public async update(
+    lessonId: string,
+    updates: UpdateLessonDto,
+  ): Promise<Lesson> {
+    const lesson = await this.lessonsRepository.findOneBy({ id: lessonId });
+
+    if (!lesson) {
+      throw new NotFoundException(`Lesson with id "${lessonId}" not found`);
+    }
+
+    Object.assign(lesson, updates);
+
+    return this.lessonsRepository.save(lesson);
+  }
+
   public async getModuleLessons(moduleId: string): Promise<Lesson[]> {
     const [module, lessons] = await Promise.all([
       this.modulesRepository.findOneBy({ id: moduleId }),
