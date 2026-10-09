@@ -1,3 +1,4 @@
+import { useId } from 'react'
 import type {
   TrueFalseContent,
   TrueFalseAnswer,
@@ -10,13 +11,14 @@ export default function TrueFalseRenderer({
   onAnswerChange,
   disabled,
 }: ActivityRendererProps<TrueFalseContent, TrueFalseAnswer>) {
+  const groupName = useId()
   return (
     <fieldset className="space-y-3">
       <legend>{content.statement}</legend>
       <label className="flex items-center gap-2">
         <input
           type="radio"
-          name="true-false"
+          name={groupName}
           className="radio"
           checked={answer.value === true}
           disabled={disabled}
@@ -29,7 +31,7 @@ export default function TrueFalseRenderer({
       <label className="flex items-center gap-2">
         <input
           type="radio"
-          name="true-false"
+          name={groupName}
           className="radio"
           checked={answer.value === false}
           disabled={disabled}

@@ -39,13 +39,13 @@ export function evaluateActivity(
     return isCorrect ? 'correct' : 'not-yet'
   }
 
-  if (!('value' in answer)) {
-    return 'not-yet'
+  if (activity.type === 'true-false') {
+    if (!('value' in answer)) {
+      return 'not-yet'
+    }
+    return answer.value === activity.successCriteria.correctAnswer
+      ? 'correct'
+      : 'not-yet'
   }
-
-  if (answer.value === activity.successCriteria.correctAnswer) {
-    return 'correct'
-  } else {
-    return 'not-yet'
-  }
+  return 'not-yet'
 }
