@@ -7,6 +7,14 @@
       "period": "Ancient World",
       "theme": "Architecture and Engineering",
       "order": 1
+    },
+    {
+      "id": "activity-test-module",
+      "title": "Activity Test Module",
+      "description": "This is for testing activities",
+      "period": "Testing",
+      "theme": "Testing",
+      "order": 2
     }
   ]
 }

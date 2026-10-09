@@ -1,6 +1,11 @@
 import { describe, expect, test } from 'vitest'
 import { evaluateActivity } from '../evaluation'
-import type { Activity, MatchingAnswer, OrderingAnswer } from '../types'
+import type {
+  Activity,
+  MatchingAnswer,
+  OrderingAnswer,
+  TrueFalseAnswer,
+} from '../types'
 
 describe('evaluateActivity', () => {
   test('returns correct when ordering answer matches the correct order', () => {
@@ -243,6 +248,90 @@ describe('evaluateActivity', () => {
         { left: 'egypt', right: 'pyramid' },
       ],
     }
+    expect(evaluateActivity(activity, answer)).toBe('not-yet')
+  })
+
+  test('returns correct when true/false answer matches', () => {
+    const activity: Activity = {
+      id: 'true-false-1',
+      type: 'true-false',
+      title: 'Order the events',
+      checkStatement: 'Checks they are in correct order.',
+      content: {
+        statement: 'This are in correct order',
+      },
+      successCriteria: {
+        correctAnswer: true,
+      },
+    }
+
+    const answer: TrueFalseAnswer = {
+      value: true,
+    }
+
+    expect(evaluateActivity(activity, answer)).toBe('correct')
+  })
+
+  test('false is a valid correct answer', () => {
+    const activity: Activity = {
+      id: 'true-false-2',
+      type: 'true-false',
+      title: 'Order the events',
+      checkStatement: 'Checks they are in correct order.',
+      content: {
+        statement: 'This are in correct order',
+      },
+      successCriteria: {
+        correctAnswer: false,
+      },
+    }
+
+    const answer: TrueFalseAnswer = {
+      value: false,
+    }
+
+    expect(evaluateActivity(activity, answer)).toBe('correct')
+  })
+
+  test('returns not-yet when true/false answer dont match', () => {
+    const activity: Activity = {
+      id: 'true-false-3',
+      type: 'true-false',
+      title: 'Order the events',
+      checkStatement: 'Checks they are in correct order.',
+      content: {
+        statement: 'This are in correct order',
+      },
+      successCriteria: {
+        correctAnswer: false,
+      },
+    }
+
+    const answer: TrueFalseAnswer = {
+      value: true,
+    }
+
+    expect(evaluateActivity(activity, answer)).toBe('not-yet')
+  })
+
+  test('returns not-yet when true/false answer is null', () => {
+    const activity: Activity = {
+      id: 'true-false-4',
+      type: 'true-false',
+      title: 'Order the events',
+      checkStatement: 'Checks they are in correct order.',
+      content: {
+        statement: 'This are in correct order',
+      },
+      successCriteria: {
+        correctAnswer: true,
+      },
+    }
+
+    const answer: TrueFalseAnswer = {
+      value: null,
+    }
+
     expect(evaluateActivity(activity, answer)).toBe('not-yet')
   })
 })

@@ -21,19 +21,31 @@ export function evaluateActivity(
     return isCorrect ? 'correct' : 'not-yet'
   }
 
-  if (!('pairs' in answer)) {
-    return 'not-yet'
+  if (activity.type === 'matching') {
+    if (!('pairs' in answer)) {
+      return 'not-yet'
+    }
+
+    const correctPairs = activity.successCriteria.pairs
+
+    const isCorrect =
+      answer.pairs.length === correctPairs.length &&
+      correctPairs.every((correctPair) =>
+        answer.pairs.some(
+          (pair) =>
+            pair.left === correctPair.left && pair.right === correctPair.right,
+        ),
+      )
+    return isCorrect ? 'correct' : 'not-yet'
   }
 
-  const correctPairs = activity.successCriteria.pairs
-
-  const isCorrect =
-    answer.pairs.length === correctPairs.length &&
-    correctPairs.every((correctPair) =>
-      answer.pairs.some(
-        (pair) =>
-          pair.left === correctPair.left && pair.right === correctPair.right,
-      ),
-    )
-  return isCorrect ? 'correct' : 'not-yet'
+  if (activity.type === 'true-false') {
+    if (!('value' in answer)) {
+      return 'not-yet'
+    }
+    return answer.value === activity.successCriteria.correctAnswer
+      ? 'correct'
+      : 'not-yet'
+  }
+  return 'not-yet'
 }

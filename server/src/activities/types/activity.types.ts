@@ -1,5 +1,5 @@
 // TODO: these types will probably be moved to some DTO folder once there is an endpoint
-export type ActivityType = 'ordering' | 'matching';
+export type ActivityType = 'ordering' | 'matching' | 'true-false';
 
 export interface OrderingContent {
   items: Array<{
@@ -31,7 +31,16 @@ export interface MatchingSuccessCriteria {
   pairs: MatchingPair[];
 }
 
-export type ActivityContent = OrderingContent | MatchingContent;
+export interface TrueFalseContent {
+  statement: string;
+}
+
+export interface TrueFalseSuccessCriteria {
+  correctAnswer: boolean;
+}
+
+export type ActivityContent =
+  OrderingContent | MatchingContent | TrueFalseContent;
 
 export type ActivitySuccessCriteria =
-  OrderingSuccessCriteria | MatchingSuccessCriteria;
+  OrderingSuccessCriteria | MatchingSuccessCriteria | TrueFalseSuccessCriteria;
