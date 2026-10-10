@@ -1,8 +1,10 @@
 import type { ModuleSummary } from '../features/module/model/ModuleSummary'
+import { useAuth } from '../state/auth/use-auth'
 import ButtonLink from './ButtonLink'
 
 export default function ModuleCard({ module }: { module: ModuleSummary }) {
   const { title, description, period, theme } = module
+  const { user } = useAuth()
 
   return (
     <article className="card border border-base-300 bg-base-100 w-full sm:w-auto">
@@ -19,13 +21,15 @@ export default function ModuleCard({ module }: { module: ModuleSummary }) {
         </div>
 
         <div className="card-actions justify-end">
-          <ButtonLink
-            to={`/modules/${module.id}/edit`}
-            variant="secondary"
-            className="w-full sm:w-auto"
-          >
-            Edit
-          </ButtonLink>
+          {user?.isContentAuthor && (
+            <ButtonLink
+              to={`/modules/${module.id}/edit`}
+              variant="secondary"
+              className="w-full sm:w-auto"
+            >
+              Edit
+            </ButtonLink>
+          )}
 
           <ButtonLink to={`/modules/${module.id}`} className="w-full sm:w-auto">
             Start learning

@@ -61,3 +61,18 @@ export async function getLabCompletion(
 
   return response.json()
 }
+
+export async function resetProgress(): Promise<{
+  message: string
+  count?: number
+}> {
+  const response = await fetch('/api/v1/progress', {
+    method: 'DELETE',
+  })
+
+  if (!response.ok) {
+    throw new Error(`Failed to reset progress: ${response.status}`)
+  }
+
+  return response.json()
+}
