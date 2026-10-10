@@ -29,7 +29,7 @@ export default function ModulePage() {
 
     Promise.all([
       fetchModules(),
-      fetchLessons(moduleId),
+      fetchLessons(moduleId).catch(() => []),
       fetchLessonCompletions(),
     ])
       .then(([moduleData, lessonData, completionData]) => {
