@@ -64,7 +64,10 @@ function LessonPageContent({
   useEffect(() => {
     let isActive = true
 
-    Promise.all([fetchLessons(moduleId), fetchLessonCompletions()])
+    Promise.all([
+      fetchLessons(moduleId).catch(() => []),
+      fetchLessonCompletions(),
+    ])
       .then(([lessonData, completionData]) => {
         if (!isActive) return
         setLessons(lessonData)
