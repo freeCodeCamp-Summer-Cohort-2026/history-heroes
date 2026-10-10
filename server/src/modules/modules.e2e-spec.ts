@@ -42,8 +42,13 @@ describe('ModulesController (e2e)', () => {
   });
 
   describe('/api/v1/modules/:moduleId (PATCH)', () => {
+    const authorCredentials = {
+      email: 'admin@historyheroes.org',
+      password: 'local-dev-only',
+    };
+
     it('updates a module for an authenticated user', async () => {
-      const agent = await createAuthenticatedAgent(app);
+      const agent = await createAuthenticatedAgent(app, authorCredentials);
 
       const response = await agent
         .patch('/api/v1/modules/seven-wonders')
@@ -93,7 +98,7 @@ describe('ModulesController (e2e)', () => {
     });
 
     it('rejects fields that are not editable', async () => {
-      const agent = await createAuthenticatedAgent(app);
+      const agent = await createAuthenticatedAgent(app, authorCredentials);
 
       await agent
         .patch('/api/v1/modules/seven-wonders')
@@ -104,7 +109,7 @@ describe('ModulesController (e2e)', () => {
     });
 
     it('returns 404 when the module does not exist', async () => {
-      const agent = await createAuthenticatedAgent(app);
+      const agent = await createAuthenticatedAgent(app, authorCredentials);
 
       await agent
         .patch('/api/v1/modules/missing-module')
