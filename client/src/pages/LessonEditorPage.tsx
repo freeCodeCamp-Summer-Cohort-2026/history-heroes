@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import InputField from '../components/InputField'
 import ErrorState from '../components/ErrorState'
 import { fetchLessons } from '../features/lesson/model/api'
@@ -17,14 +17,17 @@ export default function LessonEditorPage() {
   const [currentLesson, setCurrentLesson] = useState<Lesson | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [hasError, setHasError] = useState(false)
+  const [view, setView] = useState<'edit' | 'preview'>('edit')
 
-  const { register, reset } = useForm<LessonEditorFormData>({
+  const { register, reset, control } = useForm<LessonEditorFormData>({
     defaultValues: {
       title: '',
       description: '',
       contents: '',
     },
   })
+
+  const formValues = useWatch({ control })
 
   useEffect(() => {
     if (!moduleId || !lessonId) return
@@ -64,33 +67,71 @@ export default function LessonEditorPage() {
     <div className="space-y-6">
       <h1 className="text-display">Edit lesson</h1>
 
-      <form className="space-y-4">
-        <InputField id="title" label="Title" {...register('title')} />
+      <div className="flex gap-2">
+        <button
+          type="button"
+          className="btn btn-secondary"
+          onClick={() => setView('edit')}
+        >
+          Edit
+        </button>
 
-        <fieldset className="fieldset w-full">
-          <legend className="fieldset-legend">
-            <label htmlFor="description">Description</label>
-          </legend>
+        <button
+          type="button"
+          className="btn btn-secondary"
+          onClick={() => setView('preview')}
+        >
+          Preview
+        </button>
+      </div>
 
-          <textarea
-            id="description"
-            className="textarea w-full"
-            {...register('description')}
-          />
-        </fieldset>
+      {view === 'edit' && (
+        <form className="space-y-4">
+          <InputField id="title" label="Title" {...register('title')} />
 
-        <fieldset className="fieldset w-full">
-          <legend className="fieldset-legend">
-            <label htmlFor="contents">Contents</label>
-          </legend>
+          <fieldset className="fieldset w-full">
+            <legend className="fieldset-legend">
+              <label htmlFor="description">Description</label>
+            </legend>
 
-          <textarea
-            id="contents"
-            className="textarea min-h-48 w-full"
-            {...register('contents')}
-          />
-        </fieldset>
-      </form>
+            <textarea
+              id="description"
+              className="textarea w-full"
+              {...register('description')}
+            />
+          </fieldset>
+
+          <fieldset className="fieldset w-full">
+            <legend className="fieldset-legend">
+              <label htmlFor="contents">Contents</label>
+            </legend>
+
+            <textarea
+              id="contents"
+              className="textarea min-h-48 w-full"
+              {...register('contents')}
+            />
+          </fieldset>
+        </form>
+      )}
+
+      {view === 'preview' && (
+        <section className="space-y-4">
+          <h2 className="text-heading">{formValues.title}</h2>
+
+          <p className="text-body text-base-content/70">
+            {formValues.description}
+          </p>
+
+          <div className="max-w-prose space-y-4">
+            {formValues.contents?.split('\n\n').map((paragraph, index) => (
+              <p className="text-body leading-relaxed" key={index}>
+                {paragraph}
+              </p>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   )
 }

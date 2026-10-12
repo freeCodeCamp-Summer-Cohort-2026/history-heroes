@@ -140,6 +140,7 @@ test('renders the module editor route', async () => {
     screen.getByRole('link', { name: /back to modules/i }),
   ).toHaveAttribute('href', '/')
 })
+
 test('saves module changes', async () => {
   const module = {
     id: 'seven-wonders',
@@ -255,4 +256,14 @@ test('renders the lesson editor route', async () => {
   expect(screen.getByLabelText('Contents')).toHaveValue(
     'Original lesson contents',
   )
+
+  fireEvent.click(screen.getByRole('button', { name: /preview/i }))
+
+  expect(
+    screen.getByRole('heading', { name: 'The Great Pyramid of Giza' }),
+  ).toBeInTheDocument()
+
+  expect(screen.getByText('First wonder lesson')).toBeInTheDocument()
+
+  expect(screen.getByText('Original lesson contents')).toBeInTheDocument()
 })
