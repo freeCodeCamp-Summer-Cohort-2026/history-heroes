@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom'
 import { useForm, useWatch } from 'react-hook-form'
 import InputField from '../components/InputField'
 import ErrorState from '../components/ErrorState'
-import { fetchLessons } from '../features/lesson/model/api'
+import { fetchLessons, updateLesson } from '../features/lesson/model/api'
 import type { Lesson } from '../features/lesson/model/Lesson'
 
 type LessonEditorFormData = {
@@ -19,13 +19,14 @@ export default function LessonEditorPage() {
   const [hasError, setHasError] = useState(false)
   const [view, setView] = useState<'edit' | 'preview'>('edit')
 
-  const { register, reset, control } = useForm<LessonEditorFormData>({
-    defaultValues: {
-      title: '',
-      description: '',
-      contents: '',
-    },
-  })
+  const { register, reset, control, handleSubmit } =
+    useForm<LessonEditorFormData>({
+      defaultValues: {
+        title: '',
+        description: '',
+        contents: '',
+      },
+    })
 
   const formValues = useWatch({ control })
 
@@ -50,6 +51,20 @@ export default function LessonEditorPage() {
       .catch(() => setHasError(true))
       .finally(() => setIsLoading(false))
   }, [moduleId, lessonId, reset])
+
+  const handleSave = async (data: LessonEditorFormData) => {
+    if (!lessonId) return
+
+    const updatedLesson = await updateLesson(lessonId, data)
+
+    setCurrentLesson(updatedLesson)
+
+    reset({
+      title: updatedLesson.title,
+      description: updatedLesson.description,
+      contents: updatedLesson.contents,
+    })
+  }
 
   if (isLoading) {
     return <p className="text-body">Loading lesson...</p>
@@ -86,7 +101,7 @@ export default function LessonEditorPage() {
       </div>
 
       {view === 'edit' && (
-        <form className="space-y-4">
+        <form className="space-y-4" onSubmit={handleSubmit(handleSave)}>
           <InputField id="title" label="Title" {...register('title')} />
 
           <fieldset className="fieldset w-full">
@@ -105,6 +120,10 @@ export default function LessonEditorPage() {
             <legend className="fieldset-legend">
               <label htmlFor="contents">Contents</label>
             </legend>
+
+            <button type="submit" className="btn btn-primary">
+              save
+            </button>
 
             <textarea
               id="contents"
