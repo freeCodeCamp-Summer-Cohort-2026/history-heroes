@@ -25,13 +25,7 @@ export default function LessonPage() {
   const { moduleId, lessonId } = useParams()
 
   if (!moduleId || !lessonId) {
-    return (
-      <div className="space-y-2">
-        <h1 className="text-display">Lesson not found</h1>
-        <p className="text-body">This lesson doesn't exist</p>
-        <ButtonLink to={`/modules/${moduleId}`}>Back to Module</ButtonLink>
-      </div>
-    )
+    return <p>That lesson could not be found.</p>
   }
 
   return (
@@ -150,7 +144,6 @@ function LessonPageContent({
 
   useDocumentTitle(lesson?.title)
 
-  // When `lessonId` is correct but `moduleId` isn't it throws `Failed to fetch lessons: 404` instead of redirecting to the `NotFoundPage`.
   if (isLoading) return <p>Loading lesson...</p>
   if (error) return <p>{error}</p>
   if (!lesson)
