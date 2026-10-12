@@ -359,4 +359,14 @@ test('renders the lesson editor route', async () => {
   expect(screen.getByLabelText('Contents')).toHaveValue(
     'Original lesson contents',
   )
+
+  fireEvent.click(screen.getByRole('button', { name: /preview/i }))
+
+  expect(
+    screen.getByRole('heading', { name: 'The Great Pyramid of Giza' }),
+  ).toBeInTheDocument()
+
+  expect(screen.getByText('First wonder lesson')).toBeInTheDocument()
+
+  expect(screen.getByText('Original lesson contents')).toBeInTheDocument()
 })
