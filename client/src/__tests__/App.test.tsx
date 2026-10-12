@@ -370,3 +370,71 @@ test('renders the lesson editor route', async () => {
 
   expect(screen.getByText('Original lesson contents')).toBeInTheDocument()
 })
+
+test('saves lesson changes', async () => {
+  const lesson = {
+    id: 'great-pyramid',
+    moduleId: 'seven-wonders',
+    title: 'The Great Pyramid of Giza',
+    description: 'First wonder lesson',
+    contents: 'Original lesson contents',
+    orderIndex: 1,
+    activityIds: [],
+  }
+
+  const fetchMock = vi.fn().mockImplementation((url, options) => {
+    if (url === '/api/v1/modules/seven-wonders/lessons') {
+      return Promise.resolve({
+        ok: true,
+        json: async () => [lesson],
+      })
+    }
+
+    if (
+      url === '/api/v1/lessons/great-pyramid' &&
+      options?.method === 'PATCH'
+    ) {
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({
+          ...lesson,
+          title: 'The Great Pyramid Updated',
+        }),
+      })
+    }
+
+    throw new Error(`Unexpected fetch request: ${String(url)}`)
+  })
+
+  vi.stubGlobal('fetch', fetchMock)
+
+  renderWithAuth(
+    <RouterProvider
+      router={createMemoryRouter(routes, {
+        initialEntries: ['/modules/seven-wonders/lessons/great-pyramid/edit'],
+      })}
+    />,
+  )
+
+  const titleInput = await screen.findByLabelText('Title')
+
+  fireEvent.change(titleInput, {
+    target: { value: 'The Great Pyramid Updated' },
+  })
+
+  fireEvent.click(screen.getByRole('button', { name: /save/i }))
+
+  await waitFor(() => {
+    expect(fetchMock).toHaveBeenCalledWith('/api/v1/lessons/great-pyramid', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        title: 'The Great Pyramid Updated',
+        description: 'First wonder lesson',
+        contents: 'Original lesson contents',
+      }),
+    })
+  })
+})
