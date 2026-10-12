@@ -11,6 +11,7 @@ import RegisterPage from './pages/RegisterPage'
 import LoginPage from './pages/LoginPage'
 import ProfilePage from './pages/ProfilePage'
 import ModuleEditorPage from './pages/ModuleEditorPage'
+import LessonEditorPage from './pages/LessonEditorPage'
 
 export const routes: RouteObject[] = [
   {
@@ -27,6 +28,10 @@ export const routes: RouteObject[] = [
       { path: '/modules/:moduleId/lab', element: <LabPage /> },
       { path: 'components', element: <ComponentShowcase /> },
       { path: '*', element: <NotFoundPage /> },
+      {
+        path: '/modules/:moduleId/lessons/:lessonId/edit',
+        element: <LessonEditorPage />,
+      },
     ],
   },
 ]

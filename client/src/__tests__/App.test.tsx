@@ -206,3 +206,53 @@ test('saves module changes', async () => {
     })
   })
 })
+
+test('renders the lesson editor route', async () => {
+  const lesson = {
+    id: 'great-pyramid',
+    moduleId: 'seven-wonders',
+    title: 'The Great Pyramid of Giza',
+    description: 'First wonder lesson',
+    contents: 'Original lesson contents',
+    orderIndex: 1,
+    activityIds: [],
+  }
+
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockImplementation((url) => {
+      if (url === '/api/v1/modules/seven-wonders/lessons') {
+        return Promise.resolve({
+          ok: true,
+          json: async () => [lesson],
+        })
+      }
+
+      throw new Error(`Unexpected fetch request: ${String(url)}`)
+    }),
+  )
+
+  renderWithAuth(
+    <RouterProvider
+      router={createMemoryRouter(routes, {
+        initialEntries: ['/modules/seven-wonders/lessons/great-pyramid/edit'],
+      })}
+    />,
+  )
+
+  expect(
+    await screen.findByRole('heading', { name: /edit lesson/i }),
+  ).toBeInTheDocument()
+
+  expect(await screen.findByLabelText('Title')).toHaveValue(
+    'The Great Pyramid of Giza',
+  )
+
+  expect(screen.getByLabelText('Description')).toHaveValue(
+    'First wonder lesson',
+  )
+
+  expect(screen.getByLabelText('Contents')).toHaveValue(
+    'Original lesson contents',
+  )
+})
