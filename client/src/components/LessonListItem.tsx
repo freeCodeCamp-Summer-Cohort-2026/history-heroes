@@ -34,6 +34,7 @@ export default function LessonListItem({
 }: LessonListItemProps) {
   const { title, description, moduleId, id } = lesson
   const to = `/modules/${moduleId}/lessons/${id}`
+  const editTo = `${to}/edit`
   const styles = stateStyles[state]
   const isLocked = state === 'locked'
   const [showLockedNotice, setShowLockedNotice] = useState(false)
@@ -64,20 +65,29 @@ export default function LessonListItem({
 
   return (
     <div>
-      {isLocked ? (
-        <button
-          type="button"
-          aria-disabled="true"
-          onClick={handleLockedClick}
-          className={commonClassName}
-        >
-          {content}
-        </button>
-      ) : (
-        <Link to={to} className={commonClassName}>
-          {content}
-        </Link>
-      )}
+      <div className="space-y-2">
+        {isLocked ? (
+          <button
+            type="button"
+            aria-disabled="true"
+            onClick={handleLockedClick}
+            className={commonClassName}
+          >
+            {content}
+          </button>
+        ) : (
+          <Link to={to} className={commonClassName}>
+            {content}
+          </Link>
+        )}
+
+        <div className="flex justify-end">
+          <Link to={editTo} className="link link-primary text-small">
+            Edit lesson
+          </Link>
+        </div>
+      </div>
+
       <p role="status" className="mt-2 text-small empty:hidden">
         {showLockedNotice &&
           'This lesson is locked until you finish the lessons before it.'}
