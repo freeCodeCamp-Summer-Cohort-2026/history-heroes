@@ -12,6 +12,7 @@ import {
 } from '../features/lesson/progression'
 import { fetchLessonCompletions } from '../features/progress/model/api'
 import ButtonLink from '../components/ButtonLink'
+import { useDocumentTitle } from '../utils/useDocumentTitle'
 
 export default function ModulePage() {
   const { moduleId } = useParams()
@@ -46,6 +47,8 @@ export default function ModulePage() {
       )
       .finally(() => setIsLoading(false))
   }, [moduleId])
+
+  useDocumentTitle(currentModule?.title)
 
   // NotFoundModule page not working
   // When `moduleId` is invalid, it's throwing `Failed to fetch lessons: 404` instead of `Module not found`
