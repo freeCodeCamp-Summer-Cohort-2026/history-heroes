@@ -50,9 +50,6 @@ export default function ModulePage() {
 
   useDocumentTitle(currentModule?.title)
 
-  // NotFoundModule page not working
-  // When `moduleId` is invalid, it's throwing `Failed to fetch lessons: 404` instead of `Module not found`
-
   if (isLoading) return <p className="text-body">Loading module...</p>
   if (error) return <p className="text-body">{error}</p>
   if (!currentModule) {
