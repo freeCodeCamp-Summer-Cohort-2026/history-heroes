@@ -438,3 +438,66 @@ test('saves lesson changes', async () => {
     })
   })
 })
+
+test('renders lesson activities in the editor', async () => {
+  const lesson = {
+    id: 'great-pyramid',
+    moduleId: 'seven-wonders',
+    title: 'The Great Pyramid of Giza',
+    description: 'First wonder lesson',
+    contents: 'Original lesson contents',
+    orderIndex: 1,
+    activityIds: ['pyramid-order'],
+  }
+
+  const activity = {
+    id: 'pyramid-order',
+    title: 'Build the Pyramid',
+    type: 'ordering',
+    checkStatement: 'Put the stages in order.',
+    content: {
+      items: [
+        { id: 'foundation', label: 'Foundation' },
+        { id: 'top', label: 'Top' },
+      ],
+    },
+    successCriteria: {
+      correctOrder: ['foundation', 'top'],
+    },
+  }
+
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockImplementation((url) => {
+      if (url === '/api/v1/modules/seven-wonders/lessons') {
+        return Promise.resolve({
+          ok: true,
+          json: async () => [lesson],
+        })
+      }
+
+      if (url === '/api/v1/lessons/great-pyramid/activities') {
+        return Promise.resolve({
+          ok: true,
+          json: async () => [activity],
+        })
+      }
+
+      throw new Error(`Unexpected fetch request: ${String(url)}`)
+    }),
+  )
+
+  renderWithAuth(
+    <RouterProvider
+      router={createMemoryRouter(routes, {
+        initialEntries: ['/modules/seven-wonders/lessons/great-pyramid/edit'],
+      })}
+    />,
+  )
+
+  await screen.findByLabelText('Title')
+
+  fireEvent.click(screen.getByRole('button', { name: /activities/i }))
+
+  expect(await screen.findByText('Build the Pyramid')).toBeInTheDocument()
+})

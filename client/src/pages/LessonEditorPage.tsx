@@ -3,8 +3,13 @@ import { useParams } from 'react-router-dom'
 import { useForm, useWatch } from 'react-hook-form'
 import InputField from '../components/InputField'
 import ErrorState from '../components/ErrorState'
-import { fetchLessons, updateLesson } from '../features/lesson/model/api'
+import {
+  fetchLessonActivities,
+  fetchLessons,
+  updateLesson,
+} from '../features/lesson/model/api'
 import type { Lesson } from '../features/lesson/model/Lesson'
+import type { Activity } from '../features/activities/types'
 
 type LessonEditorFormData = {
   title: string
@@ -17,8 +22,10 @@ export default function LessonEditorPage() {
   const [currentLesson, setCurrentLesson] = useState<Lesson | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [hasError, setHasError] = useState(false)
-  const [view, setView] = useState<'edit' | 'preview'>('edit')
-
+  const [view, setView] = useState<'edit' | 'activities' | 'preview'>('edit')
+  const [activities, setActivities] = useState<Activity[]>([])
+  const [isLoadingActivities, setIsLoadingActivities] = useState(false)
+  const [hasActivitiesError, setHasActivitiesError] = useState(false)
   const { register, reset, control, handleSubmit } =
     useForm<LessonEditorFormData>({
       defaultValues: {
@@ -66,6 +73,23 @@ export default function LessonEditorPage() {
     })
   }
 
+  const handleActivitiesView = async () => {
+    if (!lessonId) return
+
+    setView('activities')
+    setIsLoadingActivities(true)
+    setHasActivitiesError(false)
+
+    try {
+      const lessonActivities = await fetchLessonActivities(lessonId)
+      setActivities(lessonActivities)
+    } catch {
+      setHasActivitiesError(true)
+    } finally {
+      setIsLoadingActivities(false)
+    }
+  }
+
   if (isLoading) {
     return <p className="text-body">Loading lesson...</p>
   }
@@ -89,6 +113,14 @@ export default function LessonEditorPage() {
           onClick={() => setView('edit')}
         >
           Edit
+        </button>
+
+        <button
+          type="button"
+          className="btn btn-secondary"
+          onClick={handleActivitiesView}
+        >
+          Activities
         </button>
 
         <button
@@ -132,6 +164,37 @@ export default function LessonEditorPage() {
             />
           </fieldset>
         </form>
+      )}
+
+      {view === 'activities' && (
+        <section className="space-y-4">
+          <h2 className="text-heading">Activities</h2>
+
+          {isLoadingActivities ? (
+            <p className="text-body">Loading activities...</p>
+          ) : hasActivitiesError ? (
+            <ErrorState message="We couldn't load the activities for this lesson." />
+          ) : activities.length === 0 ? (
+            <p className="text-body">This lesson has no activities.</p>
+          ) : (
+            <ul className="space-y-3">
+              {activities.map((activity) => (
+                <li
+                  key={activity.id}
+                  className="rounded-box border border-base-300 p-4"
+                >
+                  <h3 className="text-subheading font-semibold">
+                    {activity.title}
+                  </h3>
+
+                  <p className="text-small text-base-content/70">
+                    {activity.type}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
       )}
 
       {view === 'preview' && (
