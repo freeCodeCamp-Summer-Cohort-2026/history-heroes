@@ -19,6 +19,14 @@ export default function ModuleCard({ module }: { module: ModuleSummary }) {
         </div>
 
         <div className="card-actions justify-end">
+          <ButtonLink
+            to={`/modules/${module.id}/edit`}
+            variant="secondary"
+            className="w-full sm:w-auto"
+          >
+            Edit
+          </ButtonLink>
+
           <ButtonLink to={`/modules/${module.id}`} className="w-full sm:w-auto">
             Start learning
           </ButtonLink>

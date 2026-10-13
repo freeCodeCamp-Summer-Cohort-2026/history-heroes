@@ -1,6 +1,10 @@
 # history-heroes
 
-Full stack web app for freeCodeCamp-Summer-Cohort-2026
+A full stack web app written in TypeScript made for teaching history topics, developed for freeCodeCamp-Summer-Cohort-2026.
+
+The client side uses React and Vite, while the server side features a REST API built with the NestJS framework and a database powered by SQLite and TypeORM.
+
+Each module is divided into lessons - each with its own activity related to that lesson's content - and includes a lab activity that relates to all lessons within the module. A user can only access a new lesson after completing the previous one and will receive feedback on activities as they submit their answers.
 
 ## Team Members
 
@@ -70,7 +74,24 @@ Self hosting is the primary and currently the only way to utilize this codebase 
    npm run start
    ```
 
+   In production mode (`NODE_ENV=production`), database migrations automatically execute on server startup to establish or update tables before requests are accepted. If starting from an empty database, seed data will also be loaded automatically.
+
    The full-stack application (frontend client and backend API) will now be accessible at `http://localhost:3000`.
+
+### Database backups & maintenance
+
+Before upgrading the application bundle or applying migrations on an existing production deployment, back up your database file:
+
+```bash
+# Safe backup command
+cp data/app.sqlite data/app.sqlite.$(date +%Y%m%d%H%M%S).bak
+```
+
+If you prefer to inspect or run migrations manually outside of the server start process, the following commands are available in the production bundle:
+
+- `npm run migration:show` — List applied and pending migrations
+- `npm run migration:run` — Apply all pending migrations manually
+- `npm run migration:revert` — Roll back the last migration step
 
 ### Build from source
 

@@ -510,8 +510,8 @@ describe('ActivityWorkspace', () => {
       screen.getByRole('heading', { level: 2, name: /not yet/i }),
     ).toBeInTheDocument()
 
-    const source = screen.getByText(/right 1 - left 2/i)
-    const target = screen.getByText(/left 1 - right 2/i)
+    const source = screen.getByText(/^right 1$/i)
+    const target = screen.getByText(/^left 1$/i)
 
     fireEvent.dragStart(source, { dataTransfer })
     fireEvent.drop(target, { dataTransfer })
@@ -564,8 +564,8 @@ describe('ActivityWorkspace', () => {
       screen.getByRole('heading', { level: 2, name: /not yet/i }),
     ).toBeInTheDocument()
 
-    const right1 = screen.getByText(/right 1 - left 2/i)
-    const left1 = screen.getByText(/left 1 - right 2/i)
+    const right1 = screen.getByText(/^right 1$/i)
+    const left1 = screen.getByText(/^left 1$/i)
 
     fireEvent.dragStart(right1, { dataTransfer })
     fireEvent.drop(left1, { dataTransfer })
@@ -662,8 +662,8 @@ describe('ActivityWorkspace', () => {
       screen.getByRole('heading', { level: 2, name: /not yet/i }),
     ).toBeInTheDocument()
 
-    const right1 = screen.getByText(/right 1 - left 2/i)
-    const left1 = screen.getByText(/left 1 - right 2/i)
+    const right1 = screen.getByText(/^right 1$/i)
+    const left1 = screen.getByText(/^left 1$/i)
 
     fireEvent.dragStart(right1, { dataTransfer })
     fireEvent.drop(left1, { dataTransfer })

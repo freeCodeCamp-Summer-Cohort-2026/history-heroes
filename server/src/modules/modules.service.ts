@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Module } from './entities/module.entity';
+import { UpdateModuleDto } from './dto/update-module.dto';
 
 @Injectable()
 export class ModulesService {
@@ -29,5 +30,17 @@ export class ModulesService {
         order: 'ASC',
       },
     });
+  }
+
+  async update(moduleId: string, updates: UpdateModuleDto): Promise<Module> {
+    const module = await this.findById(moduleId);
+
+    if (!module) {
+      throw new NotFoundException(`Module with id "${moduleId}" not found`);
+    }
+
+    Object.assign(module, updates);
+
+    return this.modulesRepository.save(module);
   }
 }

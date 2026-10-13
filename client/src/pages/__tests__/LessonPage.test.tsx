@@ -1,6 +1,7 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, screen } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { routes } from '../../App'
+import { renderWithAuth } from '../../test/utils'
 import type { Activity } from '../../features/activities/types'
 import type { Lesson } from '../../features/lesson/model/Lesson'
 import type { ModuleSummary } from '../../features/module/model/ModuleSummary'
@@ -111,7 +112,7 @@ function lessonCompletionRequests(
 }
 
 function renderAt(path: string) {
-  render(
+  renderWithAuth(
     <RouterProvider
       router={createMemoryRouter(routes, { initialEntries: [path] })}
     />,
@@ -196,11 +197,14 @@ test('still shows the lesson text when the activities fail to load', async () =>
   renderAt('/modules/first-module/lessons/first-lesson')
 
   expect(await screen.findByText('The first paragraph.')).toBeInTheDocument()
-  expect(
-    await screen.findByText(
-      'The activities for this lesson could not be loaded.',
-    ),
-  ).toBeInTheDocument()
+
+  const alert = await screen.findByRole('alert')
+
+  expect(alert).toHaveTextContent(
+    "We couldn't load the activities for this lesson.",
+  )
+
+  expect(alert).not.toHaveTextContent(/500/i)
 })
 
 test('does not save completion just for viewing a lesson', async () => {
@@ -374,6 +378,9 @@ test('does not render a next lesson after completing the final lesson', async ()
   )
   expect(lessonCompletionRequests(fetchMock, 'second-lesson')).toHaveLength(1)
   expect(screen.queryByRole('link', { name: /next lesson/i })).toBeNull()
+  expect(
+    screen.getByRole('link', { name: /continue to lab/i }),
+  ).toHaveAttribute('href', '/modules/first-module/lab')
   expect(screen.getByRole('link', { name: 'Back to module' })).toHaveAttribute(
     'href',
     '/modules/first-module',
@@ -405,6 +412,34 @@ test('does not save completion for an incorrect answer', async () => {
 
   expect(await screen.findByText('Not yet')).toBeInTheDocument()
   expect(lessonCompletionRequests(fetchMock)).toHaveLength(0)
+})
+
+test('shows a friendly error message when the lesson fails to load', async () => {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockImplementation((url: string) => {
+      if (url.includes('/lessons')) {
+        return Promise.reject(
+          new Error(
+            'Request failed with status 500: database connection failed',
+          ),
+        )
+      }
+
+      return Promise.resolve({
+        ok: true,
+        json: async () => (url.includes('/activities') ? [] : testModules),
+      })
+    }),
+  )
+
+  renderAt('/modules/first-module/lessons/first-lesson')
+
+  const alert = await screen.findByRole('alert')
+
+  expect(alert).toHaveTextContent("We couldn't load this lesson right now.")
+  expect(alert).not.toHaveTextContent(/status 500/i)
+  expect(alert).not.toHaveTextContent(/database connection failed/i)
 })
 
 test('displays the page title with site-name', async () => {

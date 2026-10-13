@@ -19,6 +19,7 @@ import {
 } from '../features/progress/model/api'
 import ButtonLink from '../components/ButtonLink'
 import ErrorBoundary from '../components/ErrorBoundary'
+import ErrorState from '../components/ErrorState'
 import { useDocumentTitle } from '../utils/useDocumentTitle'
 
 export default function LessonPage() {
@@ -46,14 +47,14 @@ function LessonPageContent({
 }) {
   const [lessons, setLessons] = useState<Lesson[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [activities, setActivities] = useState<Activity[]>([])
-  const [activityError, setActivityError] = useState<string | null>(null)
+  const [hasError, setHasError] = useState(false)
+  const [hasActivityError, setHasActivityError] = useState(false)
   const [moduleTitle, setModuleTitle] = useState<string | null>(null)
   const [completedLessonIds, setCompletedLessonIds] = useState<Set<string>>(
     new Set(),
   )
   const completionRequestStarted = useRef(false)
+  const [activities, setActivities] = useState<Activity[]>([])
 
   useEffect(() => {
     let isActive = true
@@ -61,14 +62,14 @@ function LessonPageContent({
     Promise.all([fetchLessons(moduleId), fetchLessonCompletions()])
       .then(([lessonData, completionData]) => {
         if (!isActive) return
+
         setLessons(lessonData)
         setCompletedLessonIds(
           new Set(completionData.map((completion) => completion.lessonId)),
         )
       })
-      .catch((err) => {
-        if (!isActive) return
-        setError(err instanceof Error ? err.message : 'Unable to load lesson.')
+      .catch(() => {
+        if (isActive) setHasError(true)
       })
       .finally(() => {
         if (isActive) setIsLoading(false)
@@ -79,16 +80,13 @@ function LessonPageContent({
         if (isActive) setActivities(activityData)
       })
       .catch(() => {
-        if (isActive) {
-          setActivityError(
-            'The activities for this lesson could not be loaded.',
-          )
-        }
+        if (isActive) setHasActivityError(true)
       })
 
     fetchModules()
       .then((moduleData) => {
         if (!isActive) return
+
         setModuleTitle(
           moduleData.find((oneModule) => oneModule.id === moduleId)?.title ??
             null,
@@ -142,12 +140,14 @@ function LessonPageContent({
   useDocumentTitle(lesson?.title)
 
   if (isLoading) return <p>Loading lesson...</p>
-  if (error) return <p>{error}</p>
+  if (hasError) {
+    return <ErrorState message="We couldn't load this lesson right now." />
+  }
   if (!lesson)
     return (
       <div className="space-y-2">
         <h1 className="text-display">Lesson not found</h1>
-        <p className="text-body">This lesson doesn't exist</p>
+        <p className="text-body">That lesson could not be found.</p>
         <ButtonLink to={`/modules/${moduleId}`}>Back to Module</ButtonLink>
       </div>
     )
@@ -176,8 +176,8 @@ function LessonPageContent({
       </section>
 
       <div className="border-t border-base-300 pt-8">
-        {activityError ? (
-          <p className="text-body">{activityError}</p>
+        {hasActivityError ? (
+          <ErrorState message="We couldn't load the activities for this lesson." />
         ) : (
           <ErrorBoundary>
             <ActivityWorkspace
@@ -197,17 +197,16 @@ function LessonPageContent({
             Lesson completion saved.
           </p>
           <div className="flex flex-col gap-3 sm:flex-row">
-            {nextLesson && isNextLessonUnlocked && (
+            {nextLesson && isNextLessonUnlocked ? (
               <ButtonLink to={`/modules/${moduleId}/lessons/${nextLesson.id}`}>
                 Next lesson: {nextLesson.title}
               </ButtonLink>
+            ) : (
+              <ButtonLink to={`/modules/${moduleId}/lab`}>
+                Continue to lab
+              </ButtonLink>
             )}
-            <ButtonLink
-              variant={
-                nextLesson && isNextLessonUnlocked ? 'secondary' : 'primary'
-              }
-              to={`/modules/${moduleId}`}
-            >
+            <ButtonLink variant="secondary" to={`/modules/${moduleId}`}>
               Back to module
             </ButtonLink>
           </div>

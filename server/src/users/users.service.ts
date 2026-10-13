@@ -1,15 +1,29 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Optional } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import * as bcrypt from 'bcrypt';
 import { User } from './entities/user.entity';
 import { LoginRequestDto } from '../auth/dto/login-request.dto';
 
 @Injectable()
 export class UsersService {
+  private readonly saltRounds: number;
+
   constructor(
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
-  ) {}
+    @Optional()
+    private readonly configService?: ConfigService,
+  ) {
+    const rounds = Number(
+      this.configService?.get<number | string>('BCRYPT_SALT_ROUNDS', 10) ?? 10,
+    );
+    if (!Number.isInteger(rounds) || rounds < 10) {
+      throw new Error('BCRYPT_SALT_ROUNDS must be at least 10');
+    }
+    this.saltRounds = rounds;
+  }
 
   /**
    * Returns user data for the user with the given email address.
@@ -22,9 +36,9 @@ export class UsersService {
     settings: {
       /**
        * If we are to include the password in the response, by default
-       * this is false as this is plaintext and a security risk.
+       * this is false as this is a security risk.
        *
-       * Post #46, this will be unhashed for external comparison, but probably via another setting
+       * When included, this contains the hashed password for comparison.
        */
       includePassword?: boolean;
     } = {},
@@ -45,6 +59,13 @@ export class UsersService {
   }
 
   /**
+   * Compares a plaintext password with a hashed password using bcrypt.
+   */
+  async comparePassword(password: string, hash: string): Promise<boolean> {
+    return bcrypt.compare(password, hash);
+  }
+
+  /**
    * Create a new user with the given email and password.
    */
   async create(user: {
@@ -60,8 +81,7 @@ export class UsersService {
     const userToCreate = new User();
 
     userToCreate.email = user.email;
-    // TODO: add hashing here, see issue #46
-    userToCreate.password = user.password;
+    userToCreate.password = await bcrypt.hash(user.password, this.saltRounds);
 
     const createdUser = await this.usersRepository.save(userToCreate);
 

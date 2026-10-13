@@ -10,6 +10,7 @@ import {
 import type { Request } from 'express';
 import { ProgressService } from './progress.service';
 import { UserLessonProgress } from './entities/user-lesson-progress.entity';
+import { UserLabProgress } from './entities/user-lab-progress.entity';
 
 @Controller('progress')
 export class ProgressController {
@@ -78,6 +79,62 @@ export class ProgressController {
 
     if (!progress) {
       throw new NotFoundException(`No progress found for lesson "${lessonId}"`);
+    }
+
+    return progress;
+  }
+
+  /**
+   * Records or confirms lab completion for the active learner.
+   * Accessible at: POST /api/v1/progress/labs/:labId
+   */
+  @Post('labs/:labId')
+  async recordLabProgress(
+    @Param('labId') labId: string,
+    @Req() req: Request,
+  ): Promise<UserLabProgress> {
+    const userId = req.session?.userId;
+    const sessionId = req.sessionID;
+
+    return this.progressService.recordLabProgress({
+      labId,
+      userId,
+      sessionId,
+    });
+  }
+
+  /**
+   * Records or confirms lab completion for the active learner via PUT idempotently.
+   * Accessible at: PUT /api/v1/progress/labs/:labId
+   */
+  @Put('labs/:labId')
+  async recordLabProgressPut(
+    @Param('labId') labId: string,
+    @Req() req: Request,
+  ): Promise<UserLabProgress> {
+    return this.recordLabProgress(labId, req);
+  }
+
+  /**
+   * Returns progress for a specific lab for the current user/session.
+   * Accessible at: GET /api/v1/progress/labs/:labId
+   */
+  @Get('labs/:labId')
+  async getLabProgress(
+    @Param('labId') labId: string,
+    @Req() req: Request,
+  ): Promise<UserLabProgress> {
+    const userId = req.session?.userId;
+    const sessionId = req.sessionID;
+
+    const progress = await this.progressService.getLabProgress({
+      labId,
+      userId,
+      sessionId,
+    });
+
+    if (!progress) {
+      throw new NotFoundException(`No progress found for lab "${labId}"`);
     }
 
     return progress;

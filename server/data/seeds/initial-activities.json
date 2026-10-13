@@ -430,6 +430,43 @@
           }
         ]
       }
+    },
+    {
+      "id": "test-ordering-activity",
+      "type": "ordering",
+      "title": "Test Title",
+      "checkStatement": "This checks if you put these in ascending order",
+      "content": {
+        "items": [
+          {
+            "id": "second-item",
+            "label": "Second"
+          },
+          {
+            "id": "first-item",
+            "label": "First"
+          },
+          {
+            "id": "third-item",
+            "label": "Third"
+          }
+        ]
+      },
+      "successCriteria": {
+        "correctOrder": ["first-item", "second-item", "third-item"]
+      }
+    },
+    {
+      "id": "test-true-false-activity",
+      "type": "true-false",
+      "title": "Test Title",
+      "checkStatement": "This checks if you put these in ascending order",
+      "content": {
+        "statement": "Every developer forgets syntax"
+      },
+      "successCriteria": {
+        "correctAnswer": true
+      }
     }
   ]
 }

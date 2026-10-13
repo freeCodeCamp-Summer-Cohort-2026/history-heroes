@@ -15,11 +15,8 @@ export class User {
   email: string;
 
   /**
-   * SECURITY WARNING: Storing plaintext passwords is insecure and temporary.
-   * This is strictly for local dev/testing initialization.
-   * TODO: Hash/salt with bcrypt before production use.
-   *
-   * Issue ref: #46
+   * Password stored as a salted bcrypt hash.
+   * `select: false` ensures password hash is never implicitly returned in queries.
    */
   @Column({
     // select is false as we never implicitly return this information.

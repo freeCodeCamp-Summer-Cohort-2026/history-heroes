@@ -1,16 +1,27 @@
 import { DataSource } from 'typeorm';
+import * as fs from 'fs';
 import * as path from 'path';
 
 /**
  * Standalone TypeORM DataSource configuration for TypeORM CLI operations.
  *
  * This is required to support migrations, and runs outside of nestjs.
- *
- * Requires changes to the main DataSource configuration in src/core/db/database.module.ts if you change the database type or connection options. This will be done later once migrations are available/required.
  */
+const dbPath = process.env.DATABASE_STORAGE || 'data/dev.sqlite';
+const resolvedPath = path.resolve(process.cwd(), dbPath);
+
+// Ensure database directory exists before better-sqlite3 attempts to open/create file
+const dir = path.dirname(resolvedPath);
+if (!fs.existsSync(dir)) {
+  fs.mkdirSync(dir, { recursive: true });
+}
+
 export const AppDataSource = new DataSource({
   type: 'better-sqlite3',
-  database: process.env.DATABASE_STORAGE || 'data/dev.sqlite',
+  database: resolvedPath,
+  prepareDatabase: (database: { pragma: (statement: string) => void }) => {
+    database.pragma('foreign_keys = ON');
+  },
   entities: [path.join(__dirname, '../../**/*.entity{.ts,.js}')],
   migrations: [path.join(__dirname, 'migrations/*{.ts,.js}')],
   synchronize: false,

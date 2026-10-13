@@ -1,6 +1,7 @@
-import { render, screen, fireEvent } from '@testing-library/react'
+import { screen, fireEvent, within } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { routes } from '../../App'
+import { renderWithAuth } from '../../test/utils'
 
 const testModules = [
   {
@@ -32,7 +33,7 @@ afterEach(() => {
 })
 
 test('displays both modules', async () => {
-  render(
+  renderWithAuth(
     <RouterProvider
       router={createMemoryRouter(routes, { initialEntries: ['/'] })}
     />,
@@ -43,7 +44,7 @@ test('displays both modules', async () => {
 })
 
 test('opens the first module when it is selected', async () => {
-  render(
+  renderWithAuth(
     <RouterProvider
       router={createMemoryRouter(routes, { initialEntries: ['/'] })}
     />,
@@ -60,7 +61,7 @@ test('opens the first module when it is selected', async () => {
 })
 
 test('opens the second module when it is selected', async () => {
-  render(
+  renderWithAuth(
     <RouterProvider
       router={createMemoryRouter(routes, { initialEntries: ['/'] })}
     />,
@@ -77,7 +78,7 @@ test('opens the second module when it is selected', async () => {
 })
 
 test('shows each module as a card', async () => {
-  render(
+  renderWithAuth(
     <RouterProvider
       router={createMemoryRouter(routes, { initialEntries: ['/'] })}
     />,
@@ -94,7 +95,7 @@ test('shows an empty state when there are no modules', async () => {
       json: async () => [],
     }),
   )
-  render(
+  renderWithAuth(
     <RouterProvider
       router={createMemoryRouter(routes, { initialEntries: ['/'] })}
     />,
@@ -106,18 +107,68 @@ test('shows an empty state when there are no modules', async () => {
 })
 
 test('shows the period and theme on a module card', async () => {
-  render(
+  renderWithAuth(
     <RouterProvider
       router={createMemoryRouter(routes, { initialEntries: ['/'] })}
     />,
   )
 
-  expect(await screen.findByText('Ancient World')).toBeInTheDocument()
-  expect(screen.getByText('Architecture and Engineering')).toBeInTheDocument()
+  const [firstCard] = await screen.findAllByRole('article')
+
+  expect(within(firstCard).getByText('Ancient World')).toBeInTheDocument()
+
+  expect(
+    within(firstCard).getByText('Architecture and Engineering'),
+  ).toBeInTheDocument()
+})
+
+test('shows a friendly error message when modules fail to load', async () => {
+  vi.stubGlobal(
+    'fetch',
+    vi
+      .fn()
+      .mockRejectedValue(
+        new Error('Request failed with status 500: database connection failed'),
+      ),
+  )
+
+  renderWithAuth(
+    <RouterProvider
+      router={createMemoryRouter(routes, { initialEntries: ['/'] })}
+    />,
+  )
+
+  const alert = await screen.findByRole('alert')
+
+  expect(alert).toHaveTextContent("We couldn't load modules right now.")
+  expect(
+    screen.queryByText(/database connection failed/i),
+  ).not.toBeInTheDocument()
+  expect(screen.queryByText(/status 500/i)).not.toBeInTheDocument()
+})
+
+test('shows an edit link for each module', async () => {
+  renderWithAuth(
+    <RouterProvider
+      router={createMemoryRouter(routes, { initialEntries: ['/'] })}
+    />,
+  )
+
+  const cards = await screen.findAllByRole('article')
+
+  expect(within(cards[0]).getByRole('link', { name: /edit/i })).toHaveAttribute(
+    'href',
+    '/modules/first-module/edit',
+  )
+
+  expect(within(cards[1]).getByRole('link', { name: /edit/i })).toHaveAttribute(
+    'href',
+    '/modules/second-module/edit',
+  )
 })
 
 test('displays the page title with site-name', () => {
-  render(
+  renderWithAuth(
     <RouterProvider
       router={createMemoryRouter(routes, { initialEntries: ['/'] })}
     />,

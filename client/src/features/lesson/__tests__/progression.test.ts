@@ -1,7 +1,9 @@
 import type { Lesson } from '../model/Lesson'
 import {
   getLessonAvailability,
+  getNextIncompleteItem,
   getNextLesson,
+  isModuleFullyCompleted,
   orderLessons,
 } from '../progression'
 
@@ -117,4 +119,111 @@ test('finds only the immediate next lesson', () => {
 test('has no next lesson after the final lesson', () => {
   expect(getNextLesson(lessons, 'third-lesson')).toBeNull()
   expect(getNextLesson(lessons, 'missing-lesson')).toBeNull()
+})
+
+test('identifies first applicable item for learner with no progress', () => {
+  const nextItem = getNextIncompleteItem({
+    moduleId: 'test-module',
+    lessons,
+    completedLessonIds: new Set(),
+    hasLab: true,
+    isLabCompleted: false,
+  })
+
+  expect(nextItem).toEqual({
+    type: 'lesson',
+    lessonId: 'first-lesson',
+    title: 'First lesson',
+    path: '/modules/test-module/lessons/first-lesson',
+  })
+})
+
+test('identifies next incomplete item for learner with partial progress', () => {
+  const nextItem = getNextIncompleteItem({
+    moduleId: 'test-module',
+    lessons,
+    completedLessonIds: new Set(['first-lesson']),
+    hasLab: true,
+    isLabCompleted: false,
+  })
+
+  expect(nextItem).toEqual({
+    type: 'lesson',
+    lessonId: 'second-lesson',
+    title: 'Second lesson',
+    path: '/modules/test-module/lessons/second-lesson',
+  })
+})
+
+test('identifies lab as next incomplete item when all lessons are complete', () => {
+  const nextItem = getNextIncompleteItem({
+    moduleId: 'test-module',
+    lessons,
+    completedLessonIds: new Set([
+      'first-lesson',
+      'second-lesson',
+      'third-lesson',
+    ]),
+    hasLab: true,
+    isLabCompleted: false,
+  })
+
+  expect(nextItem).toEqual({
+    type: 'lab',
+    title: 'Module lab',
+    path: '/modules/test-module/lab',
+  })
+})
+
+test('returns null when all lessons and the lab are complete', () => {
+  const nextItem = getNextIncompleteItem({
+    moduleId: 'test-module',
+    lessons,
+    completedLessonIds: new Set([
+      'first-lesson',
+      'second-lesson',
+      'third-lesson',
+    ]),
+    hasLab: true,
+    isLabCompleted: true,
+  })
+
+  expect(nextItem).toBeNull()
+})
+
+test('evaluates whether module is fully completed correctly', () => {
+  expect(
+    isModuleFullyCompleted({
+      lessons,
+      completedLessonIds: new Set(),
+      hasLab: true,
+      isLabCompleted: false,
+    }),
+  ).toBe(false)
+
+  expect(
+    isModuleFullyCompleted({
+      lessons,
+      completedLessonIds: new Set([
+        'first-lesson',
+        'second-lesson',
+        'third-lesson',
+      ]),
+      hasLab: true,
+      isLabCompleted: false,
+    }),
+  ).toBe(false)
+
+  expect(
+    isModuleFullyCompleted({
+      lessons,
+      completedLessonIds: new Set([
+        'first-lesson',
+        'second-lesson',
+        'third-lesson',
+      ]),
+      hasLab: true,
+      isLabCompleted: true,
+    }),
+  ).toBe(true)
 })

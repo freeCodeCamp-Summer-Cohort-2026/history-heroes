@@ -19,12 +19,16 @@ import fs from "node:fs/promises";
     });
     await fs.cp("./server/package.json", "./dist/package.json");
 
-    // Update dist/package.json scripts to only include "start": "node main"
+    // Update dist/package.json scripts to include start and standalone migration commands
     const distPkg = JSON.parse(
       await fs.readFile("./dist/package.json", "utf-8"),
     );
     distPkg.scripts = {
       start: "node main",
+      typeorm: "typeorm -d core/db/data-source.js",
+      "migration:run": "typeorm migration:run -d core/db/data-source.js",
+      "migration:revert": "typeorm migration:revert -d core/db/data-source.js",
+      "migration:show": "typeorm migration:show -d core/db/data-source.js",
     };
     await fs.writeFile(
       "./dist/package.json",

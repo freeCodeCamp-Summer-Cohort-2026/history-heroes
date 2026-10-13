@@ -1,11 +1,14 @@
-export type ActivityType = 'ordering' | 'matching'
+export type ActivityType = 'ordering' | 'matching' | 'true-false'
 export type ActivityItem = { id: string; label: string }
 export type OrderingContent = { items: ActivityItem[] }
+export type TrueFalseContent = { statement: string }
 
 export type MatchingContent = {
   left: ActivityItem[]
   right: ActivityItem[]
 }
+
+export type TrueFalseAnswer = { value: boolean | null }
 
 export type OrderingAnswer = {
   itemOrder: string[]
@@ -16,6 +19,17 @@ export type MatchingAnswer = {
     left: string
     right: string
   }[]
+}
+
+export type TrueFalseActivity = {
+  id: string
+  type: 'true-false'
+  title: string
+  checkStatement: string
+  content: TrueFalseContent
+  successCriteria: {
+    correctAnswer: boolean
+  }
 }
 
 export type OrderingActivity = {
@@ -42,9 +56,9 @@ export type MatchingActivity = {
   }
 }
 
-export type Activity = OrderingActivity | MatchingActivity
+export type Activity = OrderingActivity | MatchingActivity | TrueFalseActivity
 
-export type ActivityAnswer = OrderingAnswer | MatchingAnswer
+export type ActivityAnswer = OrderingAnswer | MatchingAnswer | TrueFalseAnswer
 
 export type ActivityWorkspaceSubmissionState =
   'unsubmitted' | 'correct' | 'not-yet'
