@@ -98,7 +98,7 @@ export default function ModulePage() {
     return (
       <div className="space-y-2">
         <h1 className="text-display">Module not found</h1>
-        <p className="text-body">This module doesn't exist</p>
+        <p className="text-body">That module could not be found.</p>
         <ButtonLink to={'/'}>Back to Catalog</ButtonLink>
       </div>
     )
