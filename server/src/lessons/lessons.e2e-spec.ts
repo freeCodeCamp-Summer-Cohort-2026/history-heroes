@@ -287,7 +287,86 @@ describe('LessonsController (e2e)', () => {
       expect(anonResponse.body.id).toBe('great-pyramid');
     });
   });
+  describe('/api/v1/lessons/:lessonId (PATCH)', () => {
+    it('updates a lesson for an authenticated user', async () => {
+      await lessonRepo.save({
+        id: 'great-pyramid',
+        moduleId: 'seven-wonders',
+        title: 'The Great Pyramid of Giza',
+        description: 'First wonder',
+        contents: 'Original lesson contents',
+        orderIndex: 1,
+      });
 
+      const agent = await createAuthenticatedAgent(app);
+
+      const response = await agent
+        .patch('/api/v1/lessons/great-pyramid')
+        .send({
+          title: 'Updated Great Pyramid',
+          description: 'Updated description',
+          contents: 'Updated lesson contents',
+        })
+        .expect(200);
+
+      expect(response.body).toMatchObject({
+        id: 'great-pyramid',
+        moduleId: 'seven-wonders',
+        title: 'Updated Great Pyramid',
+        description: 'Updated description',
+        contents: 'Updated lesson contents',
+        orderIndex: 1,
+      });
+    });
+    it('rejects updates without authentication', async () => {
+      await lessonRepo.save({
+        id: 'great-pyramid',
+        moduleId: 'seven-wonders',
+        title: 'The Great Pyramid of Giza',
+        description: 'First wonder',
+        contents: 'Original lesson contents',
+        orderIndex: 1,
+      });
+
+      await request(app.getHttpServer())
+        .patch('/api/v1/lessons/great-pyramid')
+        .send({
+          title: 'Should not update',
+        })
+        .expect(401);
+    });
+
+    it('rejects fields that are not editable', async () => {
+      await lessonRepo.save({
+        id: 'great-pyramid',
+        moduleId: 'seven-wonders',
+        title: 'The Great Pyramid of Giza',
+        description: 'First wonder',
+        contents: 'Original lesson contents',
+        orderIndex: 1,
+      });
+
+      const agent = await createAuthenticatedAgent(app);
+
+      await agent
+        .patch('/api/v1/lessons/great-pyramid')
+        .send({
+          orderIndex: 99,
+        })
+        .expect(400);
+    });
+
+    it('returns 404 when the lesson does not exist', async () => {
+      const agent = await createAuthenticatedAgent(app);
+
+      await agent
+        .patch('/api/v1/lessons/missing-lesson')
+        .send({
+          title: 'Missing lesson',
+        })
+        .expect(404);
+    });
+  });
   describe('/api/v1/lessons/:lessonId/activities (GET)', () => {
     it('returns 404 for an unknown lesson', async () => {
       await request(app.getHttpServer())

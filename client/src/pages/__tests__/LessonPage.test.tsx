@@ -179,6 +179,13 @@ test('links back to its module', async () => {
   ).toHaveAttribute('href', '/modules/first-module')
 })
 
+test('links to the lesson editor', async () => {
+  renderAt('/modules/first-module/lessons/first-lesson')
+
+  expect(
+    await screen.findByRole('link', { name: /edit lesson/i }),
+  ).toHaveAttribute('href', '/modules/first-module/lessons/first-lesson/edit')
+})
 test('still shows the lesson text when the activities fail to load', async () => {
   vi.stubGlobal(
     'fetch',

@@ -151,12 +151,23 @@ function LessonPageContent({
   return (
     <div className="space-y-8">
       <header className="space-y-2">
-        <Link to={`/modules/${moduleId}`} className="link link-primary">
-          Back to {moduleTitle ?? 'the module'}
-        </Link>
+        <div className="flex items-center justify-between gap-4">
+          <Link to={`/modules/${moduleId}`} className="link link-primary">
+            Back to {moduleTitle ?? 'the module'}
+          </Link>
+
+          <Link
+            to={`/modules/${moduleId}/lessons/${lessonId}/edit`}
+            className="link link-primary"
+          >
+            Edit lesson
+          </Link>
+        </div>
+
         <p className="text-small uppercase tracking-wide text-base-content/70">
           Lesson {lessonIndex + 1} of {orderedLessons.length}
         </p>
+
         <h1 className="text-display">{lesson.title}</h1>
       </header>
 

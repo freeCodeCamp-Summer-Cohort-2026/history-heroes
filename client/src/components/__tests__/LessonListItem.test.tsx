@@ -32,7 +32,14 @@ test('shows the locked notice instead of opening a locked lesson', () => {
 
   const lessonButton = screen.getByRole('button', { name: /locked lesson/i })
   expect(lessonButton).toHaveAttribute('aria-disabled', 'true')
-  expect(screen.queryByRole('link')).not.toBeInTheDocument()
+  expect(
+    screen.queryByRole('link', { name: /locked lesson/i }),
+  ).not.toBeInTheDocument()
+
+  expect(screen.getByRole('link', { name: /edit lesson/i })).toHaveAttribute(
+    'href',
+    `/modules/${mockLockedLesson.moduleId}/lessons/${mockLockedLesson.id}/edit`,
+  )
 
   fireEvent.click(lessonButton)
 
@@ -55,4 +62,17 @@ test('renders a link for an unlocked lesson without a notice', () => {
   )
   expect(screen.queryByRole('button')).not.toBeInTheDocument()
   expect(screen.getByRole('status')).toBeEmptyDOMElement()
+})
+
+test('links to the editor for an unlocked lesson', () => {
+  render(
+    <MemoryRouter>
+      <LessonListItem lesson={mockUnlockedLesson} state="unlocked" />
+    </MemoryRouter>,
+  )
+
+  expect(screen.getByRole('link', { name: /edit lesson/i })).toHaveAttribute(
+    'href',
+    `/modules/${mockUnlockedLesson.moduleId}/lessons/${mockUnlockedLesson.id}/edit`,
+  )
 })
