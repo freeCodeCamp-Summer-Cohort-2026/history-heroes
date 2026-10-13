@@ -501,3 +501,57 @@ test('renders lesson activities in the editor', async () => {
 
   expect(await screen.findByText('Build the Pyramid')).toBeInTheDocument()
 })
+
+test('shows a friendly error when saving lesson changes fails', async () => {
+  const lesson = {
+    id: 'great-pyramid',
+    moduleId: 'seven-wonders',
+    title: 'The Great Pyramid of Giza',
+    description: 'First wonder lesson',
+    contents: 'Original lesson contents',
+    orderIndex: 1,
+    activityIds: [],
+  }
+
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockImplementation((url, options) => {
+      if (url === '/api/v1/modules/seven-wonders/lessons') {
+        return Promise.resolve({
+          ok: true,
+          json: async () => [lesson],
+        })
+      }
+
+      if (
+        url === '/api/v1/lessons/great-pyramid' &&
+        options?.method === 'PATCH'
+      ) {
+        return Promise.resolve({
+          ok: false,
+          status: 500,
+        })
+      }
+
+      throw new Error(`Unexpected fetch request: ${String(url)}`)
+    }),
+  )
+
+  renderWithAuth(
+    <RouterProvider
+      router={createMemoryRouter(routes, {
+        initialEntries: ['/modules/seven-wonders/lessons/great-pyramid/edit'],
+      })}
+    />,
+  )
+
+  await screen.findByLabelText('Title')
+
+  fireEvent.click(screen.getByRole('button', { name: /save/i }))
+
+  const alert = await screen.findByRole('alert')
+
+  expect(alert).toHaveTextContent("We couldn't save this lesson right now.")
+
+  expect(alert).not.toHaveTextContent(/500/i)
+})

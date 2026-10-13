@@ -26,6 +26,7 @@ export default function LessonEditorPage() {
   const [activities, setActivities] = useState<Activity[]>([])
   const [isLoadingActivities, setIsLoadingActivities] = useState(false)
   const [hasActivitiesError, setHasActivitiesError] = useState(false)
+  const [hasSaveError, setHasSaveError] = useState(false)
   const { register, reset, control, handleSubmit } =
     useForm<LessonEditorFormData>({
       defaultValues: {
@@ -62,15 +63,21 @@ export default function LessonEditorPage() {
   const handleSave = async (data: LessonEditorFormData) => {
     if (!lessonId) return
 
-    const updatedLesson = await updateLesson(lessonId, data)
+    setHasSaveError(false)
 
-    setCurrentLesson(updatedLesson)
+    try {
+      const updatedLesson = await updateLesson(lessonId, data)
 
-    reset({
-      title: updatedLesson.title,
-      description: updatedLesson.description,
-      contents: updatedLesson.contents,
-    })
+      setCurrentLesson(updatedLesson)
+
+      reset({
+        title: updatedLesson.title,
+        description: updatedLesson.description,
+        contents: updatedLesson.contents,
+      })
+    } catch {
+      setHasSaveError(true)
+    }
   }
 
   const handleActivitiesView = async () => {
@@ -88,6 +95,10 @@ export default function LessonEditorPage() {
     } finally {
       setIsLoadingActivities(false)
     }
+  }
+
+  if (!moduleId || !lessonId) {
+    return <p className="text-body">That lesson could not be found.</p>
   }
 
   if (isLoading) {
@@ -153,16 +164,20 @@ export default function LessonEditorPage() {
               <label htmlFor="contents">Contents</label>
             </legend>
 
-            <button type="submit" className="btn btn-primary">
-              save
-            </button>
-
             <textarea
               id="contents"
               className="textarea min-h-48 w-full"
               {...register('contents')}
             />
           </fieldset>
+
+          {hasSaveError && (
+            <ErrorState message="We couldn't save this lesson right now." />
+          )}
+
+          <button type="submit" className="btn btn-primary">
+            Save
+          </button>
         </form>
       )}
 
@@ -206,8 +221,8 @@ export default function LessonEditorPage() {
           </p>
 
           <div className="max-w-prose space-y-4">
-            {formValues.contents?.split('\n\n').map((paragraph, index) => (
-              <p className="text-body leading-relaxed" key={index}>
+            {formValues.contents?.split('\n\n').map((paragraph) => (
+              <p className="text-body leading-relaxed" key={paragraph}>
                 {paragraph}
               </p>
             ))}
