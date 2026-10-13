@@ -112,10 +112,51 @@ const TrueFalse = z.object({
   }),
 });
 
+const DropdownSelect = z
+  .object({
+    type: z.literal('dropdown-select'),
+    content: z.object({
+      prompt: z.string().nonempty(),
+      options: z
+        .array(
+          z.object({
+            id: z.string().nonempty(),
+            label: z.string(),
+          }),
+        )
+        .nonempty(),
+    }),
+    successCriteria: z.object({
+      correctAnswer: z.string().nonempty(),
+    }),
+  })
+
+  .superRefine(({ content, successCriteria }, ctx): void => {
+    const optionIds = content.options.map((option) => option.id);
+    const uniqueOptionIds = new Set(optionIds);
+
+    if (uniqueOptionIds.size !== optionIds.length) {
+      ctx.addIssue({
+        code: 'custom',
+        message: idErrors.DUPLICATE,
+        path: ['content', 'options'],
+      });
+    }
+
+    if (!optionIds.includes(successCriteria.correctAnswer)) {
+      ctx.addIssue({
+        code: 'custom',
+        message: idErrors.MISMATCHED,
+        path: ['successCriteria', 'correctAnswer'],
+      });
+    }
+  });
+
 const ActivityTypes = z.discriminatedUnion('type', [
   Ordering,
   Matching,
   TrueFalse,
+  DropdownSelect,
 ]);
 
 export const ActivitySeedItemSchema = z

@@ -391,6 +391,124 @@ describe('Activity item schema', () => {
     });
   });
 
+  describe('dropdown-select activity', () => {
+    it('should accept a valid dropdown-select activity', () => {
+      const activity = {
+        id: 'dummy-dropdown-select-activity',
+        type: 'dropdown-select',
+        title: 'Choose an answer',
+        checkStatement: 'This checks the selected answer',
+        content: {
+          prompt: 'Which option is correct?',
+          options: [
+            {
+              id: 'first-option',
+              label: 'First option',
+            },
+            {
+              id: 'second-option',
+              label: 'Second option',
+            },
+          ],
+        },
+        successCriteria: {
+          correctAnswer: 'second-option',
+        },
+      };
+
+      const result = ActivitySeedItemSchema.safeParse(activity);
+
+      expect(result.success).toBe(true);
+    });
+
+    it('should be invalid when correctAnswer does not match an option id', () => {
+      const activity = {
+        id: 'dummy-dropdown-select-activity',
+        type: 'dropdown-select',
+        title: 'Choose an answer',
+        checkStatement: 'This checks the selected answer',
+        content: {
+          prompt: 'Which option is correct?',
+          options: [
+            {
+              id: 'first-option',
+              label: 'First option',
+            },
+            {
+              id: 'second-option',
+              label: 'Second option',
+            },
+          ],
+        },
+        successCriteria: {
+          correctAnswer: 'missing-option',
+        },
+      };
+
+      const result = ActivitySeedItemSchema.safeParse(activity);
+
+      expect(result.success).toBe(false);
+    });
+
+    it('should be invalid when prompt is empty', () => {
+      const activity = {
+        id: 'dummy-dropdown-select-activity',
+        type: 'dropdown-select',
+        title: 'Choose an answer',
+        checkStatement: 'This checks the selected answer',
+        content: {
+          prompt: '',
+          options: [
+            {
+              id: 'first-option',
+              label: 'First option',
+            },
+            {
+              id: 'second-option',
+              label: 'Second option',
+            },
+          ],
+        },
+        successCriteria: {
+          correctAnswer: 'second-option',
+        },
+      };
+
+      const result = ActivitySeedItemSchema.safeParse(activity);
+
+      expect(result.success).toBe(false);
+    });
+
+    it('should be invalid when option ids are duplicated', () => {
+      const activity = {
+        id: 'dummy-dropdown-select-activity',
+        type: 'dropdown-select',
+        title: 'Choose an answer',
+        checkStatement: 'This checks the selected answer',
+        content: {
+          prompt: 'Which option is correct?',
+          options: [
+            {
+              id: 'same-option',
+              label: 'First option',
+            },
+            {
+              id: 'same-option',
+              label: 'Second option',
+            },
+          ],
+        },
+        successCriteria: {
+          correctAnswer: 'same-option',
+        },
+      };
+
+      const result = ActivitySeedItemSchema.safeParse(activity);
+
+      expect(result.success).toBe(false);
+    });
+  });
+
   describe('error messages', () => {
     it('should produce different errors for different types of invalid input', () => {
       const dummyActivityEmptyType = JSON.parse(
