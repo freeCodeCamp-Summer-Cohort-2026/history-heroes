@@ -6,13 +6,11 @@ import type { AuthState, AuthActions } from '../../state/auth/auth-types'
 import { resetProgress } from '../../features/progress/model/api'
 
 vi.mock('../../features/progress/model/api', () => ({
-  resetProgress: vi
-    .fn()
-    .mockResolvedValue({
-      message: 'Progress reset',
-      deletedLessons: 0,
-      deletedLabs: 0,
-    }),
+  resetProgress: vi.fn().mockResolvedValue({
+    message: 'Progress reset',
+    deletedLessons: 0,
+    deletedLabs: 0,
+  }),
 }))
 
 function renderProfilePage({
@@ -442,6 +440,21 @@ describe('ProfilePage', () => {
         ).toBeInTheDocument()
       })
     })
+
+    test('dismisses confirmation modal when Escape key is pressed', () => {
+      renderProfilePage({
+        authState: {
+          user: { id: 42, email: 'hero@example.com' },
+        },
+      })
+
+      fireEvent.click(screen.getByRole('button', { name: /^reset progress$/i }))
+      expect(screen.getByRole('dialog')).toBeInTheDocument()
+
+      fireEvent.keyDown(document, { key: 'Escape' })
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+      expect(resetProgress).not.toHaveBeenCalled()
+    })
   })
 
   describe('Delete Account', () => {
@@ -510,6 +523,25 @@ describe('ProfilePage', () => {
           screen.getByText('Network error deleting account'),
         ).toBeInTheDocument()
       })
+    })
+
+    test('dismisses delete account modal when Escape key is pressed', () => {
+      const deleteAccount = vi.fn().mockResolvedValue(undefined)
+      renderProfilePage({
+        authState: {
+          user: { id: 42, email: 'hero@example.com' },
+        },
+        authActions: {
+          deleteAccount,
+        },
+      })
+
+      fireEvent.click(screen.getByRole('button', { name: /^delete account$/i }))
+      expect(screen.getByRole('dialog')).toBeInTheDocument()
+
+      fireEvent.keyDown(document, { key: 'Escape' })
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+      expect(deleteAccount).not.toHaveBeenCalled()
     })
   })
 })

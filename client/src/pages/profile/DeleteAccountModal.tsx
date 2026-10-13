@@ -1,3 +1,5 @@
+import { useModalFocus } from '../../utils/useModalFocus'
+
 interface DeleteAccountModalProps {
   isOpen: boolean
   deleteLoading: boolean
@@ -24,14 +26,27 @@ export default function DeleteAccountModal({
   onClose,
   onConfirm,
 }: DeleteAccountModalProps) {
+  const dialogRef = useModalFocus<HTMLDialogElement>({
+    isOpen,
+    onClose,
+    disabled: deleteLoading,
+  })
+
   if (!isOpen) return null
 
   return (
-    <div
-      role="dialog"
+    <dialog
+      ref={dialogRef}
+      open
       aria-modal="true"
       aria-labelledby="delete-modal-title"
       className="modal modal-open"
+      onCancel={(e) => {
+        e.preventDefault()
+        if (!deleteLoading) {
+          onClose()
+        }
+      }}
     >
       <div className="modal-box">
         <h3 id="delete-modal-title" className="font-bold text-lg text-error">
@@ -61,9 +76,14 @@ export default function DeleteAccountModal({
           </button>
         </div>
       </div>
-      <div className="modal-backdrop" onClick={onClose}>
-        <button type="button">close</button>
+      <div
+        className="modal-backdrop"
+        onClick={deleteLoading ? undefined : onClose}
+      >
+        <button type="button" tabIndex={-1}>
+          close
+        </button>
       </div>
-    </div>
+    </dialog>
   )
 }

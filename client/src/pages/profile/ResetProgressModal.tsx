@@ -1,3 +1,5 @@
+import { useModalFocus } from '../../utils/useModalFocus'
+
 interface ResetProgressModalProps {
   isOpen: boolean
   resetLoading: boolean
@@ -25,14 +27,27 @@ export default function ResetProgressModal({
   onClose,
   onConfirm,
 }: ResetProgressModalProps) {
+  const dialogRef = useModalFocus<HTMLDialogElement>({
+    isOpen,
+    onClose,
+    disabled: resetLoading,
+  })
+
   if (!isOpen) return null
 
   return (
-    <div
-      role="dialog"
+    <dialog
+      ref={dialogRef}
+      open
       aria-modal="true"
       aria-labelledby="reset-modal-title"
       className="modal modal-open"
+      onCancel={(e) => {
+        e.preventDefault()
+        if (!resetLoading) {
+          onClose()
+        }
+      }}
     >
       <div className="modal-box">
         <h3 id="reset-modal-title" className="font-bold text-lg">
@@ -61,9 +76,14 @@ export default function ResetProgressModal({
           </button>
         </div>
       </div>
-      <div className="modal-backdrop" onClick={onClose}>
-        <button type="button">close</button>
+      <div
+        className="modal-backdrop"
+        onClick={resetLoading ? undefined : onClose}
+      >
+        <button type="button" tabIndex={-1}>
+          close
+        </button>
       </div>
-    </div>
+    </dialog>
   )
 }
