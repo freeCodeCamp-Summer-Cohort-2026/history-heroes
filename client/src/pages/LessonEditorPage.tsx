@@ -79,6 +79,8 @@ export default function LessonEditorPage() {
         description: updatedLesson.description,
         contents: updatedLesson.contents,
       })
+
+      setHasLoadedActivities(false)
     } catch (error) {
       console.error('Failed to save lesson:', error)
       setHasSaveError(true)
@@ -232,8 +234,11 @@ export default function LessonEditorPage() {
           </p>
 
           <div className="max-w-prose space-y-4">
-            {formValues.contents?.split('\n\n').map((paragraph) => (
-              <p className="text-body leading-relaxed" key={paragraph}>
+            {formValues.contents?.split('\n\n').map((paragraph, index) => (
+              <p
+                className="text-body leading-relaxed"
+                key={`${paragraph}-${index}`}
+              >
                 {paragraph}
               </p>
             ))}
