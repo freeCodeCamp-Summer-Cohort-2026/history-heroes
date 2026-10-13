@@ -400,6 +400,10 @@ test('renders lesson activities in the editor', async () => {
 })
 
 test('shows a friendly error when saving lesson changes fails', async () => {
+  const consoleErrorSpy = vi
+    .spyOn(console, 'error')
+    .mockImplementation(() => undefined)
+
   const lesson = {
     id: 'great-pyramid',
     moduleId: 'seven-wonders',
@@ -451,4 +455,6 @@ test('shows a friendly error when saving lesson changes fails', async () => {
   expect(alert).toHaveTextContent("We couldn't save this lesson right now.")
 
   expect(alert).not.toHaveTextContent(/500/i)
+
+  consoleErrorSpy.mockRestore()
 })

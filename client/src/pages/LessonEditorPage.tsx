@@ -26,6 +26,7 @@ export default function LessonEditorPage() {
   const [activities, setActivities] = useState<Activity[]>([])
   const [isLoadingActivities, setIsLoadingActivities] = useState(false)
   const [hasActivitiesError, setHasActivitiesError] = useState(false)
+  const [hasLoadedActivities, setHasLoadedActivities] = useState(false)
   const [hasSaveError, setHasSaveError] = useState(false)
   const { register, reset, control, handleSubmit } =
     useForm<LessonEditorFormData>({
@@ -56,7 +57,10 @@ export default function LessonEditorPage() {
           })
         }
       })
-      .catch(() => setHasError(true))
+      .catch((error) => {
+        console.error('Failed to load lesson:', error)
+        setHasError(true)
+      })
       .finally(() => setIsLoading(false))
   }, [moduleId, lessonId, reset])
 
@@ -75,7 +79,8 @@ export default function LessonEditorPage() {
         description: updatedLesson.description,
         contents: updatedLesson.contents,
       })
-    } catch {
+    } catch (error) {
+      console.error('Failed to save lesson:', error)
       setHasSaveError(true)
     }
   }
@@ -84,13 +89,19 @@ export default function LessonEditorPage() {
     if (!lessonId) return
 
     setView('activities')
+
+    if (hasLoadedActivities) return
+
     setIsLoadingActivities(true)
     setHasActivitiesError(false)
 
     try {
       const lessonActivities = await fetchLessonActivities(lessonId)
+
       setActivities(lessonActivities)
-    } catch {
+      setHasLoadedActivities(true)
+    } catch (error) {
+      console.error('Failed to load lesson activities:', error)
       setHasActivitiesError(true)
     } finally {
       setIsLoadingActivities(false)
