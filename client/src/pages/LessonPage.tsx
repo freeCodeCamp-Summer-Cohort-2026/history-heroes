@@ -143,7 +143,14 @@ function LessonPageContent({
   if (hasError) {
     return <ErrorState message="We couldn't load this lesson right now." />
   }
-  if (!lesson) return <p>That lesson could not be found.</p>
+  if (!lesson)
+    return (
+      <div className="space-y-2">
+        <h1 className="text-display">Lesson not found</h1>
+        <p className="text-body">That lesson could not be found.</p>
+        <ButtonLink to={`/modules/${moduleId}`}>Back to Module</ButtonLink>
+      </div>
+    )
   if (lessonAvailability === 'locked') {
     return <Navigate to={`/modules/${moduleId}/locked`} replace />
   }

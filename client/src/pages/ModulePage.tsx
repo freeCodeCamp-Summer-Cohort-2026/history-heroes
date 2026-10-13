@@ -42,7 +42,7 @@ export default function ModulePage() {
 
     Promise.all([
       fetchModules(),
-      fetchLessons(moduleId),
+      fetchLessons(moduleId).catch(() => []),
       fetchLessonCompletions(),
     ])
       .then(([moduleData, lessonData, completionData]) => {
@@ -95,7 +95,13 @@ export default function ModulePage() {
     return <ErrorState message="We couldn't load this module right now." />
   }
   if (!currentModule) {
-    return <p className="text-body">That module could not be found.</p>
+    return (
+      <div className="space-y-2">
+        <h1 className="text-display">Module not found</h1>
+        <p className="text-body">That module could not be found.</p>
+        <ButtonLink to={'/'}>Back to Catalog</ButtonLink>
+      </div>
+    )
   }
 
   const orderedLessons = orderLessons(lessons)
