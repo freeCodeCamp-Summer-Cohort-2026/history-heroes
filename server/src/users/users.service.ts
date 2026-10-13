@@ -6,12 +6,13 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { User } from './entities/user.entity';
+import { DataSource, Repository } from 'typeorm';
 import { LoginRequestDto } from '../auth/dto/login-request.dto';
-import { UserLessonProgress } from '../progress/entities/user-lesson-progress.entity';
+import { SessionEntity } from '../auth/entities/session.entity';
 import { UserLabProgress } from '../progress/entities/user-lab-progress.entity';
+import { UserLessonProgress } from '../progress/entities/user-lesson-progress.entity';
+import { User } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
@@ -148,11 +149,12 @@ export class UsersService {
   }
 
   /**
-   * Deletes a user and cleans up their associated lesson and lab progress records.
+   * Deletes a user and cleans up their associated lesson and lab progress records,
+   * along with any sessions matching the user ID and optional current session ID.
    *
    * @throws NotFoundException if user does not exist.
    */
-  async deleteUser(userId: number): Promise<void> {
+  async deleteUser(userId: number, sessionId?: string | null): Promise<void> {
     const user = await this.getById(userId);
     if (!user) {
       throw new NotFoundException(`User with ID ${userId} not found`);
@@ -162,6 +164,14 @@ export class UsersService {
       await this.dataSource.transaction(async (manager) => {
         await manager.getRepository(UserLessonProgress).delete({ userId });
         await manager.getRepository(UserLabProgress).delete({ userId });
+        if (sessionId) {
+          await manager.getRepository(UserLessonProgress).delete({ sessionId });
+          await manager.getRepository(UserLabProgress).delete({ sessionId });
+        }
+        await manager.getRepository(SessionEntity).delete({ userId });
+        if (sessionId) {
+          await manager.getRepository(SessionEntity).delete({ id: sessionId });
+        }
         await manager.getRepository(User).delete(userId);
       });
     } else {

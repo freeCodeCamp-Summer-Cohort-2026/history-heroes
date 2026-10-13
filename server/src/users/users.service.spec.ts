@@ -1,12 +1,13 @@
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { UsersService } from './users.service';
-import { User } from './entities/user.entity';
-import { UserLessonProgress } from '../progress/entities/user-lesson-progress.entity';
+import { DataSource } from 'typeorm';
+import { SessionEntity } from '../auth/entities/session.entity';
 import { UserLabProgress } from '../progress/entities/user-lab-progress.entity';
+import { UserLessonProgress } from '../progress/entities/user-lesson-progress.entity';
+import { User } from './entities/user.entity';
+import { UsersService } from './users.service';
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -38,6 +39,10 @@ describe('UsersService', () => {
     delete: vi.fn(),
   };
 
+  const mockSessionEntityRepo = {
+    delete: vi.fn(),
+  };
+
   const mockUserEntityRepo = {
     delete: vi.fn(),
   };
@@ -46,6 +51,7 @@ describe('UsersService', () => {
     getRepository: vi.fn((entity: any) => {
       if (entity === UserLessonProgress) return mockLessonProgressRepo;
       if (entity === UserLabProgress) return mockProgressLabRepo;
+      if (entity === SessionEntity) return mockSessionEntityRepo;
       return mockUserEntityRepo;
     }),
   };
@@ -262,7 +268,28 @@ describe('UsersService', () => {
       await expect(service.deleteUser(999)).rejects.toThrow(NotFoundException);
     });
 
-    it('should delete progress records and user within transaction', async () => {
+    it('should delete progress records, user sessions, and user within transaction', async () => {
+      mockQueryBuilder.getOne.mockResolvedValue(mockUser);
+
+      await service.deleteUser(1, 'sess-123');
+
+      expect(mockTransaction).toHaveBeenCalled();
+      expect(mockLessonProgressRepo.delete).toHaveBeenCalledWith({ userId: 1 });
+      expect(mockLessonProgressRepo.delete).toHaveBeenCalledWith({
+        sessionId: 'sess-123',
+      });
+      expect(mockLabProgressRepo.delete).toHaveBeenCalledWith({ userId: 1 });
+      expect(mockLabProgressRepo.delete).toHaveBeenCalledWith({
+        sessionId: 'sess-123',
+      });
+      expect(mockSessionEntityRepo.delete).toHaveBeenCalledWith({ userId: 1 });
+      expect(mockSessionEntityRepo.delete).toHaveBeenCalledWith({
+        id: 'sess-123',
+      });
+      expect(mockUserEntityRepo.delete).toHaveBeenCalledWith(1);
+    });
+
+    it('should delete progress records and user sessions without sessionId', async () => {
       mockQueryBuilder.getOne.mockResolvedValue(mockUser);
 
       await service.deleteUser(1);
@@ -270,6 +297,7 @@ describe('UsersService', () => {
       expect(mockTransaction).toHaveBeenCalled();
       expect(mockLessonProgressRepo.delete).toHaveBeenCalledWith({ userId: 1 });
       expect(mockLabProgressRepo.delete).toHaveBeenCalledWith({ userId: 1 });
+      expect(mockSessionEntityRepo.delete).toHaveBeenCalledWith({ userId: 1 });
       expect(mockUserEntityRepo.delete).toHaveBeenCalledWith(1);
     });
 

@@ -1,13 +1,13 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import {
   ConflictException,
   InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
 import type { Request, Response } from 'express';
-import { AuthController } from './auth.controller';
-import { UsersService } from '../users/users.service';
 import { User } from '../users/entities/user.entity';
+import { UsersService } from '../users/users.service';
+import { AuthController } from './auth.controller';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -24,12 +24,7 @@ describe('AuthController', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
-      providers: [
-        {
-          provide: UsersService,
-          useValue: mockUsersService,
-        },
-      ],
+      providers: [{ provide: UsersService, useValue: mockUsersService }],
     }).compile();
 
     controller = module.get<AuthController>(AuthController);
@@ -315,15 +310,25 @@ describe('AuthController', () => {
       });
     });
 
-    it('should return raw session info when user is not found in database', async () => {
+    it('should throw UnauthorizedException and destroy session when user is not found in database', async () => {
       const session = { userId: 999, cookie: {} };
       mockUsersService.getById.mockResolvedValue(null);
+      const mockSession = {
+        destroy: vi.fn((cb: (err?: any) => void) => cb()),
+      };
+      const mockReq = { session: mockSession } as unknown as Request;
+      const mockRes = {
+        clearCookie: vi.fn(),
+      } as unknown as Response;
 
-      const result = await controller.getSession(session);
+      await expect(
+        controller.getSession(session, mockReq, mockRes),
+      ).rejects.toThrow(UnauthorizedException);
 
       expect(mockUsersService.getById).toHaveBeenCalledWith(999);
-      expect(result).toEqual({
-        session_info: session,
+      expect(mockSession.destroy).toHaveBeenCalled();
+      expect(mockRes.clearCookie).toHaveBeenCalledWith('connect.sid', {
+        path: '/',
       });
     });
 

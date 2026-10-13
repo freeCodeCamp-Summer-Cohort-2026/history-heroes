@@ -14,15 +14,15 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import type { Request, Response } from 'express';
 import * as bcrypt from 'bcrypt';
+import type { Request, Response } from 'express';
+import { ZodValidationPipe } from '../core/pipes/zod-validation.pipe';
+import { UsersService } from '../users/users.service';
 import { LoginRequestDto, loginRequestSchema } from './dto/login-request.dto';
 import {
   RegisterRequestDto,
   registerRequestSchema,
 } from './dto/register-request.dto';
-import { UsersService } from '../users/users.service';
-import { ZodValidationPipe } from '../core/pipes/zod-validation.pipe';
 import { AuthenticatedGuard } from './guards/authenticated.guard';
 
 /**
@@ -140,7 +140,11 @@ export class AuthController implements OnModuleInit {
    */
   @Get('session')
   @UseGuards(AuthenticatedGuard)
-  async getSession(@Session() session: Record<string, any>) {
+  async getSession(
+    @Session() session: Record<string, any>,
+    @Req() req?: Request,
+    @Res({ passthrough: true }) res?: Response,
+  ) {
     if (session?.userId) {
       const user = await this.userService.getById(session.userId);
       if (user) {
@@ -158,6 +162,16 @@ export class AuthController implements OnModuleInit {
           },
         };
       }
+
+      // If session has a userId but user was not found in the DB (e.g. deleted user),
+      // invalidate the stale session and cookie, and reject with UnauthorizedException.
+      if (req?.session?.destroy) {
+        await new Promise<void>((resolve) => {
+          req.session.destroy(() => resolve());
+        });
+      }
+      res?.clearCookie?.('connect.sid', { path: '/' });
+      throw new UnauthorizedException('User no longer exists');
     }
     return { session_info: session };
   }

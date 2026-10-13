@@ -11,7 +11,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
-import { UsersService } from './users.service';
 import { AuthenticatedGuard } from '../auth/guards/authenticated.guard';
 import { ZodValidationPipe } from '../core/pipes/zod-validation.pipe';
 import {
@@ -20,6 +19,7 @@ import {
   UpdateContentAuthorDto,
   updateContentAuthorSchema,
 } from './dto/update-user.dto';
+import { UsersService } from './users.service';
 
 @Controller('users')
 export class UsersController {
@@ -94,8 +94,9 @@ export class UsersController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const userId = req.session?.userId;
+    const sessionId = req.sessionID || req.session?.id;
     if (userId) {
-      await this.usersService.deleteUser(userId);
+      await this.usersService.deleteUser(userId, sessionId);
     }
 
     if (req.session?.destroy) {

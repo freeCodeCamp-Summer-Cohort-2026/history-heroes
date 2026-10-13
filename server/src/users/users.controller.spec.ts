@@ -1,5 +1,5 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { InternalServerErrorException } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
 import type { Request, Response } from 'express';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
@@ -98,10 +98,7 @@ describe('UsersController', () => {
       } as unknown as Request;
 
       const result = await controller.changePassword(
-        {
-          currentPassword: 'oldPassword123',
-          newPassword: 'newPassword123',
-        },
+        { currentPassword: 'oldPassword123', newPassword: 'newPassword123' },
         mockReq,
       );
 
@@ -115,13 +112,14 @@ describe('UsersController', () => {
   });
 
   describe('deleteMe', () => {
-    it('should delete user, destroy session, clear cookie and return success message', async () => {
+    it('should delete user with userId and sessionId, destroy session, clear cookie and return success message', async () => {
       mockUsersService.deleteUser.mockResolvedValue(undefined);
 
       const mockSession = {
         destroy: vi.fn((cb: (err?: any) => void) => cb()),
       };
       const mockReq = {
+        sessionID: 'sess-1',
         session: { ...mockSession, userId: 1 },
       } as unknown as Request;
       const mockRes = {
@@ -130,7 +128,7 @@ describe('UsersController', () => {
 
       const result = await controller.deleteMe(mockReq, mockRes);
 
-      expect(mockUsersService.deleteUser).toHaveBeenCalledWith(1);
+      expect(mockUsersService.deleteUser).toHaveBeenCalledWith(1, 'sess-1');
       expect(mockSession.destroy).toHaveBeenCalled();
       expect(mockRes.clearCookie).toHaveBeenCalledWith('connect.sid', {
         path: '/',
@@ -145,6 +143,7 @@ describe('UsersController', () => {
         destroy: vi.fn((cb: (err?: any) => void) => cb(new Error('fail'))),
       };
       const mockReq = {
+        sessionID: 'sess-1',
         session: { ...mockSession, userId: 1 },
       } as unknown as Request;
       const mockRes = {

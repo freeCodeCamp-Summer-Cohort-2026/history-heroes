@@ -1,6 +1,7 @@
 import {
   fetchLessonCompletions,
   getLabCompletion,
+  type ResetProgressResponse,
   recordLabCompletion,
   recordLessonCompletion,
   resetProgress,
@@ -156,7 +157,11 @@ test('throws when getLabCompletion encounters error other than 404', async () =>
 })
 
 test('resets progress and returns response message', async () => {
-  const result = { message: 'Progress reset successfully', count: 5 }
+  const result: ResetProgressResponse = {
+    message: 'Progress reset successfully',
+    deletedLessons: 5,
+    deletedLabs: 2,
+  }
   const fetchMock = vi.fn().mockResolvedValue({
     ok: true,
     json: async () => result,

@@ -6,7 +6,13 @@ import type { AuthState, AuthActions } from '../../state/auth/auth-types'
 import { resetProgress } from '../../features/progress/model/api'
 
 vi.mock('../../features/progress/model/api', () => ({
-  resetProgress: vi.fn().mockResolvedValue({ message: 'Progress reset' }),
+  resetProgress: vi
+    .fn()
+    .mockResolvedValue({
+      message: 'Progress reset',
+      deletedLessons: 0,
+      deletedLabs: 0,
+    }),
 }))
 
 function renderProfilePage({
@@ -60,7 +66,11 @@ function renderProfilePage({
 describe('ProfilePage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.mocked(resetProgress).mockResolvedValue({ message: 'Progress reset' })
+    vi.mocked(resetProgress).mockResolvedValue({
+      message: 'Progress reset',
+      deletedLessons: 0,
+      deletedLabs: 0,
+    })
   })
 
   test('renders message to login or register with redirect links when not authenticated', () => {
