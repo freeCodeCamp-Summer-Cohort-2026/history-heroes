@@ -467,6 +467,28 @@
       "successCriteria": {
         "correctAnswer": true
       }
+    },
+    {
+      "id": "test-dropdown-select-activity",
+      "type": "dropdown-select",
+      "title": "Dropdown Select Test",
+      "checkStatement": "This checks if you selected the correct option",
+      "content": {
+        "prompt": "Which option is correct?",
+        "options": [
+          {
+            "id": "first-option",
+            "label": "First option"
+          },
+          {
+            "id": "second-option",
+            "label": "Second option"
+          }
+        ]
+      },
+      "successCriteria": {
+        "correctAnswer": "second-option"
+      }
     }
   ]
 }
