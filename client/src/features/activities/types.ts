@@ -12,6 +12,10 @@ export type MatchingContent = {
   right: ActivityItem[]
 }
 
+export type TrueFalseContent = {
+  statement: string
+}
+
 export type TrueFalseAnswer = { value: boolean | null }
 
 export type DropdownSelectAnswer = {
@@ -82,7 +86,7 @@ export type Activity =
   | DropdownSelectActivity
 
 export type ActivityAnswer =
-  OrderingAnswer | MatchingAnswer | TrueFalseAnswer | 'DropdownSelectAnswer'
+  OrderingAnswer | MatchingAnswer | TrueFalseAnswer | DropdownSelectAnswer
 
 export type ActivityWorkspaceSubmissionState =
   'unsubmitted' | 'correct' | 'not-yet'
