@@ -79,7 +79,7 @@ export type Activity =
   | OrderingActivity
   | MatchingActivity
   | TrueFalseActivity
-  | 'DropdownSelectActivity'
+  | DropdownSelectActivity
 
 export type ActivityAnswer =
   OrderingAnswer | MatchingAnswer | TrueFalseAnswer | 'DropdownSelectAnswer'

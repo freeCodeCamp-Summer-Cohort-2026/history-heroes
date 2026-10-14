@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest'
 import { evaluateActivity } from '../evaluation'
 import type {
   Activity,
+  DropdownSelectAnswer,
   MatchingAnswer,
   OrderingAnswer,
   TrueFalseAnswer,
@@ -330,6 +331,81 @@ describe('evaluateActivity', () => {
 
     const answer: TrueFalseAnswer = {
       value: null,
+    }
+
+    expect(evaluateActivity(activity, answer)).toBe('not-yet')
+  })
+
+  test('returns correct when dropdown select answer matches', () => {
+    const activity: Activity = {
+      id: 'dropdown-select-1',
+      type: 'dropdown-select',
+      title: 'Choose the correct wonder',
+      checkStatement: 'Choose the wonder located in Egypt.',
+      content: {
+        prompt: 'Which wonder is located in Egypt?',
+        options: [
+          { id: 'pyramid', label: 'Great Pyramid' },
+          { id: 'colossus', label: 'Colossus of Rhodes' },
+        ],
+      },
+      successCriteria: {
+        correctAnswer: 'pyramid',
+      },
+    }
+
+    const answer: DropdownSelectAnswer = {
+      selectedOptionId: 'pyramid',
+    }
+
+    expect(evaluateActivity(activity, answer)).toBe('correct')
+  })
+
+  test('returns not-yet when dropdown select answer is incorrect', () => {
+    const activity: Activity = {
+      id: 'dropdown-select-2',
+      type: 'dropdown-select',
+      title: 'Choose the correct wonder',
+      checkStatement: 'Choose the wonder located in Egypt.',
+      content: {
+        prompt: 'Which wonder is located in Egypt?',
+        options: [
+          { id: 'pyramid', label: 'Great Pyramid' },
+          { id: 'colossus', label: 'Colossus of Rhodes' },
+        ],
+      },
+      successCriteria: {
+        correctAnswer: 'pyramid',
+      },
+    }
+
+    const answer: DropdownSelectAnswer = {
+      selectedOptionId: 'colossus',
+    }
+
+    expect(evaluateActivity(activity, answer)).toBe('not-yet')
+  })
+
+  test('returns not-yet when dropdown select answer is null', () => {
+    const activity: Activity = {
+      id: 'dropdown-select-3',
+      type: 'dropdown-select',
+      title: 'Choose the correct wonder',
+      checkStatement: 'Choose the wonder located in Egypt.',
+      content: {
+        prompt: 'Which wonder is located in Egypt?',
+        options: [
+          { id: 'pyramid', label: 'Great Pyramid' },
+          { id: 'colossus', label: 'Colossus of Rhodes' },
+        ],
+      },
+      successCriteria: {
+        correctAnswer: 'pyramid',
+      },
+    }
+
+    const answer: DropdownSelectAnswer = {
+      selectedOptionId: null,
     }
 
     expect(evaluateActivity(activity, answer)).toBe('not-yet')
