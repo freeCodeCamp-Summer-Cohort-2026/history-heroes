@@ -17,6 +17,15 @@ export const createMockAuthContext = (
     .mockResolvedValue({ id: 1, email: 'test@historyheroes.org' }),
   handleLogout: vi.fn().mockResolvedValue(undefined),
   getUserSession: vi.fn().mockResolvedValue(null),
+  updateContentAuthor: vi
+    .fn()
+    .mockImplementation(async (isContentAuthor: boolean) => ({
+      id: 1,
+      email: 'test@historyheroes.org',
+      isContentAuthor,
+    })),
+  changePassword: vi.fn().mockResolvedValue(undefined),
+  deleteAccount: vi.fn().mockResolvedValue(undefined),
   ...overrides,
 })
 

@@ -8,6 +8,12 @@ export type LabCompletion = {
   completedAt: string
 }
 
+export type ResetProgressResponse = {
+  message: string
+  deletedLessons: number
+  deletedLabs: number
+}
+
 export async function fetchLessonCompletions(): Promise<LessonCompletion[]> {
   const response = await fetch('/api/v1/progress')
 
@@ -57,6 +63,18 @@ export async function getLabCompletion(
 
   if (!response.ok) {
     throw new Error(`Failed to get lab completion: ${response.status}`)
+  }
+
+  return response.json()
+}
+
+export async function resetProgress(): Promise<ResetProgressResponse> {
+  const response = await fetch('/api/v1/progress', {
+    method: 'DELETE',
+  })
+
+  if (!response.ok) {
+    throw new Error(`Failed to reset progress: ${response.status}`)
   }
 
   return response.json()

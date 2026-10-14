@@ -1,16 +1,17 @@
 import type { RouteObject } from 'react-router-dom'
-import LessonPage from './pages/LessonPage'
-import ModuleCatalogPage from './pages/ModuleCatalogPage'
-import ModulePage from './pages/ModulePage'
-import LockedLessonPage from './pages/LockedLessonPage'
-import NotFoundPage from './pages/NotFoundPage'
-import LabPage from './pages/LabPage'
-import Layout from './components/Layout'
 import ComponentShowcase from './components/ComponentShowcase'
-import RegisterPage from './pages/RegisterPage'
+import ContentAuthorGuard from './components/ContentAuthorGuard'
+import Layout from './components/Layout'
+import LabPage from './pages/LabPage'
+import LessonPage from './pages/LessonPage'
+import LockedLessonPage from './pages/LockedLessonPage'
 import LoginPage from './pages/LoginPage'
-import ProfilePage from './pages/ProfilePage'
+import ModuleCatalogPage from './pages/ModuleCatalogPage'
 import ModuleEditorPage from './pages/ModuleEditorPage'
+import ModulePage from './pages/ModulePage'
+import NotFoundPage from './pages/NotFoundPage'
+import ProfilePage from './pages/ProfilePage'
+import RegisterPage from './pages/RegisterPage'
 
 export const routes: RouteObject[] = [
   {
@@ -21,7 +22,14 @@ export const routes: RouteObject[] = [
       { path: '/register', element: <RegisterPage /> },
       { path: '/profile', element: <ProfilePage /> },
       { path: '/modules/:moduleId', element: <ModulePage /> },
-      { path: '/modules/:moduleId/edit', element: <ModuleEditorPage /> },
+      {
+        path: '/modules/:moduleId/edit',
+        element: (
+          <ContentAuthorGuard>
+            <ModuleEditorPage />
+          </ContentAuthorGuard>
+        ),
+      },
       { path: '/modules/:moduleId/lessons/:lessonId', element: <LessonPage /> },
       { path: '/modules/:moduleId/locked', element: <LockedLessonPage /> },
       { path: '/modules/:moduleId/lab', element: <LabPage /> },

@@ -1,7 +1,7 @@
 import { INestApplication } from '@nestjs/common';
-import type { App } from 'supertest/types';
-import request from 'supertest';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import request from 'supertest';
+import type { App } from 'supertest/types';
 import { Not, Repository } from 'typeorm';
 import { createAuthenticatedAgent, createTestApp } from '../../test/e2e-helper';
 import { Lesson } from '../lessons/entities/lesson.entity';
@@ -42,8 +42,13 @@ describe('ModulesController (e2e)', () => {
   });
 
   describe('/api/v1/modules/:moduleId (PATCH)', () => {
+    const authorCredentials = {
+      email: 'admin@historyheroes.org',
+      password: 'local-dev-only',
+    };
+
     it('updates a module for an authenticated user', async () => {
-      const agent = await createAuthenticatedAgent(app);
+      const agent = await createAuthenticatedAgent(app, authorCredentials);
 
       const response = await agent
         .patch('/api/v1/modules/seven-wonders')
@@ -64,6 +69,25 @@ describe('ModulesController (e2e)', () => {
       });
     });
 
+    it('rejects updates for non-content-author authenticated users', async () => {
+      const nonAuthorAgent = request.agent(app.getHttpServer());
+      await nonAuthorAgent
+        .post('/api/v1/auth/register')
+        .send({
+          email: 'nonauthor@historyheroes.org',
+          password: 'password123',
+          isContentAuthor: false,
+        })
+        .expect(201);
+
+      await nonAuthorAgent
+        .patch('/api/v1/modules/seven-wonders')
+        .send({
+          title: 'Should be forbidden',
+        })
+        .expect(403);
+    });
+
     it('rejects updates without authentication', async () => {
       await request(app.getHttpServer())
         .patch('/api/v1/modules/seven-wonders')
@@ -74,7 +98,7 @@ describe('ModulesController (e2e)', () => {
     });
 
     it('rejects fields that are not editable', async () => {
-      const agent = await createAuthenticatedAgent(app);
+      const agent = await createAuthenticatedAgent(app, authorCredentials);
 
       await agent
         .patch('/api/v1/modules/seven-wonders')
@@ -85,7 +109,7 @@ describe('ModulesController (e2e)', () => {
     });
 
     it('returns 404 when the module does not exist', async () => {
-      const agent = await createAuthenticatedAgent(app);
+      const agent = await createAuthenticatedAgent(app, authorCredentials);
 
       await agent
         .patch('/api/v1/modules/missing-module')
