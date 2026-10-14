@@ -1,7 +1,11 @@
-export type ActivityType = 'ordering' | 'matching' | 'true-false'
+export type ActivityType =
+  'ordering' | 'matching' | 'true-false' | 'dropdown-select'
 export type ActivityItem = { id: string; label: string }
 export type OrderingContent = { items: ActivityItem[] }
-export type TrueFalseContent = { statement: string }
+export type DropdownSelectContent = {
+  prompt: string
+  options: ActivityItem[]
+}
 
 export type MatchingContent = {
   left: ActivityItem[]
@@ -9,6 +13,10 @@ export type MatchingContent = {
 }
 
 export type TrueFalseAnswer = { value: boolean | null }
+
+export type DropdownSelectAnswer = {
+  selectedOptionId: string | null
+}
 
 export type OrderingAnswer = {
   itemOrder: string[]
@@ -29,6 +37,17 @@ export type TrueFalseActivity = {
   content: TrueFalseContent
   successCriteria: {
     correctAnswer: boolean
+  }
+}
+
+export type DropdownSelectActivity = {
+  id: string
+  type: 'dropdown-select'
+  title: string
+  checkStatement: string
+  content: DropdownSelectContent
+  successCriteria: {
+    correctAnswer: string
   }
 }
 
@@ -56,9 +75,14 @@ export type MatchingActivity = {
   }
 }
 
-export type Activity = OrderingActivity | MatchingActivity | TrueFalseActivity
+export type Activity =
+  | OrderingActivity
+  | MatchingActivity
+  | TrueFalseActivity
+  | 'DropdownSelectActivity'
 
-export type ActivityAnswer = OrderingAnswer | MatchingAnswer | TrueFalseAnswer
+export type ActivityAnswer =
+  OrderingAnswer | MatchingAnswer | TrueFalseAnswer | 'DropdownSelectAnswer'
 
 export type ActivityWorkspaceSubmissionState =
   'unsubmitted' | 'correct' | 'not-yet'
