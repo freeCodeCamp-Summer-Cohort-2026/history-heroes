@@ -47,5 +47,16 @@ export function evaluateActivity(
       ? 'correct'
       : 'not-yet'
   }
+
+  if (activity.type === 'dropdown-select') {
+    if (!('selectedOptionId' in answer)) {
+      return 'not-yet'
+    }
+
+    return answer.selectedOptionId === activity.successCriteria.correctAnswer
+      ? 'correct'
+      : 'not-yet'
+  }
+
   return 'not-yet'
 }

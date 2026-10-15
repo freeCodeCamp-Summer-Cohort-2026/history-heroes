@@ -2,11 +2,13 @@ import { useCallback, useState } from 'react'
 import type {
   Activity,
   ActivityWorkspaceSubmissionState,
+  DropdownSelectAnswer,
   MatchingAnswer,
   OrderingAnswer,
   TrueFalseAnswer,
 } from './types'
 type ActivityResults = Partial<Record<string, ActivityWorkspaceSubmissionState>>
+import DropdownSelectRenderer from './DropdownSelectRenderer'
 import Button from '../../components/Button'
 import MatchingRenderer from './MatchingRenderer'
 import OrderingRenderer from './OrderingRenderer'
@@ -19,7 +21,12 @@ import { isActivityUnlocked, isLessonComplete } from './progression'
 
 function getDefaultWorkingAnswer(
   activity: Activity | null,
-): MatchingAnswer | OrderingAnswer | TrueFalseAnswer | null {
+):
+  | MatchingAnswer
+  | OrderingAnswer
+  | TrueFalseAnswer
+  | DropdownSelectAnswer
+  | null {
   if (!activity) return null
   if (activity.type === 'matching') {
     return getDefaultMatchingAnswer(activity)
@@ -29,6 +36,9 @@ function getDefaultWorkingAnswer(
   }
   if (activity.type === 'true-false') {
     return { value: null }
+  }
+  if (activity.type === 'dropdown-select') {
+    return { selectedOptionId: null }
   }
   return null
 }
@@ -52,7 +62,11 @@ export default function ActivityWorkspace({
 
   const [prevActivityId, setPrevActivityId] = useState(currentActivity?.id)
   const [currentWorkingAnswer, setCurrentWorkingAnswer] = useState<
-    MatchingAnswer | OrderingAnswer | TrueFalseAnswer | null
+    | MatchingAnswer
+    | OrderingAnswer
+    | TrueFalseAnswer
+    | DropdownSelectAnswer
+    | null
   >(() => getDefaultWorkingAnswer(currentActivity))
 
   if (currentActivity?.id !== prevActivityId) {
@@ -105,7 +119,13 @@ export default function ActivityWorkspace({
   ])
 
   const handleAnswerChanged = useCallback(
-    (newAnswer: MatchingAnswer | OrderingAnswer | TrueFalseAnswer) => {
+    (
+      newAnswer:
+        | MatchingAnswer
+        | OrderingAnswer
+        | TrueFalseAnswer
+        | DropdownSelectAnswer,
+    ) => {
       setCurrentWorkingAnswer(newAnswer)
 
       if (!currentActivity) return
@@ -176,6 +196,23 @@ export default function ActivityWorkspace({
             />
           )
         }
+
+        if (currentActivity.type === 'dropdown-select') {
+          const answer: DropdownSelectAnswer =
+            currentWorkingAnswer && 'selectedOptionId' in currentWorkingAnswer
+              ? currentWorkingAnswer
+              : { selectedOptionId: null }
+
+          return (
+            <DropdownSelectRenderer
+              content={currentActivity.content}
+              answer={answer}
+              disabled={submissionState === 'correct'}
+              onAnswerChange={handleAnswerChanged}
+            />
+          )
+        }
+
         return null
       })()}
 

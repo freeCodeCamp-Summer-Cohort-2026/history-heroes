@@ -1,6 +1,6 @@
 // TODO: these types will probably be moved to some DTO folder once there is an endpoint
-export type ActivityType = 'ordering' | 'matching' | 'true-false';
-
+export type ActivityType =
+  'ordering' | 'matching' | 'true-false' | 'dropdown-select';
 export interface OrderingContent {
   items: Array<{
     id: string;
@@ -40,7 +40,22 @@ export interface TrueFalseSuccessCriteria {
 }
 
 export type ActivityContent =
-  OrderingContent | MatchingContent | TrueFalseContent;
+  OrderingContent | MatchingContent | TrueFalseContent | DropdownSelectContent;
 
 export type ActivitySuccessCriteria =
-  OrderingSuccessCriteria | MatchingSuccessCriteria | TrueFalseSuccessCriteria;
+  | OrderingSuccessCriteria
+  | MatchingSuccessCriteria
+  | TrueFalseSuccessCriteria
+  | DropdownSelectSuccessCriteria;
+
+export interface DropdownSelectContent {
+  prompt: string;
+  options: Array<{
+    id: string;
+    label: string;
+  }>;
+}
+
+export interface DropdownSelectSuccessCriteria {
+  correctAnswer: string;
+}

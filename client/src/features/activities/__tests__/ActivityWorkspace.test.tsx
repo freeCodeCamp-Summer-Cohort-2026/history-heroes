@@ -695,4 +695,39 @@ describe('ActivityWorkspace', () => {
     expect(screen.getByText('No current activity')).toBeInTheDocument()
     expect(onComplete).not.toHaveBeenCalled()
   })
+
+  test('renders and submits a dropdown select activity', () => {
+    const dropdownActivity: Activity = {
+      id: 'dropdown-select-1',
+      type: 'dropdown-select',
+      title: 'Choose the correct wonder',
+      checkStatement: 'Choose the wonder located in Egypt.',
+      content: {
+        prompt: 'Which wonder is located in Egypt?',
+        options: [
+          { id: 'pyramid', label: 'Great Pyramid' },
+          { id: 'colossus', label: 'Colossus of Rhodes' },
+        ],
+      },
+      successCriteria: {
+        correctAnswer: 'pyramid',
+      },
+    }
+
+    render(<ActivityWorkspace activities={[dropdownActivity]} />)
+
+    expect(
+      screen.getByText('Which wonder is located in Egypt?'),
+    ).toBeInTheDocument()
+
+    fireEvent.change(screen.getByRole('combobox'), {
+      target: { value: 'pyramid' },
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+
+    expect(
+      screen.getByRole('heading', { level: 2, name: /^correct$/i }),
+    ).toBeInTheDocument()
+  })
 })
