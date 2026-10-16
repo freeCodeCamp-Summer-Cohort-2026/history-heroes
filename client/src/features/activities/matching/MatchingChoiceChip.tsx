@@ -30,7 +30,7 @@ export function MatchingChoiceChip({
   return (
     <li
       className={classNames(
-        'flex items-stretch rounded-xl shadow-xs transition select-none',
+        'flex items-stretch rounded-xl shadow-xs transition select-none touch-none',
         isDragging ? 'opacity-50' : '',
         isSelected ? 'ring-2 ring-primary' : '',
         disabled
@@ -57,7 +57,7 @@ export function MatchingChoiceChip({
       >
         {!disabled && (
           <GripVertical
-            className="size-4 shrink-0 text-base-content/40"
+            className="size-4 shrink-0 text-base-content/40 touch-none"
             aria-hidden="true"
           />
         )}

@@ -123,3 +123,7 @@ body {
   font-size: var(--text-body);
   line-height: 1.5;
 }
+
+[draggable='true'] {
+  -webkit-touch-callout: none;
+}

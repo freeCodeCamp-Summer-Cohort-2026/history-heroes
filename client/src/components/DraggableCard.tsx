@@ -44,7 +44,7 @@ export default function DraggableCard({
 function DragHandleIcon() {
   return (
     <GripVertical
-      className="size-5 shrink-0 text-base-content/40"
+      className="size-5 shrink-0 text-base-content/40 touch-none"
       aria-hidden="true"
     />
   )

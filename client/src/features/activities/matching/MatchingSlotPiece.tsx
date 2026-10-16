@@ -57,7 +57,7 @@ export function MatchingSlotPiece({
           <div className="flex items-center gap-2">
             {!disabled && (
               <GripVertical
-                className="size-4 shrink-0 text-base-content/40"
+                className="size-4 shrink-0 text-base-content/40 touch-none"
                 aria-hidden="true"
               />
             )}

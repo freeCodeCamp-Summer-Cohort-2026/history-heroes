@@ -63,3 +63,10 @@ test('makes itself a valid drop target while dragging over', () => {
     false,
   )
 })
+
+test('drag handle icon has touch-none class for responsive touch dragging', () => {
+  const { container } = renderCard()
+  const icon = container.querySelector('svg')
+
+  expect(icon).toHaveClass('touch-none')
+})
