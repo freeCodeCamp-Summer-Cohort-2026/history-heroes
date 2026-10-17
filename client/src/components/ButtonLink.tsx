@@ -32,7 +32,11 @@ export default function ButtonLink(
   if (native) {
     const { href } = params
     return (
-      <a href={href} className={classNames('btn', variantClass, className)}>
+      <a
+        draggable={false}
+        href={href}
+        className={classNames('btn', variantClass, className)}
+      >
         {children}
       </a>
     )
@@ -46,7 +50,11 @@ export default function ButtonLink(
   }
 
   return (
-    <Link to={to} className={classNames('btn', variantClass, className)}>
+    <Link
+      draggable={false}
+      to={to}
+      className={classNames('btn', variantClass, className)}
+    >
       {children}
     </Link>
   )

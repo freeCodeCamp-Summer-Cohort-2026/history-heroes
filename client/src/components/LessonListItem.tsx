@@ -74,7 +74,7 @@ export default function LessonListItem({
           {content}
         </button>
       ) : (
-        <Link to={to} className={commonClassName}>
+        <Link draggable={false} to={to} className={commonClassName}>
           {content}
         </Link>
       )}

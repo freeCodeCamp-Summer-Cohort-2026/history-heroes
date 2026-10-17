@@ -8,7 +8,7 @@ export default function Layout() {
       <ScrollRestoration />
       <header className="navbar border-b border-base-300 bg-base-100 flex-wrap sm:flex-nowrap">
         <div className="flex-1">
-          <Link to="/" className="text-heading font-bold">
+          <Link draggable={false} to="/" className="text-heading font-bold">
             History Heroes
           </Link>
         </div>
@@ -17,18 +17,26 @@ export default function Layout() {
           <ul className="menu menu-horizontal px-1 flex-wrap sm:flex-nowrap gap-2">
             {showLogin && (
               <li>
-                <Link to="/login" className="text-sm sm:text-base">
+                <Link
+                  draggable={false}
+                  to="/login"
+                  className="text-sm sm:text-base"
+                >
                   Login
                 </Link>
               </li>
             )}
             <li>
-              <Link to="/profile" className="text-sm sm:text-base">
+              <Link
+                draggable={false}
+                to="/profile"
+                className="text-sm sm:text-base"
+              >
                 Profile
               </Link>
             </li>
             <li>
-              <Link to="/" className="text-sm sm:text-base">
+              <Link draggable={false} to="/" className="text-sm sm:text-base">
                 Modules
               </Link>
             </li>

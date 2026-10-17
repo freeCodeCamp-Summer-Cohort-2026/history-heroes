@@ -158,7 +158,11 @@ function LessonPageContent({
   return (
     <div className="space-y-8">
       <header className="space-y-2">
-        <Link to={`/modules/${moduleId}`} className="link link-primary">
+        <Link
+          draggable={false}
+          to={`/modules/${moduleId}`}
+          className="link link-primary"
+        >
           Back to {moduleTitle ?? 'the module'}
         </Link>
         <p className="text-small uppercase tracking-wide text-base-content/70">

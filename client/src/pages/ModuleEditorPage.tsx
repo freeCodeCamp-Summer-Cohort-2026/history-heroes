@@ -84,7 +84,7 @@ export default function ModuleEditorPage() {
 
   return (
     <div className="space-y-6">
-      <Link to="/" className="link link-primary">
+      <Link draggable={false} to="/" className="link link-primary">
         Back to modules
       </Link>
       <h1 className="text-display">Edit module</h1>
