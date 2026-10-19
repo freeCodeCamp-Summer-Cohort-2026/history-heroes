@@ -1,3 +1,5 @@
+import { ContentAuthorGuard } from '../auth/guards/content-author.guard';
+import { UsersService } from '../users/users.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { LessonsController } from './lessons.controller';
 import { LessonsService } from './lessons.service';
@@ -20,8 +22,15 @@ describe('LessonsController', () => {
           provide: LessonsService,
           useValue: mockLessonsService,
         },
+        {
+          provide: UsersService,
+          useValue: { getById: vi.fn() },
+        },
       ],
-    }).compile();
+    })
+      .overrideGuard(ContentAuthorGuard)
+      .useValue({ canActivate: () => true })
+      .compile();
 
     controller = module.get<LessonsController>(LessonsController);
   });

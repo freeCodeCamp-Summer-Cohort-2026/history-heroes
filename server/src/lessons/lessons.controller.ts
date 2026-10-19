@@ -12,7 +12,7 @@ import {
   GetLessonResponseDto,
   LessonActivityDto,
 } from './dto/get-lesson-response.dto';
-import { AuthenticatedGuard } from '../auth/guards/authenticated.guard';
+import { ContentAuthorGuard } from '../auth/guards/content-author.guard';
 import { UpdateLessonDto, updateLessonSchema } from './dto/update-lesson.dto';
 import { ZodValidationPipe } from '../core/pipes/zod-validation.pipe';
 import { Lesson } from './entities/lesson.entity';
@@ -22,7 +22,7 @@ export class LessonsController {
   constructor(private readonly lessonsService: LessonsService) {}
 
   @Patch(':lessonId')
-  @UseGuards(AuthenticatedGuard)
+  @UseGuards(ContentAuthorGuard)
   public update(
     @Param('lessonId') lessonId: string,
     @Body(new ZodValidationPipe(updateLessonSchema))
