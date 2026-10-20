@@ -21,6 +21,7 @@ import ButtonLink from '../components/ButtonLink'
 import ErrorBoundary from '../components/ErrorBoundary'
 import ErrorState from '../components/ErrorState'
 import { useDocumentTitle } from '../utils/useDocumentTitle'
+import { useAuth } from '../state/auth/use-auth'
 
 export default function LessonPage() {
   const { moduleId, lessonId } = useParams()
@@ -45,6 +46,7 @@ function LessonPageContent({
   moduleId: string
   lessonId: string
 }) {
+  const { user } = useAuth()
   const [lessons, setLessons] = useState<Lesson[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [hasError, setHasError] = useState(false)
@@ -162,13 +164,13 @@ function LessonPageContent({
           <Link to={`/modules/${moduleId}`} className="link link-primary">
             Back to {moduleTitle ?? 'the module'}
           </Link>
-
+          {user?.isContentAuthor && (
           <Link
             to={`/modules/${moduleId}/lessons/${lessonId}/edit`}
-            className="link link-primary"
-          >
+            className="link link-primary">
             Edit lesson
           </Link>
+          )}
         </div>
 
         <p className="text-small uppercase tracking-wide text-base-content/70">

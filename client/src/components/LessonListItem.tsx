@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Lock, Check, ArrowRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { useAuth } from '../state/auth/use-auth'
 import type { Lesson } from '../features/lesson/model/Lesson'
 
 type LessonState = 'locked' | 'unlocked' | 'completed'
@@ -32,6 +33,7 @@ export default function LessonListItem({
   lesson,
   state = 'unlocked',
 }: LessonListItemProps) {
+  const { user } = useAuth()
   const { title, description, moduleId, id } = lesson
   const to = `/modules/${moduleId}/lessons/${id}`
   const editTo = `${to}/edit`
@@ -81,11 +83,13 @@ export default function LessonListItem({
           </Link>
         )}
 
-        <div className="flex justify-end">
-          <Link to={editTo} className="link link-primary text-small">
-            Edit lesson
-          </Link>
-        </div>
+        {user?.isContentAuthor && (
+          <div className="flex justify-end">
+            <Link to={editTo} className="link link-primary text-small">
+              Edit lesson
+            </Link>
+          </div>
+        )}
       </div>
 
       <p role="status" className="mt-2 text-small empty:hidden">
