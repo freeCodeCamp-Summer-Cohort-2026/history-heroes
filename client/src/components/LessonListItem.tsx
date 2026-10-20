@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Lock, Check, ArrowRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { useAuth } from '../state/auth/use-auth'
 import type { Lesson } from '../features/lesson/model/Lesson'
 
 type LessonState = 'locked' | 'unlocked' | 'completed'
@@ -32,8 +33,10 @@ export default function LessonListItem({
   lesson,
   state = 'unlocked',
 }: LessonListItemProps) {
+  const { user } = useAuth()
   const { title, description, moduleId, id } = lesson
   const to = `/modules/${moduleId}/lessons/${id}`
+  const editTo = `${to}/edit`
   const styles = stateStyles[state]
   const isLocked = state === 'locked'
   const [showLockedNotice, setShowLockedNotice] = useState(false)
@@ -64,20 +67,31 @@ export default function LessonListItem({
 
   return (
     <div>
-      {isLocked ? (
-        <button
-          type="button"
-          aria-disabled="true"
-          onClick={handleLockedClick}
-          className={commonClassName}
-        >
-          {content}
-        </button>
-      ) : (
-        <Link to={to} className={commonClassName}>
-          {content}
-        </Link>
-      )}
+      <div className="space-y-2">
+        {isLocked ? (
+          <button
+            type="button"
+            aria-disabled="true"
+            onClick={handleLockedClick}
+            className={commonClassName}
+          >
+            {content}
+          </button>
+        ) : (
+          <Link to={to} className={commonClassName}>
+            {content}
+          </Link>
+        )}
+
+        {user?.isContentAuthor && (
+          <div className="flex justify-end">
+            <Link to={editTo} className="link link-primary text-small">
+              Edit lesson
+            </Link>
+          </div>
+        )}
+      </div>
+
       <p role="status" className="mt-2 text-small empty:hidden">
         {showLockedNotice &&
           'This lesson is locked until you finish the lessons before it.'}

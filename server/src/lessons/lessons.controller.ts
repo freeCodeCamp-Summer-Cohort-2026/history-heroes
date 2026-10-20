@@ -1,14 +1,35 @@
-import { Controller, Get, NotFoundException, Param } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  NotFoundException,
+  Param,
+  Patch,
+  UseGuards,
+} from '@nestjs/common';
 import { LessonsService } from './lessons.service';
 import {
   GetLessonResponseDto,
   LessonActivityDto,
 } from './dto/get-lesson-response.dto';
+import { ContentAuthorGuard } from '../auth/guards/content-author.guard';
+import { UpdateLessonDto, updateLessonSchema } from './dto/update-lesson.dto';
+import { ZodValidationPipe } from '../core/pipes/zod-validation.pipe';
+import { Lesson } from './entities/lesson.entity';
 
 @Controller('lessons')
 export class LessonsController {
   constructor(private readonly lessonsService: LessonsService) {}
 
+  @Patch(':lessonId')
+  @UseGuards(ContentAuthorGuard)
+  public update(
+    @Param('lessonId') lessonId: string,
+    @Body(new ZodValidationPipe(updateLessonSchema))
+    updates: UpdateLessonDto,
+  ): Promise<Lesson> {
+    return this.lessonsService.update(lessonId, updates);
+  }
   @Get(':lessonId')
   public async getLessonById(
     @Param('lessonId') lessonId: string,

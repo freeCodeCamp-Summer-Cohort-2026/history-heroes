@@ -288,6 +288,113 @@ describe('LessonsController (e2e)', () => {
     });
   });
 
+  describe('/api/v1/lessons/:lessonId (PATCH)', () => {
+    const authorCredentials = {
+      email: 'admin@historyheroes.org',
+      password: 'local-dev-only',
+    };
+
+    it('updates a lesson for a content author', async () => {
+      await lessonRepo.save({
+        id: 'great-pyramid',
+        moduleId: 'seven-wonders',
+        title: 'The Great Pyramid of Giza',
+        description: 'First wonder',
+        contents: 'Original lesson contents',
+        orderIndex: 1,
+      });
+
+      const agent = await createAuthenticatedAgent(app, authorCredentials);
+
+      const response = await agent
+        .patch('/api/v1/lessons/great-pyramid')
+        .send({
+          title: 'Updated Great Pyramid',
+          description: 'Updated description',
+          contents: 'Updated lesson contents',
+        })
+        .expect(200);
+
+      expect(response.body).toMatchObject({
+        id: 'great-pyramid',
+        moduleId: 'seven-wonders',
+        title: 'Updated Great Pyramid',
+        description: 'Updated description',
+        contents: 'Updated lesson contents',
+        orderIndex: 1,
+      });
+    });
+
+    it('rejects updates without authentication', async () => {
+      await lessonRepo.save({
+        id: 'great-pyramid',
+        moduleId: 'seven-wonders',
+        title: 'The Great Pyramid of Giza',
+        description: 'First wonder',
+        contents: 'Original lesson contents',
+        orderIndex: 1,
+      });
+
+      await request(app.getHttpServer())
+        .patch('/api/v1/lessons/great-pyramid')
+        .send({
+          title: 'Should not update',
+        })
+        .expect(401);
+    });
+
+    it('rejects fields that are not editable', async () => {
+      await lessonRepo.save({
+        id: 'great-pyramid',
+        moduleId: 'seven-wonders',
+        title: 'The Great Pyramid of Giza',
+        description: 'First wonder',
+        contents: 'Original lesson contents',
+        orderIndex: 1,
+      });
+
+      const agent = await createAuthenticatedAgent(app, authorCredentials);
+
+      await agent
+        .patch('/api/v1/lessons/great-pyramid')
+        .send({
+          orderIndex: 99,
+        })
+        .expect(400);
+    });
+
+    it('returns 404 when the lesson does not exist', async () => {
+      const agent = await createAuthenticatedAgent(app, authorCredentials);
+
+      await agent
+        .patch('/api/v1/lessons/missing-lesson')
+        .send({
+          title: 'Missing lesson',
+        })
+        .expect(404);
+    });
+
+    it('rejects updates for non-content-author authenticated users', async () => {
+      const nonAuthorAgent = request.agent(app.getHttpServer());
+
+      await nonAuthorAgent
+        .post('/api/v1/auth/register')
+        .send({
+          email: 'lesson-nonauthor@historyheroes.org',
+          password: 'password123',
+          isContentAuthor: false,
+        })
+        .expect(201);
+
+      await nonAuthorAgent
+        .patch('/api/v1/lessons/great-pyramid')
+        .send({
+          title: 'Should be forbidden',
+        })
+        .expect(403);
+    });
+  });
+
   describe('/api/v1/lessons/:lessonId/activities (GET)', () => {
     it('returns 404 for an unknown lesson', async () => {
       await request(app.getHttpServer())

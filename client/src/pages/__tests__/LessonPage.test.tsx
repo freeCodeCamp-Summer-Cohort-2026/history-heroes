@@ -128,6 +128,56 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
+test('shows the edit lesson link for a content author', async () => {
+  renderWithAuth(
+    <RouterProvider
+      router={createMemoryRouter(routes, {
+        initialEntries: ['/modules/first-module/lessons/first-lesson'],
+      })}
+    />,
+    {
+      authValue: {
+        user: {
+          id: 1,
+          email: 'author@Historyheroes.org',
+          isContentAuthor: true,
+        },
+      },
+    },
+  )
+  await screen.findByText('Test Lesson One')
+
+  expect(screen.getByRole('link', { name: /edit lesson/i })).toHaveAttribute(
+    'href',
+    '/modules/first-module/lessons/first-lesson/edit',
+  )
+})
+
+test('does not show the edit lesson link for a non-content author', async () => {
+  renderWithAuth(
+    <RouterProvider
+      router={createMemoryRouter(routes, {
+        initialEntries: ['/modules/first-module/lessons/first-lesson'],
+      })}
+    />,
+    {
+      authValue: {
+        user: {
+          id: 2,
+          email: 'learner@Historyheroes.org',
+          isContentAuthor: false,
+        },
+      },
+    },
+  )
+
+  await screen.findByText('Test Lesson One')
+
+  expect(
+    screen.queryByRole('link', { name: /edit lesson/i }),
+  ).not.toBeInTheDocument()
+})
+
 test('displays the lesson title and content', async () => {
   renderAt('/modules/first-module/lessons/first-lesson')
 
