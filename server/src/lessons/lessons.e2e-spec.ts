@@ -287,8 +287,14 @@ describe('LessonsController (e2e)', () => {
       expect(anonResponse.body.id).toBe('great-pyramid');
     });
   });
+
   describe('/api/v1/lessons/:lessonId (PATCH)', () => {
-    it('updates a lesson for an authenticated user', async () => {
+    const authorCredentials = {
+      email: 'admin@historyheroes.org',
+      password: 'local-dev-only',
+    };
+
+    it('updates a lesson for a content author', async () => {
       await lessonRepo.save({
         id: 'great-pyramid',
         moduleId: 'seven-wonders',
@@ -298,7 +304,7 @@ describe('LessonsController (e2e)', () => {
         orderIndex: 1,
       });
 
-      const agent = await createAuthenticatedAgent(app);
+      const agent = await createAuthenticatedAgent(app, authorCredentials);
 
       const response = await agent
         .patch('/api/v1/lessons/great-pyramid')
@@ -318,6 +324,7 @@ describe('LessonsController (e2e)', () => {
         orderIndex: 1,
       });
     });
+
     it('rejects updates without authentication', async () => {
       await lessonRepo.save({
         id: 'great-pyramid',
@@ -346,7 +353,7 @@ describe('LessonsController (e2e)', () => {
         orderIndex: 1,
       });
 
-      const agent = await createAuthenticatedAgent(app);
+      const agent = await createAuthenticatedAgent(app, authorCredentials);
 
       await agent
         .patch('/api/v1/lessons/great-pyramid')
@@ -357,7 +364,7 @@ describe('LessonsController (e2e)', () => {
     });
 
     it('returns 404 when the lesson does not exist', async () => {
-      const agent = await createAuthenticatedAgent(app);
+      const agent = await createAuthenticatedAgent(app, authorCredentials);
 
       await agent
         .patch('/api/v1/lessons/missing-lesson')
@@ -366,7 +373,28 @@ describe('LessonsController (e2e)', () => {
         })
         .expect(404);
     });
+
+    it('rejects updates for non-content-author authenticated users', async () => {
+      const nonAuthorAgent = request.agent(app.getHttpServer());
+
+      await nonAuthorAgent
+        .post('/api/v1/auth/register')
+        .send({
+          email: 'lesson-nonauthor@historyheroes.org',
+          password: 'password123',
+          isContentAuthor: false,
+        })
+        .expect(201);
+
+      await nonAuthorAgent
+        .patch('/api/v1/lessons/great-pyramid')
+        .send({
+          title: 'Should be forbidden',
+        })
+        .expect(403);
+    });
   });
+
   describe('/api/v1/lessons/:lessonId/activities (GET)', () => {
     it('returns 404 for an unknown lesson', async () => {
       await request(app.getHttpServer())
