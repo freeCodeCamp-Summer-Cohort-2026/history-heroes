@@ -342,6 +342,15 @@ test('renders the lesson editor route', async () => {
         initialEntries: ['/modules/seven-wonders/lessons/great-pyramid/edit'],
       })}
     />,
+    {
+      authValue: {
+        user: {
+          id: 1,
+          email: 'author@historyheroes.org',
+          isContentAuthor: true,
+        },
+      },
+    },
   )
 
   expect(
@@ -414,6 +423,15 @@ test('saves lesson changes', async () => {
         initialEntries: ['/modules/seven-wonders/lessons/great-pyramid/edit'],
       })}
     />,
+    {
+      authValue: {
+        user: {
+          id: 1,
+          email: 'author@historyheroes.org',
+          isContentAuthor: true,
+        },
+      },
+    },
   )
 
   const titleInput = await screen.findByLabelText('Title')
@@ -493,6 +511,15 @@ test('renders lesson activities in the editor', async () => {
         initialEntries: ['/modules/seven-wonders/lessons/great-pyramid/edit'],
       })}
     />,
+    {
+      authValue: {
+        user: {
+          id: 1,
+          email: 'author@historyheroes.org',
+          isContentAuthor: true,
+        },
+      },
+    },
   )
 
   await screen.findByLabelText('Title')
@@ -547,6 +574,16 @@ test('shows a friendly error when saving lesson changes fails', async () => {
         initialEntries: ['/modules/seven-wonders/lessons/great-pyramid/edit'],
       })}
     />,
+
+    {
+      authValue: {
+        user: {
+          id: 1,
+          email: 'author@historyheroes.org',
+          isContentAuthor: true,
+        },
+      },
+    },
   )
 
   await screen.findByLabelText('Title')
